@@ -96,10 +96,10 @@ endif
 ifeq ($(HTC_BUILD_CHECK_RESULT),error)
 $(warning ********************************************************************************)
 $(warning *  )
-$(warning *  $(HTC_BUILD_CHECK_REASON) )
+# $(warning *  $(HTC_BUILD_CHECK_REASON) )
 $(warning * )
 $(warning ********************************************************************************)
-$(error stopping)
+#$(error stopping)
 endif
 
 # check HTC_LUNCH RESULT
