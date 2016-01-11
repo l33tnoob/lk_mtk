@@ -1,0 +1,30 @@
+This module is a legacy feature which supports 
+1. updating recovery image secure boot info into SECCFG partition.
+2. verify secure file list & secure files.
+
+WHAT IT DOES?
+=============
+sbchk is a service declared in init.rc and intialized by init process.
+Its two functions would be
+1. verify secure file list and secure files.
+   secure file list will be put at system/etc/firmware/S_ANDRO_SFL.ini. This file
+   will be verified first. After that, the content of secure file list will be trusted.
+   The files recorded in secure file list will be verified.
+   note: In L, sbchk cannot be put into bootimage ramdisk due to SELinux neverallow rules.
+   It's put in system/bin folder and is not verified first, thus the reduced security level.
+2. update secure boot info into SECCFG
+   recovery image will be written to recovery partition after successful boot, SECCFG partition
+   will be updated for secure boot.
+
+HOW IT WAS BUILT?
+==================
+Most of the files are in binary release format.
+Some are in platform independent folder and some are in platform dependent folder.
+Platform independent part: vendor/mediatek/proprietary/external/seclib.
+Platform dependent part: vendor/mediatek/proprietary/platform/mtxxxx/seclib.
+
+HOW TO USE IT?
+==============
+
+This is part of Mediatek security solution.
+Please read related documents to know how to use it.

@@ -1,0 +1,18 @@
+# For pnpmgr
+type pnpmgr, domain;
+type pnpmgr_exec, exec_type, file_type;
+
+init_daemon_domain(pnpmgr)
+
+# These are for xml OTA update
+allow pnpmgr app_data_file:dir search;
+allow pnpmgr app_data_file:lnk_file read;
+
+# These are for pnpmgr to access file node
+allow pnpmgr self:capability { dac_override dac_read_search };
+allow pnpmgr sysfs:file write;
+allow pnpmgr proc:file write;
+allow pnpmgr sysfs_devices_system_cpu:file write;
+allow pnpmgr sysfs_lowmemorykiller:file { write open };
+allow pnpmgr init:unix_stream_socket connectto;
+allow pnpmgr property_socket:sock_file write;

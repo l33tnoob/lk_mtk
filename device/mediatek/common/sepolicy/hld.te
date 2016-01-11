@@ -1,0 +1,17 @@
+# For hld
+type hld, domain;
+type hld_exec, exec_type, file_type;
+#type hld_block_device, dev_type;
+
+init_daemon_domain(hld)
+
+#allow hld to set attribute on misc partition
+allow hld platformblk_device:blk_file { setattr read open write };
+
+allow hld hld:capability { chown fsetid };
+allow hld hld:process { setfscreate };
+allow hld proc_hdf:file { write };
+allow hld block_device:dir { search };
+allow hld socket_device:dir { add_name write remove_name };
+allow hld hld_socket:sock_file { create setattr unlink };
+

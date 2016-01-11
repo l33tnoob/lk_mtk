@@ -1,0 +1,33 @@
+domain_trans(init, rootfs, su)
+
+# ==============================================
+# MTK Policy Rule
+# ============
+
+# Date : WK14.34
+# Operation : Migration 
+# Purpose : for L early bring up: add for nvram command in init rc files
+allow init nvram_data_file:dir { write search setattr read create open add_name };
+allow init nvdata_file:dir { write search setattr read create open add_name };
+
+#============= init ==============
+# Date : W14.42
+# Operation : Migration
+# Purpose : for L : add for partition
+allow init platformblk_device:blk_file setattr;
+
+# Date : W14.43
+# Operation : Migration
+# Purpose : for L : add for ape playback
+
+allow init MtkCodecService_exec:file execute_no_trans;
+
+allow init fuse:dir { mounton add_name remove_name search read write open };
+allow init fuse:file { open create unlink read write rename getattr setattr };
+
+#allow read smart SD card
+allow init vfat:dir { search };
+allow init vfat:file { getattr read open write lock };
+
+#allow insmod
+allow init self:capability sys_module;

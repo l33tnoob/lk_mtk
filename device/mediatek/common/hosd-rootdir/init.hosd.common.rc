@@ -1,0 +1,38 @@
+    disabled
+
+service htc_fastbootd /sbin/htc_fastbootd
+    socket fastbootd stream 660 system system
+    socket fastbootd_dz stream 660 system system
+    disabled
+
+on property:sys.usb.config=fastboot
+    stop adbd
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0bb4
+    write /sys/class/android_usb/android0/idProduct 0ff0
+    write /sys/class/android_usb/android0/functions adb
+    write /sys/class/android_usb/android0/enable 1
+    start htc_fastbootd
+    setprop sys.usb.state ${sys.usb.config}
+
+#++ 2014.09.23 USB Team, PCN00008 ++
+on property:sys.usb.config=ftm
+    stop adbd
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0bb4
+# FIXME: short-term enable ffs/acm/diag/modem default
+    write /sys/class/android_usb/android0/idProduct 0f19
+    write /sys/class/android_usb/android0/f_diag/clients diag
+    write /sys/class/android_usb/android0/functions ffs,diag,acm
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+#-- 2014.09.23 USB Team, PCN00008 --
+
+on property:ro.bootmode=download
+    start htc_dlmode
+    setprop sys.usb.config fastboot
+
+on property:ro.bootmode=RUU
+    start htc_dlmode
+    setprop sys.usb.config fastboot

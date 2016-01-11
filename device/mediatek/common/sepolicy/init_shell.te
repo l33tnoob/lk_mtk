@@ -1,0 +1,5 @@
+# ==============================================
+# MTK Policy Rule
+# ============
+# for insmod of iris ko  , this is needed .
+allow init_shell self:capability sys_module;

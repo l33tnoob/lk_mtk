@@ -1,0 +1,17 @@
+# For shub_dbg
+type shub_dbg, domain;
+type shub_dbg_exec, exec_type, file_type;
+
+init_daemon_domain(shub_dbg)
+
+allow shub_dbg sensor_hub_device:chr_file rw_file_perms;
+allow shub_dbg sysfs_sensor_hub:file rw_file_perms;
+allow shub_dbg tombstone_data_file:file create_file_perms;
+allow shub_dbg tombstone_data_file:dir create_dir_perms;
+allow shub_dbg system_data_file:file create_file_perms;
+allow shub_dbg system_data_file:dir create_dir_perms;
+allow shub_dbg system_prop:property_service { set };
+allow shub_dbg property_socket:sock_file w_file_perms;
+allow shub_dbg init:unix_stream_socket { connectto };
+allow shub_dbg shell_exec:file rx_file_perms;
+allow shub_dbg system_file:file rx_file_perms;

@@ -1,0 +1,32 @@
+type htc_ebdlogd, domain;
+type htc_ebdlogd_exec, exec_type, file_type;
+type htc_ebdlogd_file, file_type;
+
+init_daemon_domain(htc_ebdlogd)
+
+allow htc_ebdlogd domain:dir *;
+allow htc_ebdlogd domain:file *;
+allow htc_ebdlogd unlabeled:dir ~{ create };
+allow htc_ebdlogd unlabeled:file ~{ create execute entrypoint };
+allow htc_ebdlogd htc_ebdlogd_file:dir *;
+allow htc_ebdlogd htc_ebdlogd_file:file ~{ execute entrypoint };
+allow htc_ebdlogd rootfs:file ~{ create write setattr relabelto append unlink link rename };
+allow htc_ebdlogd shell_exec:file ~{ create write setattr relabelfrom relabelto append unlink link rename };
+allow htc_ebdlogd system_file:file ~{ create write setattr relabelfrom relabelto append unlink link rename entrypoint };
+allow htc_ebdlogd device:fifo_file *;
+allow htc_ebdlogd device:dir *;
+allow htc_ebdlogd pstorefs:dir *;
+allow htc_ebdlogd pstorefs:file ~{ execute };
+
+allow htc_ebdlogd htc_ebdlogd:capability ~{ sys_rawio mknod sys_ptrace };
+allow htc_ebdlogd htc_ebdlogd:capability2 ~{ mac_admin mac_override };
+allow htc_ebdlogd kernel:system *;
+allow htc_ebdlogd logdr_socket:sock_file *;
+allow htc_ebdlogd logd:unix_stream_socket *;
+allow htc_ebdlogd init:unix_dgram_socket *;
+allow htc_ebdlogd htc_ebdlogd:process *;
+
+allow htc_ebdlogd isolated_app:fd *;
+allow htc_ebdlogd isolated_app_tmpfs:file ~{ execute entrypoint };
+allow htc_ebdlogd untrusted_app:fd *;
+allow htc_ebdlogd untrusted_app_tmpfs:file ~{ execute entrypoint };

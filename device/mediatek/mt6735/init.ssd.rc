@@ -1,0 +1,83 @@
+# MTK project .rc configure 
+
+on post-fs-data
+#
+# SHARED_SDCARD related directory & configuration (begin)
+#
+
+# we will remap this as /mnt/sdcard with the sdcard fuse tool
+		mkdir /data/media 0770 media_rw media_rw
+		chown media_rw media_rw /data/media
+		
+#
+# SHARED_SDCARD related directory & configuration (end)
+#
+
+on init
+    # See storage config details at http://source.android.com/tech/storage/
+    # fix non-shell uid process can not access shared-sd
+    mkdir /mnt/shell 0700 shell shell
+    chmod 0750 /mnt/shell
+    chown shell sdcard_r /mnt/shell
+    mkdir /mnt/shell/emulated 0700 shell shell
+    mkdir /mnt/shell/emulated/0 0700 shell shell
+    mkdir /storage/emulated 0555 root root
+
+    mkdir /mnt/media_rw/ext_sd 0700 media_rw media_rw
+    mkdir /storage/ext_sd 0700 root root
+
+    export EXTERNAL_STORAGE /storage/emulated/legacy
+    export SECONDARY_STORAGE /storage/ext_sd
+    export EXTERNAL_STORAGE2 /storage/ext_sd
+    export EXTERNAL_STORAGE4 /storage/usb
+
+    export EMULATED_STORAGE_SOURCE /mnt/shell/emulated
+    export EMULATED_STORAGE_TARGET /storage/emulated
+
+    mount tmpfs tmpfs /storage/emulated mode=0755,uid=1023,gid=1023
+    
+    # Support legacy paths
+    symlink /storage/emulated/legacy /sdcard
+    symlink /storage/emulated/legacy /mnt/sdcard
+    symlink /storage/emulated/legacy /storage/sdcard0
+    symlink /mnt/shell/emulated/0 /storage/emulated/legacy
+    symlink /mnt/shell/emulated/0 /storage/emulated/0
+    symlink /storage/ext_sd /sdcard2
+    symlink /storage/usb /mnt/usb
+
+on post-fs
+    # mount shared so changes propagate into child namespaces
+    mount rootfs rootfs / shared rec
+    mount tmpfs tmpfs /mnt/secure private rec
+    chown system carrier /carrier
+    chmod 0771 /carrier
+    chown root cw_access /cota
+    chmod 0771 /cota
+    chown system system /preload
+    chmod 0771 /preload
+    # We restorecon /preload in case preload folder has been reset.
+    restorecon_recursive /preload
+    #restorecon cota partition.
+    restorecon_recursive /cota
+    #restorecon carrier partition.
+    restorecon_recursive /carrier
+    
+on fs
+    setprop ro.crypto.fuse_sdcard true
+
+    mkdir /devlog 0700 root root
+    wait /dev/block/platform/mtk-msdc.0/by-name/devlog
+    e2fsck emmc@devlog
+    mount ext4 /dev/block/platform/mtk-msdc.0/by-name/devlog /devlog nosuid nodev barrier=1,errors=continue
+
+    mkdir /fataldevlog 0700 root root
+    wait /dev/block/platform/mtk-msdc.0/by-name/fataldevlog
+    e2fsck emmc@fataldevlog
+    mount ext4 /dev/block/platform/mtk-msdc.0/by-name/fataldevlog /fataldevlog nosuid nodev barrier=1,errors=continue
+
+service sdcard /system/bin/sdcard -u 1023 -g 1023 -l /data/media /mnt/shell/emulated
+    class late_start
+
+service fuse_ext_sd /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/ext_sd /storage/ext_sd
+    class late_start
+    disabled

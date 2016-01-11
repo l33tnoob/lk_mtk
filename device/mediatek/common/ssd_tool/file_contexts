@@ -1,0 +1,2 @@
+/system/bin/htcpreloader	u:object_r:ssd_tool_exec:s0
+/system/bin/htcserviced		u:object_r:ssd_tool_exec:s0

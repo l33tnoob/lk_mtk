@@ -1,0 +1,11 @@
+#
+# system.prop for HTC common
+#
+
+# Support HW rest
+ro.product.hwreset = 1
+ro.product.hwreset.timer1 = 6
+ro.product.hwreset.timer2 = 9
+
+# Use 4 thread to improve dex2oat time
+dalvik.vm.dex2oat-threadcount=4

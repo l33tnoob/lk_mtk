@@ -1,0 +1,7 @@
+#include "../cfgfileinc/CFG_Custom1_File.h"
+#include "../cfgfileinc/CFG_GPS_File.h"
+#include "../cfgfileinc/CFG_PRODUCT_INFO_File.h"
+#include "../cfgfileinc/CFG_Wifi_File.h"
+#include "../cfgfileinc/CFG_HTC_DATA_File.h"
+#include "../cfgfileinc/CFG_FACTORY_RESERVED_File.h"
+#include "../../../../custom/common/cgen/cfgfileinc/CFG_HTC_CAMERA_File.h"

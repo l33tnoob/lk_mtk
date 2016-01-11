@@ -1,0 +1,138 @@
+# ==============================================
+# Policy File of /system/binfrdump Executable File 
+
+
+# ==============================================
+# Type Declaration
+# ==============================================
+
+type frdump_exec , exec_type, file_type;
+type frdump ,domain;
+
+# ==============================================
+# Android Policy Rule
+# ==============================================
+
+# ==============================================
+# NSA Policy Rule
+# ==============================================
+
+# ==============================================
+# MTK Policy Rule
+# ==============================================
+
+#permissive frdump;
+init_daemon_domain(frdump)
+#unconfined_domain(frdump)
+
+#============= frdump ==============
+allow frdump FM50AF_device:chr_file { read write ioctl open };
+allow frdump AD5820AF_device:chr_file { read write ioctl open };
+allow frdump DW9714AF_device:chr_file { read write ioctl open };
+allow frdump DW9714A_device:chr_file { read write ioctl open };
+allow frdump LC898122AF_device:chr_file { read write ioctl open };
+allow frdump LC898212AF_device:chr_file { read write ioctl open };
+allow frdump BU6429AF_device:chr_file { read write ioctl open };
+allow frdump DW9718AF_device:chr_file { read write ioctl open };
+allow frdump BU64745GWZAF_device:chr_file { read write ioctl open };
+allow frdump MTK_SMI_device:chr_file { read ioctl open };
+allow frdump accdet_device:chr_file { read ioctl open };
+allow frdump als_ps_device:chr_file { read ioctl open };
+allow frdump ashmem_device:chr_file execute;
+allow frdump audio_device:chr_file { read write ioctl open };
+allow frdump camera_isp_device:chr_file { read write ioctl open };
+allow frdump camera_pipemgr_device:chr_file { read ioctl open };
+allow frdump camera_sysram_device:chr_file { read ioctl open };
+allow frdump ccci_device:chr_file { read write ioctl open };
+allow frdump MT_pmic_cali_device:chr_file { read ioctl open };
+allow frdump barometer_device:chr_file { read ioctl open };
+allow frdump mtk_kpd_device:chr_file { read ioctl open };
+allow frdump ebc_device:chr_file { read write open };
+allow frdump fm_device:chr_file { read write ioctl open };
+allow frdump fuse:dir { read search open };
+allow frdump gps_device:chr_file { read write open };
+allow frdump graphics_device:chr_file { read write ioctl open };
+allow frdump gsensor_device:chr_file { read ioctl open };
+allow frdump gsm0710muxd_device:chr_file { read write ioctl open };
+allow frdump gyroscope_device:chr_file { read ioctl open };
+allow frdump init:unix_stream_socket connectto;
+allow frdump input_device:chr_file { read ioctl open };
+allow frdump input_device:dir { read open };
+allow frdump kd_camera_flashlight_device:chr_file { read write ioctl open };
+allow frdump kd_camera_hw_device:chr_file { read write ioctl open };
+allow frdump kernel:system module_request;
+allow frdump misc_sd_device:chr_file { read ioctl open };
+allow frdump mnld_device:chr_file { read write ioctl open };
+allow frdump mnld_exec:file { read execute open execute_no_trans };
+allow frdump msensor_device:chr_file { read ioctl open };
+allow frdump mt6605_device:chr_file { read write ioctl open getattr };
+allow frdump node:tcp_socket node_bind;
+allow frdump nvram_data_file:dir { write read open add_name getattr setattr};
+allow frdump nvram_data_file:file { write getattr setattr read create open };
+allow frdump nvram_device:chr_file { read write ioctl open };
+allow frdump platformblk_device:blk_file { read write open ioctl};
+allow frdump self:capability sys_boot;
+allow frdump platformblk_device:dir search;
+allow frdump port:tcp_socket { name_bind name_connect };
+allow frdump property_socket:sock_file write;
+allow frdump rtc_device:chr_file { read write ioctl open };
+allow frdump self:capability { sys_module ipc_lock sys_nice dac_override net_raw fsetid net_admin sys_time };
+allow frdump self:netlink_route_socket { bind create };
+allow frdump self:process execmem;
+allow frdump self:tcp_socket { setopt read bind create accept write connect listen };
+allow frdump self:udp_socket { create ioctl };
+allow frdump stpbt_device:chr_file { read write open };
+allow frdump sysfs:file write;
+allow frdump sysfs_wake_lock:file { read write open };
+allow frdump system_data_file:dir { write remove_name add_name };
+allow frdump system_data_file:file { write create unlink open };
+allow frdump system_data_file:sock_file { write create setattr };
+allow frdump system_file:file execute_no_trans;
+allow frdump tmpfs:lnk_file read;
+allow frdump ttyGS_device:chr_file { read write open };
+allow frdump wmtWifi_device:chr_file { write open };
+allow frdump nvram_data_file:dir { create_dir_perms };
+allow frdump nvram_data_file:file { create_file_perms };
+allow frdump nvram_data_file:lnk_file read;
+allow frdump nvdata_file:dir { create_dir_perms };
+allow frdump nvdata_file:file { create_file_perms };
+allow frdump self:capability { sys_nice sys_time };
+allow frdump system_data_file:dir { write add_name };
+allow frdump rootfs:dir mounton;
+allow frdump vfat:dir { read open search mounton };
+allow frdump vfat:filesystem { mount unmount };
+allow frdump block_device:dir search;
+allow frdump graphics_device:dir search;
+allow frdump input_device:dir search;
+allow frdump self:capability sys_admin;
+allow frdump self:capability sys_boot;
+allow frdump labeledfs:filesystem unmount;
+allow frdump platformblk_device:blk_file { getattr ioctl };
+allow frdump shell_exec:file execute;
+allow frdump MT_pmic_adc_cali_device:chr_file { read write ioctl open};
+allow frdump audio_device:dir search;
+allow frdump nvram_data_file:dir search;
+allow frdump audiohal_prop:property_service set;
+allow frdump pmic_ftm_device:chr_file { read write ioctl open};
+allow frdump powerctl_prop:property_service set;
+allow frdump ttyGS_device:chr_file { read write open ioctl};
+allow frdump ttyMT_device:chr_file { read write open ioctl};
+allow frdump irtx_device:chr_file { read write ioctl open };
+allow frdump devpts:chr_file { read write getattr ioctl };
+allow frdump vfat:dir search;
+allow frdump hrm_device:chr_file { read ioctl open };
+
+# Date: WK14.47
+# Operation : Migration
+# Purpose : CCCI
+allow frdump eemcs_device:chr_file { read write ioctl open };
+
+# Purpose : SDIO
+allow frdump ttySDIO_device:chr_file { read write ioctl open };
+
+# Date: WK15.01
+# Purpose : OTG Mount
+allow frdump fuse:dir mounton;
+# Date: WK15.07
+# Purpose : use c2k flight mode;
+allow frdump vmodem_device:chr_file { read write ioctl open };

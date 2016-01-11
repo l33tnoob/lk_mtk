@@ -1,0 +1,19 @@
+on fs 
+    write /proc/bootprof "start mobicore (on fs)"
+    mkdir /data/app/mcRegistry 0770 system system
+    mkdir /data/app/mcRegistry/TbStorage 0770 system system
+    chmod 0600 /dev/mobicore
+    chown system system /dev/mobicore
+    chmod 0666 /dev/mobicore-user
+    chown system system /dev/mobicore-user
+    # MobiCore Daemon Paths
+    export MC_AUTH_TOKEN_PATH /efs
+    start mobicore
+    write /proc/bootprof "start mobicore end (on fs)"
+
+# Start Daemon (Registry directories should already be present)
+service mobicore /system/bin/mcDriverDaemon -r /system/app/mcRegistry/020f0000000000000000000000000000.drbin -r /system/app/mcRegistry/05120000000000000000000000000000.drbin -r /system/app/mcRegistry/070b0000000000000000000000000000.drbin -r /system/app/mcRegistry/020b0000000000000000000000000000.drbin -r /system/app/mcRegistry/030b0000000000000000000000000000.drbin -r /system/app/mcRegistry/b5fde92dbeef4ac28855478daa6e6fd7.drbin
+    user system
+    group system
+    class core
+    oneshot

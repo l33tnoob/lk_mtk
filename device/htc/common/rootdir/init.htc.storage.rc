@@ -1,0 +1,28 @@
+on fs
+    # Load Mocana FIPS module
+    insmod /system/lib/modules/moc_platform_mod.ko
+    insmod /system/lib/modules/moc_crypto.ko
+    insmod /system/lib/modules/moc_crypto_api_tmpl.ko
+
+on property:sys.boot_completed=1
+    start mocana-startup
+
+service mocana-startup /system/bin/sh /system/etc/init.mocana.sh
+    class late_start
+    user root
+    disabled
+    oneshot
+# Set the permission and owner of partition control's block node for MFG disable camera feature
+on property:sys.boot_completed=1
+    start control_chmod
+    start control_chown
+
+service control_chmod /system/bin/chmod 0660 /dev/block/bootdevice/by-name/control
+    class late_start
+    disabled
+    oneshot
+
+service control_chown /system/bin/chown media:system /dev/block/bootdevice/by-name/control
+    class late_start
+    disabled
+    oneshot

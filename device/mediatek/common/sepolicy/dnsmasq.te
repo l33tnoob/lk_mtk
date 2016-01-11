@@ -1,0 +1,13 @@
+# ==============================================
+# MTK Policy Rule
+# ============
+allow dnsmasq self:netlink_route_socket nlmsg_write;
+
+allow dnsmasq netd:file read;
+
+# DNSMASQ route installation
+allow dnsmasq system_file:file execute_no_trans;
+allow dnsmasq devpts:chr_file rw_file_perms;
+
+# Talk to netd via netd_socket
+unix_socket_connect(dnsmasq, netd, netd)

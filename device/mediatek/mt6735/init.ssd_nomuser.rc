@@ -1,0 +1,45 @@
+# MTK project .rc configure
+
+on post-fs-data
+#
+# SHARED_SDCARD related directory & configuration (begin)
+#
+
+# we will remap this as /mnt/sdcard with the sdcard fuse tool
+		mkdir /data/media 0770 media_rw media_rw
+		chown media_rw media_rw /data/media
+
+#
+# SHARED_SDCARD related directory & configuration (end)
+#
+
+on init
+    mkdir /mnt/media_rw/sdcard0 0700 media_rw media_rw
+    mkdir /mnt/media_rw/ext_sd 0700 media_rw media_rw
+    mkdir /storage/sdcard0 0700 root root
+    mkdir /storage/ext_sd 0700 root root
+
+    export EXTERNAL_STORAGE /storage/sdcard0
+
+    # Support legacy paths
+    symlink /storage/sdcard0 /sdcard
+    symlink /storage/sdcard0 /mnt/sdcard
+    symlink /storage/ext_sd /sdcard2
+
+    # compatible to SSD feature
+    mkdir /storage/emulated 0555 root root
+    symlink /storage/sdcard0 /storage/emulated/legacy
+    
+on fs
+    setprop ro.crypto.fuse_sdcard true
+    
+service sdcard /system/bin/sdcard -u 1023 -g 1023 -d /data/media /storage/sdcard0
+    class late_start
+
+service fuse_sdcard0 /system/bin/sdcard -u 1023 -g 1023 -d /mnt/media_rw/sdcard0 /storage/sdcard0
+    class late_start
+    disabled
+
+service fuse_ext_sd /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/ext_sd /storage/ext_sd
+    class late_start
+    disabled

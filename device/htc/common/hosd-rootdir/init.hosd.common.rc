@@ -1,0 +1,111 @@
+###########################
+# init.hosd.common.rc #
+###########################
+
+on init
+    export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
+    export ANDROID_ROOT /system
+    export ANDROID_DATA /data
+    export EXTERNAL_STORAGE /sdcard
+
+    mkdir /sdcard
+    mkdir /misc
+    mount /tmp /tmp tmpfs
+    mkdir /system
+    mkdir /data
+    mkdir /cache
+    mkdir /devlog
+    mkdir /fataldevlog
+
+on fs
+    mount_all /hosd.fstab
+    # HTC Embedded Log
+    chown root root /devlog
+    chmod 0771 /devlog
+    chown root root /fataldevlog
+    chmod 0771 /fataldevlog
+
+#
+# Main function: start services for specific modes
+#
+
+on property:ro.boot.mode=ftm
+    mount_all /etc/hosd.fstab
+    setprop property:ro.debuggable 1
+    setprop property:service.adb.root 1
+    start diagloader
+#++ 2014.09.23 USB Team, PCN00008 ++
+    setprop sys.usb.config ftm
+#-- 2014.09.23 USB Team, PCN00008 --
+
+on property:init.svc.diagloader=running
+    stop hosd
+
+service diagloader /sbin/diagloader
+    user root
+    group root
+    disabled
+    oneshot
+
+service htc_dlmode /sbin/htc_dlmode
+    disabled
+
+service htc_fastbootd /sbin/htc_fastbootd
+    socket fastbootd stream 660 system system
+    socket fastbootd_dz stream 660 system system
+    disabled
+
+on property:sys.usb.config=fastboot
+    stop adbd
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0bb4
+    write /sys/class/android_usb/android0/idProduct 0ff0
+    write /sys/class/android_usb/android0/functions adb
+    write /sys/class/android_usb/android0/enable 1
+    start htc_fastbootd
+    setprop sys.usb.state ${sys.usb.config}
+
+#++ 2014.09.23 USB Team, PCN00008 ++
+on property:sys.usb.config=ftm
+    stop adbd
+    write /sys/class/android_usb/android0/enable 0
+    write /sys/class/android_usb/android0/idVendor 0bb4
+# FIXME: short-term enable ffs/acm/diag/modem default
+    write /sys/class/android_usb/android0/idProduct 0f19
+    write /sys/class/android_usb/android0/f_diag/clients diag
+    write /sys/class/android_usb/android0/functions ffs,diag,acm
+    write /sys/class/android_usb/android0/enable 1
+    start adbd
+    setprop sys.usb.state ${sys.usb.config}
+#-- 2014.09.23 USB Team, PCN00008 --
+
+on property:ro.bootmode=download
+    start htc_dlmode
+    setprop sys.usb.config fastboot
+
+on property:ro.bootmode=RUU
+    start htc_dlmode
+    setprop sys.usb.config fastboot
+
+#++ 2015/02/09, USB Team, PCN00034 ++
+# [Remove it] When BSP provide an API, we can determine if it should enable usb in Kernel init
+# If sim is never inserted, we block the USB by blocking /sys/class/android_usb/android0/enable
+on property:persist.sys.sim.unlockusb=0
+    write /sys/class/android_usb/android0/usb_sim_trigger 0
+
+# [Remove it] When BSP provide an API, we can determine if it should enable usb in Kernel init
+# When sim is inserted, we restore function to persist.sys.usb.config
+on property:persist.sys.sim.unlockusb=1
+    write /sys/class/android_usb/android0/usb_sim_trigger 1
+
+#++ 2015/04/23, USB Team, PCN00034 ++
+# [Remove it] When BSP provide an API, we can determine if it should enable usb in Kernel init
+# If sim is never inserted, we block the USB by blocking /sys/class/android_usb/android0/enable
+on property:persist.sys.sim.unlockusb=0
+    write /sys/class/android_usb/android0/usb_sim_trigger 0
+
+# [Remove it] When BSP provide an API, we can determine if it should enable usb in Kernel init
+# When sim is inserted, we restore function to persist.sys.usb.config
+on property:persist.sys.sim.unlockusb=1
+    write /sys/class/android_usb/android0/usb_sim_trigger 1
+

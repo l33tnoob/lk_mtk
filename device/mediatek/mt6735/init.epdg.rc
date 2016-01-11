@@ -1,0 +1,58 @@
+on post-fs-data
+
+# ePDG directory    
+    mkdir /data/ipsec 0777 root root
+    mkdir /data/ipsec/wo 0777 root root
+
+#
+# ePDG related services (Begin)
+#
+service epdg_wod /system/bin/epdg_wod
+	class main
+    socket wod_action stream 660 root system
+    socket wod_sim stream 660 root system
+    socket wod_ipsec stream 660 root system
+    user root
+    group root system log inet radio net_admin
+#    oneshot
+#    disabled
+	
+service charon /system/bin/charon
+	class main
+    socket wod_ipsec stream 660 root system
+    socket adb_atci_socket stream 660 radio system
+    user root
+    group root system log inet radio vpn net_admin
+    oneshot
+    disabled
+
+service ipsec /system/bin/ipsec
+	class main
+    socket wod_ipsec stream 660 root system
+    user root
+    group root system log inet radio vpn net_admin
+    oneshot
+    disabled
+
+service stroke /system/bin/stroke
+	class main
+    socket wod_ipsec stream 660 root system
+    user root
+    group root system log inet radio vpn net_admin
+    oneshot
+    disabled
+
+service starter /system/bin/starter
+	class main
+    socket wod_ipsec stream 660 root system
+    user root
+    group root system log inet radio vpn net_admin
+    oneshot
+    disabled
+
+#	socket <name> <type> <perm> [ <user> [ <group> ] ]
+
+#
+# ePDG related services (End)
+#
+

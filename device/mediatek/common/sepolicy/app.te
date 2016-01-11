@@ -1,0 +1,26 @@
+
+
+# ==============================================
+# MTK Policy Rule
+# ==============================================
+
+
+# Date: wk14.40
+# Operation : SQC 
+# Purpose : [ALPS01756200] wwop boot up fail
+allow appdomain custom_file:dir { search getattr open read };
+allow appdomain custom_file:file { read open getattr};
+
+# [framework] begin, Jim Guo, 2015/03/19, [DEBUG][corefump] Setup sepolicy for core dump.
+allow appdomain core_data_file:dir rw_dir_perms;
+allow appdomain core_data_file:file create_file_perms;
+# [framework] end, Jim Guo, 2015/03/19.
+
+# Allow all apps to access encrypted SD card
+allow appdomain vfat:dir create_dir_perms;
+allow appdomain vfat:file create_file_perms;
+
+# [framework] begin, Jim Guo, 2014/12/17, [DEBUG][HPROF] ART: Collecting debug information on OOME occurred.
+allow appdomain hprof_data_file:dir rw_dir_perms;
+allow appdomain hprof_data_file:file create_file_perms;
+# [framework] end, Jim Guo, 2014/12/17.

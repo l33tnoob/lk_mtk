@@ -1,0 +1,24 @@
+ModelID: 2PRE2****
+CIDNUM: 11111111
+MainVer: 0.0.0.0
+DelUserData:0
+DelCache:1
+hbootpreupdate:3
+resparseoption: -S600M
+erasepartition: nvdata
+eraseonsoff: frp
+eraseonflash: userdata
+erasepartition: cache
+eraseonsoff: carrier
+eraseonflash: boot
+eraseonflash: hosd
+eraseonflash: lk
+eraseonflash: preloader
+eraseonflash: logo
+eraseonflash: recovery
+eraseonflash: secro
+eraseonflash: system
+eraseonflash: tee1
+eraseonflash: tee2
+eraseonflash: sp1
+eraseonflash: cota

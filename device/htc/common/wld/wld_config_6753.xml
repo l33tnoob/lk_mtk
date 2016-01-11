@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<WldConfig>
+
+    <tab name="Setting">
+        <item name="Version" value="v3.2.0" />
+        <item name="ProgramVersion" value="v3.2.0" />
+        <!--
+          * The WLD will launch repeatly by this period value.
+          * The unit of time is millisecond. (ms)
+        -->
+        <item name="DetectPeriod" value="1800000" />
+        <!--
+          * In order to get CPU usage of the specific wakelock,
+          * The WLD will sleep and wait until time's up.
+          * The unit of time is millisecond. (ms)
+        -->
+        <item name="SleepTime" value="300000" />
+    </tab>
+
+    <tab name="Criteria">
+        <!--
+          * The wakelock would be a candidate of abnormal wakelock
+          * if it is held for more than this time.
+          * The unit of time is millisecond. (ms)
+        -->
+        <item name="HeldTime" value="1800000" />
+        <!--
+          * The wakelock would be a candidate of abnormal wakelock
+          * if its CPU usage is smaller than this percentage.
+          * The unit of value is percentage. (%)
+        -->
+        <item name="CpuUsage" value="2" />
+        <!--
+          * The wakelock would be a candidate of abnormal wakelock
+          * if its throughput is smaller than this value.
+          * The unit of value is bytes per second. (bytes/s)
+        -->
+        <item name="Throughput" value="20480" />
+        <!--
+          * The candidate will be skipped if the package importance
+          * level is smaller than this given value.
+          * More detail for value to see "ActivityManager.RunningAppProcessInfo".
+        -->
+        <item name="Importance" value="300" />
+        <!--
+          * The package would be a candidate of abnormal package
+          * if its CPU usage is greater than this value.
+          * The unit of value is percentage. (%)
+        -->
+        <item name="CCUCpuUsage" value="3" />
+        <!--
+          * The package would be a candidate of abnormal package
+          * if its throughput is greater than this value.
+          * The unit of value is bytes per second. (bytes/s)
+        -->
+        <item name="CCUThroughput" value="20480" />
+        <!--
+          * The candidate will be skipped if the package importance
+          * level is smaller than this given value.
+          * More detail for value to see "ActivityManager.RunningAppProcessInfo".
+        -->
+        <item name="CCUImportance" value="300" />
+        <item name="GPSSleepTime" value="120000" />
+        <item name="GPSThreshold" value="30000" />
+        <item name="GPSImportance" value="300" />
+    </tab>
+
+    <tab name="IgnoreList">
+        <!--
+          * All abnormal wakelocks would be released if white list
+          * is disable. The abnormal wakelock in white list would be
+          * released if white list is enable.
+        -->
+        <items name="WhiteList" enable="false">
+            <item name="audio.core.uap.WakeLockUtil" />
+        </items>
+
+        <!--
+          * The abnormal wakelock would be skipped if black list is
+          * enable and it is in.
+          * category: package, process, wakelock
+          * operation: equal, contain
+        -->
+        <items name="BlackList" enable="true">
+            <item name="com.htc" category="package" operation="contain" />
+            <item name="com.htc" category="process" operation="contain" />
+            <item name="android" category="package" operation="equal" />
+        </items>
+    </tab>
+
+    <tab name="KnownIssue">
+        <items name="Background" value="400">
+            <item name="com.taobao.taobao" category="process" operation="contain" force_stop="true" />
+            <item name="br.com.easytaxi" category="process" operation="equal" force_stop="true" />
+            <item name="cc.thedream.qinsmoon" category="process" operation="contain" force_stop="true" />
+            <item name="com.tencent.qqgame.qqTexaswvga" category="process" operation="equal" force_stop="true" />
+            <item name="com.kkkstudio.doudizhu" category="process" operation="equal" force_stop="true" />
+            <item name="com.yunyaoinc.mocha" category="process" operation="equal" force_stop="true" />
+            <item name="com.sds.android.ttpod" category="process" operation="contain" check_audio="true" force_stop="true" />
+            <item name="com.Qunar" category="process" operation="equal" force_stop="true" />
+            <item name="com.hzpz.reader.android" category="process" operation="equal" force_stop="true" />
+            <item name="com.meitu.meipaimv" category="process" operation="equal" force_stop="true" />
+            <item name="com.achievo.vipshop" category="process" operation="contain" force_stop="true" />
+            <item name="com.wanmei.mini.saintseiya" category="process" operation="contain" force_stop="true" />
+            <item name="com.sdu.didi.psnger" category="process" operation="equal" force_stop="true" />
+            <item name="com.dianping.v1" category="process" operation="equal" force_stop="true" />
+            <item name="com.baidu.BaiduMap" category="process" operation="equal" force_stop="true" />
+            <item name="com.uc.browser.hd" category="process" operation="equal" force_stop="true" />
+            <item name="com.east2d.qsmy" category="process" operation="equal" />
+            <item name="com.wuba" category="process" operation="contain" force_stop="true" />
+            <item name="com.storm.smart" category="process" operation="contain" force_stop="true" />
+            <item name="com.youku.phone" category="process" operation="contain" force_stop="true" />
+            <item name="com.tencent.mobileqq" category="process" operation="contain" />
+            <item name="com.tencent.mm" category="process" operation="contain" />
+            <item name="com.sina.weibo" category="process" operation="contain" />
+            <item name="com.tencent.qqlive" category="process" operation="contain" force_stop="true" />
+            <item name="com.nineteenlou.nineteenlou" category="process" operation="contain" force_stop="true" />
+        </items>
+        <items name="Service" value="300">
+            <item name="cn.kuwo.player" category="process" operation="contain" check_audio="true" force_stop="true" />
+            <item name="com.crisisfire" category="process" operation="contain" force_stop="true" />
+            <item name="net.crimoon.pmdk" category="process" operation="contain" force_stop="true" />
+            <item name="com.SmartSpace.TheSoulOfSwordFury.Android.duoku" category="process" operation="contain" force_stop="true" />
+            <item name="com.sincetimes.games.worldship" category="process" operation="contain" force_stop="true" />
+            <item name="com.youku.phone" category="process" operation="contain" force_stop="true" />
+            <item name="com.thestore.main" category="process" operation="contain" force_stop="true" />
+            <item name="com.netease.ldxy" category="process" operation="contain" force_stop="true" />
+            <item name="com.blingstorm.biscuit" category="process" operation="contain" force_stop="true" />
+            <item name="com.wanmei.mini.condor" category="process" operation="contain" force_stop="true" />
+            <item name="com.snailgame.panda" category="process" operation="contain" force_stop="true" />
+            <item name="com.snda.wifilocating" category="process" operation="contain" force_stop="true" />
+            <item name="com.tencent.pao" category="process" operation="contain" force_stop="true" />
+            <item name="com.storm.smart" category="process" operation="contain" force_stop="true" />
+            <item name="com.immomo.momo" category="process" operation="contain" />
+            <item name="com.uc.browser.hd" category="process" operation="contain" force_stop="true" />
+            <item name="com.Qunar" category="process" operation="contain" force_stop="true" />
+            <item name="com.wuba" category="process" operation="contain" force_stop="true" />
+            <item name="com.meitu.meipaimv" category="process" operation="contain" force_stop="true" />
+            <item name="com.achievo.vipshop" category="process" operation="contain" force_stop="true" />
+            <item name="com.melot.meshow" category="process" operation="contain" force_stop="true" />
+            <item name="com.yunyaoinc.mocha" category="process" operation="contain" force_stop="true" />
+            <item name="com.hzpz.reader.android" category="process" operation="contain" force_stop="true" />
+            <item name="com.tencent.qqgame.qqTexaswvga" category="process" operation="contain" force_stop="true" />
+            <item name="com.taobao.taobao" category="process" operation="contain" force_stop="true" />
+            <item name="com.baidu.BaiduMap" category="process" operation="contain" force_stop="true" />
+            <item name="com.tencent.mm" category="process" operation="contain" />
+            <item name="com.sina.weibo" category="process" operation="contain" />
+            <item name="com.jm.android.jumei" category="process" operation="contain" force_stop="true" />
+            <item name="com.baidu.netdisk" category="process" operation="contain" force_stop="true" />
+            <item name="com.og.danjiddz" category="process" operation="contain" force_stop="true" />
+            <item name="com.tencent.qqlive" category="process" operation="contain" force_stop="true" />
+            <item name="com.nineteenlou.nineteenlou" category="process" operation="contain" force_stop="true" />
+            <item name="com.sds.android.ttpod" category="process" operation="contain" check_audio="true" force_stop="true" />
+        </items>
+        <items name="Visible" value="200">
+            <item name="tunein.service" category="process" operation="equal" check_audio="true" />
+            <item name="com.tencent.mobileqq" category="process" operation="contain" />
+            <item name="com.wanmei.mini.dod" category="process" operation="contain" force_stop="true" />
+            <item name="com.baidu.appsearch" category="process" operation="contain" />
+        </items>
+        <items name="Perceptible" value="130">
+            <!-- for example
+            <item name="tunein.service" category="process" operation="equal" />
+            -->
+        </items>
+        <items name="Foreground" value="100">
+            <!-- for example
+            <item name="tunein.service" category="process" operation="equal" />
+            -->
+        </items>
+    </tab>
+
+</WldConfig>

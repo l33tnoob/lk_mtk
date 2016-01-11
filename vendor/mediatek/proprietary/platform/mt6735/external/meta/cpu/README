@@ -1,0 +1,30 @@
+This directory contains libmeta_cpu library
+
+
+WHAT IT DOES?
+=============
+It provides RTC Read api for meta mode test,which to get RTC funcion.
+
+HOW IT WAS BUILT?
+==================
+
+and the following libs from MediaTek:
+1. libft
+
+All source/dependency modules of this module are already put in
+'vendor/mediatek/proprietary/platform/${CHIP_NAME}/external/meta/cpu' folder.
+
+
+HOW TO USE IT?
+==============
+
+Files in this directory is used to
+generate a library which's name is 'libmeta_cpu'
+
+
+
+The lib 'libmeta_cpu' is loaded when meta_tst and related libs,
+which for getting RTC information.
+
+All the source code of this library were written by MediaTek co..
+

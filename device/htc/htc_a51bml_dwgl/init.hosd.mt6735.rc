@@ -1,0 +1,17 @@
+import init.hosd.common.rc
+
+# HTC Embedded Log +++
+service htc_ebdlogd /sbin/htc_ebdlogd_recvy -s -k -F /sbin -p V
+    class core
+    user root
+    disabled
+    oneshot
+    ioprio idle 0
+    seclabel u:r:htc_ebdlogd:s0
+
+on property:ro.build.tags=test-keys
+    start htc_ebdlogd
+
+on property:ro.build.tags=release-keys
+    start htc_ebdlogd
+# HTC Embedded Log ---

@@ -1,0 +1,4 @@
+user=system seinfo=platform name=com.htc.android.ramdump domain=ssd_tool type=app_data_file
+user=system seinfo=platform name=com.htc.android.ssdtest domain=ssd_tool type=app_data_file
+user=_app seinfo=platform name=com.htc.android.estress domain=ssd_tool type=app_data_file
+user=_app seinfo=platform name=com.htc.usertrialfeedback domain=ssd_tool type=app_data_file

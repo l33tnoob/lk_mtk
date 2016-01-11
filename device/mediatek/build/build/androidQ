@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# set LSF queue name for Android building
+# if NOT set, will use the default queue "normal"
+ANDROID_QUEUE=androidq
+
+if [ ! -z "$ANDROID_QUEUE" ]; then
+# submit job to specified queue "$ANDROID_QUEUE"
+  bsub -I -q $ANDROID_QUEUE $@
+else
+# submit job to default queue "normal"
+  bsub -I $@
+fi
+

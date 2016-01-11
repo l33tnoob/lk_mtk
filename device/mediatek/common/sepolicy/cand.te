@@ -1,0 +1,25 @@
+## cand as domain
+type cand, domain;
+type cand_exec, exec_type, file_type;
+
+init_daemon_domain(cand)
+
+# allow get usb driver notification from kobject uevent
+allow cand self:netlink_kobject_uevent_socket { create read setopt bind };
+allow cand self:capability net_admin;
+
+## allow to set system property
+allow cand htcmode_prop:property_service set;
+allow cand property_socket:sock_file { write };
+allow cand init:unix_stream_socket connectto;
+
+## allow access usb serial device node
+allow cand autobot_device:chr_file { read write open ioctl };
+
+# allow access usb sysfs for hsml
+allow cand sysfs_usb_mirror_link:file { read write open getattr };
+
+## allow IPC binding with ServiceManager & SurfaceFinger
+binder_use(cand);
+binder_call(cand, servicemanager);
+binder_call(cand, surfaceflinger);

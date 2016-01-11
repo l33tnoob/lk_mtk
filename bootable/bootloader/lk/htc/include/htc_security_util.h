@@ -1,0 +1,138 @@
+#ifndef __HTC_SECURITY_UTIL_H__
+#define __HTC_SECURITY_UTIL_H__
+
+#include "mt_typedefs.h"
+
+
+#define AES_ENCRYPT	1
+#define AES_DECRYPT	0
+#define AES_BLOCK_SIZE 16
+#define CHIP_RID_LEN 16
+#define AES_IV_SIZE 16
+
+#define MAGIC_SMART_CARD_FOUND	0x534D4346 // 'S' 'M' 'C' 'D'
+#define MAGIC_ONE_TIME_ROOT		0x4F545254	// 'O' 'T' 'R' 'T'
+
+/* HTCU: unlock, HTCL: relocked, others: lock */
+#define HTC_UNLOCK_MAGIC 0x55435448
+#define HTC_RELOCK_MAGIC 0x4C435448
+
+/* sign key data structure */
+/*-------------------------------------------*/
+#define SIGNKEY_MAGIC_LEN        12
+#define SIGNATURE_SIZE           256
+#define SIGNKEY_MAGIC            "HTC@signkey"
+#define MAX_PID_KEY_PAIR         32
+#define MAX_PRODUCT_NAME         40
+#define SIGNKEY_HEADER_QCT_SIZE  512
+#define SIGNKEY_HEADER_MTK_SIZE  2048
+
+/* MTK image format */
+#define TEE_IMG_NAME_PREFIX	"tee"
+#define SECRO_IMG_NAME		"secro"
+#define LK_IMG_NAME			"lk"
+#define BOOT_IMG_NAME		"boot"
+#define HOSD_IMG_NAME		"hosd"
+#define RECOVERY_IMG_NAME	"recovery"
+#define SECRO_IMG_SIZE		(0x21000+SIGNATURE_SIZE) // 0x21000+256 byte signature
+#define MTK_IMG_ALIGNMENT	0x1000	// 4K alignment
+#define MTEE_IMG_VFY_PUBK_SZ 256
+#define MTEE_IMG_VFY_PUBK \
+			0xDF, 0x84, 0x58, 0x98, 0x1D, 0x52, 0xCD, 0x2E, 0x7B, 0x10, 0x30, 0xF8, 0x0C, 0xAC, 0xCD, 0x6A, \
+			0xF0, 0x56, 0x09, 0xDC, 0x3D, 0xA5, 0xD1, 0x5B, 0x53, 0x38, 0xE6, 0xB2, 0x46, 0xFC, 0x2B, 0xE3, \
+			0x48, 0x24, 0xEC, 0x06, 0x8E, 0x5C, 0x63, 0x5A, 0xB9, 0x6D, 0x4F, 0xD4, 0x4A, 0x03, 0x21, 0x64, \
+			0x6C, 0x4A, 0x60, 0xC7, 0x23, 0xFB, 0xF3, 0x01, 0x7F, 0xD7, 0x61, 0xE2, 0x77, 0x3B, 0x4A, 0xC2, \
+			0xFA, 0x04, 0xBF, 0xC0, 0x79, 0xA3, 0xE4, 0x2E, 0x08, 0xA3, 0x5F, 0xF8, 0xFD, 0x0E, 0x01, 0x00, \
+			0x22, 0x2D, 0x03, 0x33, 0xED, 0x75, 0x23, 0x62, 0x6B, 0x60, 0x24, 0xBB, 0xC0, 0xA4, 0x5E, 0xED, \
+			0x5A, 0x48, 0x7E, 0x5F, 0xA9, 0xC7, 0x39, 0x6C, 0x52, 0x90, 0xF2, 0xE2, 0x8F, 0xCC, 0x88, 0x94, \
+			0xDA, 0x51, 0x1A, 0x3E, 0xF5, 0xC5, 0x17, 0xAE, 0x8F, 0xA1, 0x3A, 0x9C, 0xBF, 0x5A, 0x5A, 0xAC, \
+			0x13, 0x8A, 0xB3, 0x1D, 0xD3, 0xE5, 0x7C, 0x7C, 0x82, 0x82, 0x80, 0x22, 0x62, 0x00, 0xCA, 0x1E, \
+			0x1E, 0xA6, 0xCE, 0x9B, 0x33, 0xC9, 0x16, 0xCC, 0x7C, 0x32, 0x07, 0x31, 0x47, 0xBA, 0xA2, 0x1B, \
+			0xA8, 0x9E, 0xC0, 0xF2, 0x21, 0xDD, 0x7B, 0x48, 0x7A, 0xA1, 0x94, 0x21, 0x4F, 0x44, 0x35, 0x2C, \
+			0x31, 0x52, 0xEF, 0x7D, 0x44, 0x38, 0x8F, 0xBB, 0xC7, 0xEF, 0xB3, 0x33, 0x32, 0xAE, 0x0F, 0x4A, \
+			0x6B, 0x39, 0x85, 0xCB, 0xD3, 0xD2, 0xC6, 0x15, 0xB8, 0x95, 0x74, 0x28, 0x32, 0x5B, 0xE3, 0xBB, \
+			0x1E, 0x77, 0xE3, 0xA9, 0x0A, 0x70, 0x27, 0xBA, 0x6C, 0xC4, 0x6A, 0x58, 0xD0, 0x7A, 0xFB, 0x7D, \
+			0x3F, 0x0F, 0x4B, 0x10, 0xC4, 0xA0, 0xB7, 0x7E, 0x8C, 0x0A, 0x5D, 0x6C, 0x77, 0x9E, 0xA5, 0x2C, \
+			0x27, 0x04, 0x7D, 0x66, 0x01, 0xD0, 0x9E, 0xF1, 0x3E, 0x7F, 0xEF, 0x26, 0x14, 0x8C, 0x05, 0xD7
+
+/* Security Level */
+enum {
+	SECLEVEL_MFG = 0,
+	SECLEVEL_ENGINEER,
+	SECLEVEL_DEVELOPER,
+	SECLEVEL_USER,
+	SECLEVEL_MAX
+};
+
+struct security_info_t {
+	//first section 1024 bytes
+	unsigned security_level; //security level, from 0~3
+	unsigned int unlock;
+	unsigned int jtag_disable_flag;
+	unsigned int reenable_jtag_flag;
+	unsigned int smard_card_magic;
+	unsigned section1_reserved[187];
+	char section1_signature[256];
+	unsigned int AtsDebug_level;
+	char crc32[4];
+
+	//reserve 3064 bytes for future use
+	char reserved[3064];
+};
+
+
+enum magic_type{
+	MAGIC_TYPE_RESERVED_1 = 0,
+	MAGIC_TYPE_SMART_SD,
+	MAGIC_TYPE_ONE_TIME_ROOT,
+	MAGIC_TYPE_MAX
+};
+
+struct sec_ex_util_info_t {
+	// pleas only use magic in this data structure
+	unsigned int reserve_1;
+	unsigned int smart_card_magic;
+	unsigned int ont_time_root_magic;
+	unsigned int reserve_2[253];
+};
+
+typedef struct key_table_t {
+	char product_name[MAX_PRODUCT_NAME];
+	unsigned key_id;
+}project_key_table;
+
+/* 2048 byte header, and currently use  1456 bytes*/
+typedef struct signkey_header_mtk_t {
+	char magic[SIGNKEY_MAGIC_LEN];
+	unsigned total_len;
+	unsigned p_count;
+	unsigned keycount;
+	project_key_table key_table[MAX_PID_KEY_PAIR];
+	char chipset[12];
+	char version[12];
+	unsigned char reserve[SIGNKEY_HEADER_MTK_SIZE - SIGNKEY_MAGIC_LEN - sizeof(unsigned) * 3 - sizeof(project_key_table) * MAX_PID_KEY_PAIR - 12 - 12];
+}signkey_header_mtk;
+
+int htc_sec_dl_permission_chk(const char *part_name, unsigned int *permitted);
+int htc_sec_format_permission_chk(const char *part_name, unsigned int *permitted);
+int htc_rid_encrypt(unsigned char* buf, int len, int enc);
+int htc_get_security_info(struct security_info_t* sec_info, int size);
+int htc_set_security_info(struct security_info_t* sec_info, int size);
+void htc_security_init(void);
+int write_security_level(int level);
+int read_security_level(void);
+int write_smart_card_magic(int magic);
+int read_smart_card_magic(void);
+int setting_security(void);
+int write_sec_ex_magic(int magic_type, int magic_num);
+int read_sec_ex_magic(int magic_type);
+int setting_smart_card(void);
+int write_security_unlock(int unlock);
+int read_security_unlock(void);
+int get_unlock_status(void);
+void set_unlock_display_string(int status);
+int htc_sec_boot_check (void);
+int htc_verify_image(unsigned char* p_img_name);
+int verifySecureBootPartitions(void);
+
+#endif //__HTC_SECURITY_UTIL_H__

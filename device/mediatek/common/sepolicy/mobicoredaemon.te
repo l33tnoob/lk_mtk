@@ -1,0 +1,44 @@
+##
+# trusted execution environment (mobicoredaemon) daemon
+#
+type mobicoredaemon, domain;
+type mobicoredaemon_exec, exec_type, file_type;
+type mobicoredaemon_admin_device, dev_type;
+type mobicoredaemon_user_device, dev_type;
+type mobicoredaemon_data_file, file_type, data_file_type;
+#type persist_file;
+
+init_daemon_domain(mobicoredaemon);
+type_transition init_shell mobicoredaemon_exec : process mobicoredaemon;
+
+# allow mobicoredaemon dalvikcache_data_file:file execute;
+
+# This part should be added to init_shell.te but can be here also
+allow mobicoredaemon init_shell:process sigchld;
+allow mobicoredaemon init_shell:fd use;
+allow init mobicoredaemon_exec : file {read getattr execute open};
+allow init_shell mobicoredaemon_exec:file { read getattr execute open execute_no_trans};
+allow init_shell mobicoredaemon:process { siginh rlimitinh transition noatsecure };
+
+allow mobicoredaemon self:unix_stream_socket create_socket_perms;
+allow mobicoredaemon self:capability dac_override;
+allow mobicoredaemon self:netlink_socket { read bind create };
+
+# This part is in the appdomain.te file.
+allow appdomain mobicoredaemon:unix_stream_socket create_socket_perms;
+allow untrusted_app mobicoredaemon_exec:file getattr;
+allow untrusted_app mobicoredaemon:unix_stream_socket connectto;
+
+allow platform_app mobicoredaemon:unix_stream_socket connectto;
+
+allow mobicoredaemon mobicoredaemon_exec : file { read execute entrypoint };
+allow mobicoredaemon mobicore_admin_device:chr_file { read write ioctl open };
+allow mobicoredaemon mobicore_data_file:dir { getattr search write add_name remove_name create };
+allow mobicoredaemon mobicore_data_file:lnk_file { read unlink };
+allow mobicoredaemon mobicore_data_file:file { ioctl read write create getattr setattr lock relabelfrom relabelto append unlink link rename swapon quotaon mounton open };
+allow mobicoredaemon persist_file:dir search;
+allow mobicoredaemon persist_file:file { read getattr open };
+allow mobicoredaemon mobicore_user_device:chr_file { read write ioctl open };
+
+allow mobicoredaemon rild:unix_stream_socket connectto;
+allow mobicoredaemon rild_debug_socket:sock_file { read write };

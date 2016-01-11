@@ -1,0 +1,31 @@
+type tpd_daemon, domain;
+type tpd_daemon_exec, exec_type, file_type;
+
+init_daemon_domain(tpd_daemon)
+
+
+# For tamper_chk_run_root to search /proc/numberd node
+allow tpd_daemon domain:dir search;
+allow tpd_daemon domain:file { read open getattr };
+
+# For /dev/block
+allow tpd_daemon block_device:dir search;
+allow tpd_daemon platformblk_device:dir search;
+allow tpd_daemon platformblk_device:blk_file { open read write getattr setattr };
+
+# For print log
+#allow tpd_daemon self:capability mknod;
+#write_klog(tpd_daemon)
+write_logd(tpd_daemon)
+
+# For system reboot
+allow tpd_daemon self:capability sys_boot;
+
+# Others
+#allow tpd_daemon default_prop:property_service set;
+allow tpd_daemon device:chr_file { create unlink };
+allow tpd_daemon device:dir { write remove_name add_name };
+allow tpd_daemon proc:file write;
+allow tpd_daemon property_socket:sock_file write;
+allow tpd_daemon self:capability dac_override;
+allow tpd_daemon su_exec:file getattr;

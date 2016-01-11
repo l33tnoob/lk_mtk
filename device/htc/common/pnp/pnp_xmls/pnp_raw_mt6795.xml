@@ -1,0 +1,570 @@
+<!--
+	Copyright (C) 2014 HTC Corporation
+
+Revision:
+2014-11-10: <pochien_chen> Initial version of pnp.xml for mt6795
+-->
+<pnpmgr>
+	<!-- Dependency area -->
+	<dependency type="lessOrEqual">
+		<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+		<value>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</value>
+	</dependency>
+	<dependency type="greaterOrEqual">
+		<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+		<value>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</value>
+	</dependency>
+	<dependency type="lessOrEqual">
+		<path>/proc/hps/num_base_pnpmgr</path>
+		<value>/proc/hps/num_limit_pnpmgr</value>
+	</dependency>
+	<dependency type="greaterOrEqual">
+		<path>/proc/hps/num_limit_pnpmgr</path>
+		<value>/proc/hps/num_base_pnpmgr</value>
+	</dependency>
+
+	<!-- Policy area -->
+	<policy type="Keep_Current"></policy>
+
+	<policy type="default">
+		<assignment type="value">
+			<path>/proc/hps/num_base_pnpmgr</path>
+			<value type="int">1</value>
+		</assignment>
+		<assignment type="value">
+			<path>/proc/hps/num_limit_pnpmgr</path>
+			<value type="int">8</value>
+		</assignment>
+		<assignment type="value">
+			<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+			<value type="int">403000</value>
+		</assignment>
+		<assignment type="predef">
+			<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+			<value type="int">cpuinfo_max</value>
+		</assignment>
+		<assignment type="value">
+			<path>/proc/sys/vm/dirty_ratio</path>
+			<value type="int">20</value>
+		</assignment>
+		<assignment type="value">
+			<path>/sys/block/mmcblk0/bdi/read_ahead_kb</path>
+			<value type="int">128</value>
+		</assignment>
+		<assignment type="value">
+			<path>/proc/cpufreq/cpufreq_limited_max_freq_by_user</path>
+			<value type="int">0</value>
+		</assignment>
+	</policy>
+
+	<policy type="powersave">
+		<assignment type="value" relation="less">
+			<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+			<value type="int">1183000</value>
+		</assignment>
+		<assignment type="value">
+			<path>/proc/cpufreq/cpufreq_limited_max_freq_by_user</path>
+			<value type="int">1183000</value>
+		</assignment>
+	</policy>
+
+	<policy type="turbo">
+		<assignment type="predef">
+			<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+			<value type="int">cpuinfo_max</value>
+		</assignment>
+	</policy>
+
+	<policy type="performance">
+		<assignment type="value">
+			<path>/proc/hps/num_base_pnpmgr</path>
+			<value type="int">8</value>
+		</assignment>
+		<assignment type="predef">
+			<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+			<value type="int">cpuinfo_max</value>
+		</assignment>
+	</policy>
+
+	<policy type="navigation">
+		<assignment type="value" relation="less">
+			<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+			<value type="int">1183000</value>
+		</assignment>
+	</policy>
+
+	<policy type="booting">
+		<assignment type="value">
+			<path>/proc/hps/num_base_pnpmgr</path>
+			<value type="int">8</value>
+		</assignment>
+		<assignment type="predef">
+			<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+			<value type="int">cpuinfo_max</value>
+		</assignment>
+	</policy>
+
+	<rule type="input boost">
+		<path>/sys/power/pnpmgr/hotplug/touch_boost</path>
+		<condition type="greater">
+			<value type="int">0</value>
+			<assignment type="value" relation="greater">
+				<path>/proc/hps/num_base_pnpmgr</path>
+				<value type="int">2</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<rule type="powersave">
+		<path>/sys/power/powersave</path>
+		<condition type="equality">
+			<value type="int">1</value>
+			<policy>powersave</policy>
+		</condition>
+	</rule>
+
+	<rule type="extremely powersave">
+		<path>/sys/power/powersave</path>
+		<condition type="equality">
+			<value type="int">2</value>
+			<policy>powersave</policy>
+		</condition>
+	</rule>
+
+	<rule type="performance mode">
+		<path>/sys/power/powersave</path>
+		<condition type="equality">
+			<value type="int">4</value>
+			<policy>turbo</policy>
+		</condition>
+	</rule>
+
+	<rule type="benchmarks">
+		<path>/sys/power/pnpmgr/apps/activity_trigger</path>
+		<condition type="greaterOrEqual">
+			<value type="string">com.antutu</value>
+			<policy>turbo</policy>
+			<assignment type="value">
+				<path>/proc/sys/vm/dirty_ratio</path>
+				<value type="int">5</value>
+			</assignment>
+			<assignment type="value">
+				<path>/sys/block/mmcblk0/bdi/read_ahead_kb</path>
+				<value type="int">1024</value>
+			</assignment>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.georgie.pi</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">Linpack</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">cfbench</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">quadrant</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">smartbench</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">electopia</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">CaffeineMark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">vellamo</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">glbenchmark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">nenamark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">rightware.Basemark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">rightware.basemark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">rightware.tdmm</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">An3DBench</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">eembc.coremark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">octane.benchmark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">sunspider</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">wtsang02.sqliteutil</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">redlicense.benchmark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">MobiBench</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">JBench.jbench</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">primatelabs.geekbench</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">futuremark.dmandroid.application</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">epicgames.EpicCitadel</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">passmark.pt_mobile</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">performance.test</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">cpuprimebenchmark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">anomaly2Benchmark</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">BenchmarkPi</value>
+			<policy>turbo</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.samsung.benchmarks</value>
+			<policy>turbo</policy>
+		</condition>
+	</rule>
+
+	<rule type="launch">
+		<path type="realtime">/sys/power/launch_event</path>
+		<condition type="equality">
+			<value type="int">1</value>
+			<assignment type="value" relation="greater">
+				<path>/proc/hps/num_base_pnpmgr</path>
+				<value type="int">2</value>
+			</assignment>
+			<assignment type="predef">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">cpuinfo_max</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<rule type="Perf - Ceiling freq">
+		<path>/sys/power/cpufreq_ceiling</path>
+		<condition type="equality">
+			<value type="int">1</value>
+			<assignment type="value" relation="less">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">806000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">2</value>
+			<assignment type="value" relation="less">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">1183000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">3</value>
+			<assignment type="value" relation="less">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">1326000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">4</value>
+			<assignment type="value" relation="less">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">1625000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">5</value>
+			<assignment type="value" relation="less">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">1950000</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<rule type="Perf - Floor freq">
+		<path>/sys/power/perflock</path>
+		<condition type="equality">
+			<value type="int">1</value>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">806000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">2</value>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">1183000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">3</value>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">1326000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">4</value>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">1625000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="int">5</value>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">1950000</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<rule type="Perf - max cores">
+		<path>/sys/power/cpunum_ceiling</path>
+		<condition type="greater">
+			<value type="int">0</value>
+			<assignment type="attr" relation="less">
+				<path>/proc/hps/num_limit_pnpmgr</path>
+				<value type="int">/sys/power/cpunum_ceiling</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<rule type="Perf - min cores">
+		<path>/sys/power/cpunum_floor</path>
+		<condition type="greater">
+			<value type="int">0</value>
+			<assignment type="attr" relation="greater">
+				<path>/proc/hps/num_base_pnpmgr</path>
+				<value type="int">/sys/power/cpunum_floor</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<rule type="Foreground Apps">
+		<path>/sys/power/pnpmgr/apps/activity_trigger</path>
+		<condition type="greaterOrEqual">
+			<value type="string">com.google.android.apps.maps</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.htc.laputa</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.papago</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.mapbar.android.mapbarmap</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.autonavi.cmccmap</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.baidu.BaiduMap</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.pdager</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.kingwaytek.naviking</value>
+			<policy>navigation</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">booting</value>
+			<policy>booting</policy>
+		</condition>
+		<condition type="greaterOrEqual">
+			<value type="string">com.htc.dnatransfer</value>
+			<assignment type="value" relation="less">
+				<path>/proc/hps/num_limit_pnpmgr</path>
+				<value type="int">2</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<rule type="Charging">
+		<path>/sys/power/pnpmgr/battery/charging_enabled</path>
+		<condition type="equality">
+			<value type="int">1</value>
+			<assignment type="predef">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">cpuinfo_max</value>
+			</assignment>
+		</condition>
+	</rule>
+
+	<!--rule type="Screen Off - freq">
+		<path>/sys/power/wait_for_fb_status</path>
+		<condition type="equality">
+			<value type="string">off</value>
+			<policy>default</policy>
+		</condition>
+	</rule-->
+
+	<rule type="Camera media modes">
+		<path>/sys/power/pnpmgr/apps/media_mode</path>
+		<condition type="equality">
+			<value type="string">recording</value>
+			<assignment type="value" relation="less">
+				<path>/proc/hps/num_limit_pnpmgr</path>
+				<value type="int">4</value>
+			</assignment>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">806000</value>
+			</assignment>
+			<assignment type="value" relation="less">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">1183000</value>
+			</assignment>
+		</condition>
+<!--		<condition type="equality">
+			<value type="string">preview</value>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">800000</value>
+			</assignment>
+			<assignment type="value" relation="less">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq</path>
+				<value type="int">1190400</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="string">recording</value>
+			<assignment type="value" relation="less">
+				<path>/proc/hps/num_limit_pnpmgr</path>
+				<value type="int">4</value>
+			</assignment>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">800000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="string">dual_recording</value>
+		</condition>
+		<condition type="equality">
+			<value type="string">picture</value>
+			<assignment type="value" relation="greater">
+				<path>/proc/hps/num_base_pnpmgr</path>
+				<value type="int">4</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="string">hdr</value>
+			<assignment type="value" relation="greater">
+				<path>/proc/hps/num_base_pnpmgr</path>
+				<value type="int">4</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="string">burst</value>
+			<policy>performance</policy>
+		</condition>
+		<condition type="equality">
+			<value type="string">slow_motion</value>
+			<assignment type="value" relation="less">
+				<path>/proc/hps/num_limit_pnpmgr</path>
+				<value type="int">4</value>
+			</assignment>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">800000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="string">zoe</value>
+			<assignment type="value">
+				<path>/proc/hps/num_base_pnpmgr</path>
+				<value type="int">4</value>
+			</assignment>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">800000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="string">highfps</value>
+			<assignment type="value" relation="less">
+				<path>/proc/hps/num_limit_pnpmgr</path>
+				<value type="int">4</value>
+			</assignment>
+			<assignment type="value" relation="greater">
+				<path>/sys/devices/system/cpu/cpu0/cpufreq/scaling_min_freq</path>
+				<value type="int">800000</value>
+			</assignment>
+		</condition>
+		<condition type="equality">
+			<value type="string">flashlight</value>
+		</condition>
+		<condition type="equality">
+			<value type="string">panorama_360</value>
+		</condition> -->
+	</rule>
+
+	<!-- A Default rule if activity_trigger doesn't hit -->
+	<!-- CPU ONLINE will notify PnP to write cache value again. -->
+	<!-- This rule MUST set as lowest priority rule to apply the default policy -->
+	<rule type="Default">
+		<path type="always">/sys/power/pnpmgr/hotplug/cpu_hotplug</path>
+		<condition type="greater">
+			<value type="int">0</value>
+			<policy>default</policy>
+		</condition>
+	</rule>
+</pnpmgr>

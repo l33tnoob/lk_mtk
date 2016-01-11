@@ -1,0 +1,474 @@
+# MTK project .rc configure
+
+import init.mt6735.usb.rc
+import init.c2k.rc
+import init.htc.storage.rc
+
+on init
+    mkdir /mnt/media_rw/usb 0700 media_rw media_rw
+    mkdir /storage/usb 0700 root root
+    mkdir /persist 0771 system system
+
+    # init PnPMgr node
+    chmod 664 /sys/power/pnpmgr/apps/media_mode
+    chown media system /sys/power/pnpmgr/apps/media_mode
+    chown system /sys/power/pnpmgr/apps/activity_trigger
+    chown system /sys/power/pnpmgr/apps/non_activity_trigger
+    chown system /sys/power/perflock
+    chown system /sys/power/launch_event
+    chown system /sys/power/powersave
+    chown system /sys/power/cpufreq_ceiling
+    chown system /sys/power/cpunum_floor
+    chown system /sys/power/cpunum_ceiling
+    chown system /sys/power/pnpmgr/hotplug/touch_boost
+    chown root system /sys/module/lowmemorykiller/parameters/adj
+    chmod 0664 /sys/module/lowmemorykiller/parameters/adj
+    chown root system /sys/module/lowmemorykiller/parameters/minfree
+    chmod 0664 /sys/module/lowmemorykiller/parameters/minfree
+    chown system /sys/power/wait_for_fb_status
+    write /sys/power/pnpmgr/apps/activity_trigger "booting"
+    write /sys/devices/system/cpu/cpufreq/interactive/above_hispeed_delay "25000 1300000:50000"
+    write /sys/devices/system/cpu/cpufreq/interactive/go_hispeed_load "90"
+    write /sys/devices/system/cpu/cpufreq/interactive/target_loads "85 1170000:90 1300000:80"
+    write /sys/devices/system/cpu/cpufreq/interactive/min_sample_time "50000"
+    write /sys/devices/system/cpu/cpufreq/interactive/timer_rate "25000"
+    write /sys/devices/system/cpu/cpufreq/interactive/hispeed_freq "1300000"
+    write /sys/devices/system/cpu/cpufreq/interactive/io_is_busy "1"
+
+on property:sys.boot_completed=1
+    write /sys/module/lowmemorykiller/parameters/adj "0,2,3,7,9,15"
+    write /sys/module/lowmemorykiller/parameters/minfree "27648,41472,48384,72378,84375,121875"
+
+on fs
+    write /proc/bootprof "start mobicore (on fs)"
+    mkdir /data/app/mcRegistry 0770 system system
+    mkdir /data/app/mcRegistry/TbStorage 0770 system system
+    chmod 0600 /dev/mobicore
+    chown system system /dev/mobicore
+    chmod 0666 /dev/mobicore-user
+    chown system system /dev/mobicore-user
+    # MobiCore Daemon Paths
+    export MC_AUTH_TOKEN_PATH /efs
+    start mobicore
+    write /proc/bootprof "start mobicore end (on fs)"
+
+
+on post-fs-data
+
+#
+# Connectivity related device nodes & configuration (begin)
+#
+
+# We restorecon /persist to set SEPolicy label.
+    restorecon /persist
+    
+#/dev/ttyMT2 for Connectivity BT/FM/GPS usage
+    chmod 0660 /dev/ttyMT2
+    chown system system /dev/ttyMT2
+
+
+# STP, WMT, GPS, FM and BT Driver
+#   insmod /system/lib/modules/mtk_hif_sdio.ko
+#   insmod /system/lib/modules/mtk_stp_wmt.ko
+#   insmod /system/lib/modules/mtk_stp_uart.ko
+#   insmod /system/lib/modules/mtk_stp_gps.ko
+#   insmod /system/lib/modules/mtk_stp_bt.ko
+#   insmod /system/lib/modules/mtk_fm_drv.ko
+#   insmod /system/lib/modules/mtk_wmt_wifi.ko
+
+
+# Create char device file for WMT, GPS, BT, FM, WIFI
+#    mknod /dev/stpwmt c 190 0;
+#    mknod /dev/stpgps c 191 0;
+#    mknod /dev/stpbt  c 192 0;
+
+#    chmod 0660 /dev/stpwmt
+#    chown system system /dev/stpwmt
+
+#    chmod 0660 /dev/wmtdetect
+#    chown system system /dev/wmtdetect
+
+    mknod /dev/wmtWifi c 153 0
+    chmod 0660 /dev/wmtWifi
+    chown system system /dev/wmtWifi
+
+#Camera
+    chmod 0660 /dev/GAF001AF
+    chown system camera /dev/GAF001AF
+
+    chmod 0660 /dev/DW9714AF
+    chown system camera /dev/DW9714AF
+
+    chmod 0660 /dev/AD5820AF
+    chown system camera /dev/AD5820AF
+
+	chmod 0660 /dev/BU64745GWZAF
+    chown system camera /dev/BU64745GWZAF
+    
+	chmod 0660 /dev/LC898122AF 
+    chown system camera /dev/LC898122AF 
+
+#SMB
+    chown system system /proc/smb/ScreenComm
+    chmod 0660 /proc/smb/ScreenComm
+
+# BT
+#    chmod 0660 /dev/stpbt
+#    chown bluetooth radio /dev/stpbt
+
+# GPS
+#    chown gps gps /dev/stpgps
+    chown gps gps /sys/class/gpsdrv/gps/pwrctl
+    chown gps gps /sys/class/gpsdrv/gps/suspend
+    chown gps gps /sys/class/gpsdrv/gps/state
+    chown gps gps /sys/class/gpsdrv/gps/pwrsave
+    chown gps gps /sys/class/gpsdrv/gps/status
+#    chmod 0660 /dev/stpgps
+
+# WiFi
+    mkdir /data/misc/wifi 0770 wifi wifi
+    mkdir /data/misc/wifi/sockets 0770 wifi wifi
+    mkdir /data/misc/wpa_supplicant 0770 wifi wifi
+    chown wifi wifi /data/misc/wifi
+
+#Define device for ATCID
+    chmod 660 /dev/ttyGS0
+    chown system /dev/ttyGS0
+    chmod 660 /dev/ttyGS1
+    chown system /dev/ttyGS1
+
+# NFC ++
+# permissions for NFC
+    chmod 0600 /dev/pn544
+    chown nfc nfc /dev/pn544
+    setprop debug.nfc.fw_download "true"
+    setprop debug.nfc.fw_boot_download "false"
+# NFC --
+
+#Disable for one Single loader
+# Load WiFi Driver
+#   insmod /system/lib/modules/wlan_mt.ko
+
+# Char device for BT 3.0 HS
+    mknod /dev/ampc0 c 151 0
+    chown bluetooth bluetooth /dev/ampc0
+    chmod 0660 /dev/ampc0
+
+#
+# Connectivity related device nodes & configuration (end)
+#
+
+# Encrypt phone function
+    setprop vold.post_fs_data_done 1
+
+on init
+    # Refer to http://source.android.com/devices/tech/storage/index.html
+    # It said, "Starting in Android 4.4, multiple external storage devices are surfaced to developers through
+    #           Context.getExternalFilesDirs(), Context.getExternalCacheDirs(), and Context.getObbDirs().
+    #           External storage devices surfaced through these APIs must be a semi-permanent part of the device (such as an SD card slot in a battery compartment).
+    #           Developers expect data stored in these locations to be available over long periods of time."
+    # Therefore, if the target doesn't support sd hot-plugging (Ex: the SD card slot in a battery compartment), we need to export SECONDARY_STORAGE in 'boot' section
+    #
+    # export SECONDARY_STORAGE /storage/sdcard1
+
+service fuse_usb /system/bin/sdcard -u 1023 -g 1023 -w 1023 -d /mnt/media_rw/usb /storage/usb
+    class late_start
+    disabled
+
+#
+# Connectivity related services (Begin)
+#
+
+service atci_service /system/bin/atci_service
+	socket atci-service stream 660 radio system
+	socket atci-serv-fw stream 660 radio system
+	user root
+        disabled
+	group radio system
+service atcid-daemon-u /system/bin/atcid
+	user system
+	group radio system media
+	disabled
+	oneshot
+
+service atcid-daemon-e /system/bin/atcid
+	user root
+	group radio system
+	disabled
+	oneshot
+
+on early_property:ro.build.type=eng
+start atci_service
+start atcid-daemon-e
+
+on property:persist.service.atci.autostart=1
+start atci_service
+start atcid-daemon-u
+
+service audio-daemon /system/bin/audiocmdservice_atci
+    class main
+    socket atci-audio stream 660 media system
+    user media
+    group nvram media system sdcard_rw
+    disabled
+    oneshot
+
+service wmtLoader /system/bin/wmt_loader
+    user root
+    group root
+    class core
+    oneshot
+
+
+service conn_launcher /system/bin/6620_launcher -p /system/etc/firmware/
+    user system
+    group system
+    class core
+
+on property:service.wcn.coredump.mode=2
+start stp_dump
+
+service stp_dump /system/bin/stp_dump3
+	user root
+	group root
+	class core
+	disabled
+	oneshot
+
+on boot
+
+
+	chmod 0666 /dev/shub_log
+	chown system system /dev/shub_log
+
+# Motion Sensors ++
+        chown system system /dev/iio:device0
+        chown system system /sys/class/htc_sensorhub/sensor_hub/iio/buffer/enable
+        chown system system /sys/class/htc_sensorhub/sensor_hub/iio/buffer/length
+        chown system system /sys/class/htc_sensorhub/sensor_hub/iio/trigger/current_trigger
+
+        chmod 660 /dev/iio:device0
+        chmod 660 /sys/class/htc_sensorhub/sensor_hub/iio/buffer/enable
+        chmod 660 /sys/class/htc_sensorhub/sensor_hub/iio/buffer/length
+        chmod 660 /sys/class/htc_sensorhub/sensor_hub/iio/trigger/current_trigger
+
+        chown system system /sys/class/htc_sensorhub/sensor_hub/enable
+        chown system system /sys/class/htc_sensorhub/sensor_hub/delay_ms
+        chown system system /sys/class/htc_sensorhub/sensor_hub/barometer_self_test
+        chown system system /sys/class/htc_sensorhub/sensor_hub/AP_calibrator_data_accRL
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_en
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_status_acc
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_status_mag
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_status_gyro
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_data_acc
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_data_accRL
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_data_mag
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_data_gyro
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_data_light
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_data_proximity
+        chown system system /sys/class/htc_sensorhub/sensor_hub/calibrator_data_barometer
+        chown system system /sys/class/htc_sensorhub/sensor_hub/data_barometer
+        chown system system /sys/class/htc_sensorhub/sensor_hub/data_proximity
+        chown system system /sys/class/htc_sensorhub/sensor_hub/data_proximity_polling
+        chown system system /sys/class/htc_sensorhub/sensor_hub/data_light_polling
+        chown system system /sys/class/htc_sensorhub/sensor_hub/sensor_hub_rdata
+        chown system system /sys/class/htc_sensorhub/sensor_hub/ps_canc
+        chown system system /sys/class/htc_sensorhub/sensor_hub/data_light_kadc
+        chown system system /sys/class/htc_sensorhub/sensor_hub/firmware_version
+        chown system system /sys/class/htc_sensorhub/sensor_hub/uart_debug
+        chown system system /sys/class/htc_sensorhub/sensor_hub/boot_mode
+        chown system system /sys/class/htc_sensorhub/sensor_hub/ls_mechanism
+        chown system system /sys/class/htc_sensorhub/sensor_hub/nvram_cali_data
+        chown system gesture_motion /sys/class/htc_sensorhub/sensor_hub/gesture_motion
+        chown system system /sys/class/htc_sensorhub/sensor_hub/mcu_wakeup
+		chown system system /sys/class/htc_sensorhub/sensor_hub/batch_enable
+		chown system system /sys/class/htc_sensorhub/sensor_hub/flush
+		chown system system /sys/class/htc_sensorhub/sensor_hub/dbg_flag
+
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/enable
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/delay_ms
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/barometer_self_test
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/AP_calibrator_data_accRL
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_en
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_status_acc
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_status_mag
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_status_gyro
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_data_acc
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_data_accRL
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_data_mag
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_data_gyro
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_data_light
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_data_proximity
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/calibrator_data_barometer
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/data_barometer
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/data_proximity
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/data_proximity_polling
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/data_light_polling
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/sensor_hub_rdata
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/ps_canc
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/data_light_kadc
+        chmod 0777 /sys/class/htc_sensorhub/sensor_hub/firmware_version
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/uart_debug
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/boot_mode
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/ls_mechanism
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/nvram_cali_data
+        chmod 0777 /sys/class/htc_sensorhub/sensor_hub/gesture_motion
+        chmod 0664 /sys/class/htc_sensorhub/sensor_hub/mcu_wakeup
+		chmod 0664 /sys/class/htc_sensorhub/sensor_hub/batch_enable
+		chmod 0664 /sys/class/htc_sensorhub/sensor_hub/flush
+		chmod 0664 /sys/class/htc_sensorhub/sensor_hub/dbg_flag
+
+# HTC SSD Peripheral UI - BEGIN
+
+	# for BMA253 BOSCH
+	chown system system /sys/class/htc_g_sensor/bma253/bandwidth
+	chown system system /sys/class/htc_g_sensor/bma253/chip_layout
+	chown system system /sys/class/htc_g_sensor/bma253/delay
+	chown system system /sys/class/htc_g_sensor/bma253/eeprom_writing
+	chown system system /sys/class/htc_g_sensor/bma253/enable
+	chown system system /sys/class/htc_g_sensor/bma253/enable_int
+	chown system system /sys/class/htc_g_sensor/bma253/fast_calibration_x
+	chown system system /sys/class/htc_g_sensor/bma253/fast_calibration_y
+	chown system system /sys/class/htc_g_sensor/bma253/fast_calibration_z
+	chown system system /sys/class/htc_g_sensor/bma253/flat_hold_time
+	chown system system /sys/class/htc_g_sensor/bma253/flat_theta
+	chown system system /sys/class/htc_g_sensor/bma253/get_raw_data
+	chown system system /sys/class/htc_g_sensor/bma253/high_g_duration
+	chown system system /sys/class/htc_g_sensor/bma253/high_g_threshold
+	chown system system /sys/class/htc_g_sensor/bma253/int_mode
+	chown system system /sys/class/htc_g_sensor/bma253/low_g_duration
+	chown system system /sys/class/htc_g_sensor/bma253/low_g_threshold
+	chown system system /sys/class/htc_g_sensor/bma253/mode
+	chown system system /sys/class/htc_g_sensor/bma253/orient_blocking
+	chown system system /sys/class/htc_g_sensor/bma253/orient_hyst
+	chown system system /sys/class/htc_g_sensor/bma253/orient_mode
+	chown system system /sys/class/htc_g_sensor/bma253/orient_theta
+	chown system system /sys/class/htc_g_sensor/bma253/range
+	chown system system /sys/class/htc_g_sensor/bma253/reg
+	chown system system /sys/class/htc_g_sensor/bma253/selftest
+	chown system system /sys/class/htc_g_sensor/bma253/set_k_value
+	chown system system /sys/class/htc_g_sensor/bma253/nvram_cali_data
+	chown system system /sys/class/htc_g_sensor/bma253/slope_duration
+	chown system system /sys/class/htc_g_sensor/bma253/slope_threshold
+	chown system system /sys/class/htc_g_sensor/bma253/tap_duration
+	chown system system /sys/class/htc_g_sensor/bma253/tap_quiet
+	chown system system /sys/class/htc_g_sensor/bma253/tap_samp
+	chown system system /sys/class/htc_g_sensor/bma253/tap_shock
+	chown system system /sys/class/htc_g_sensor/bma253/tap_threshold
+	chmod 0660 /sys/class/htc_g_sensor/bma253/bandwidth
+	chmod 0660 /sys/class/htc_g_sensor/bma253/chip_layout
+	chmod 0660 /sys/class/htc_g_sensor/bma253/delay
+	chmod 0660 /sys/class/htc_g_sensor/bma253/eeprom_writing
+	chmod 0660 /sys/class/htc_g_sensor/bma253/enable
+	chmod 0660 /sys/class/htc_g_sensor/bma253/enable_int
+	chmod 0660 /sys/class/htc_g_sensor/bma253/fast_calibration_x
+	chmod 0660 /sys/class/htc_g_sensor/bma253/fast_calibration_y
+	chmod 0660 /sys/class/htc_g_sensor/bma253/fast_calibration_z
+	chmod 0660 /sys/class/htc_g_sensor/bma253/flat_hold_time
+	chmod 0660 /sys/class/htc_g_sensor/bma253/flat_theta
+	chmod 0660 /sys/class/htc_g_sensor/bma253/get_raw_data
+	chmod 0660 /sys/class/htc_g_sensor/bma253/high_g_duration
+	chmod 0660 /sys/class/htc_g_sensor/bma253/high_g_threshold
+	chmod 0660 /sys/class/htc_g_sensor/bma253/int_mode
+	chmod 0660 /sys/class/htc_g_sensor/bma253/low_g_duration
+	chmod 0660 /sys/class/htc_g_sensor/bma253/low_g_threshold
+	chmod 0660 /sys/class/htc_g_sensor/bma253/mode
+	chmod 0660 /sys/class/htc_g_sensor/bma253/orient_blocking
+	chmod 0660 /sys/class/htc_g_sensor/bma253/orient_hyst
+	chmod 0660 /sys/class/htc_g_sensor/bma253/orient_mode
+	chmod 0660 /sys/class/htc_g_sensor/bma253/orient_theta
+	chmod 0660 /sys/class/htc_g_sensor/bma253/range
+	chmod 0660 /sys/class/htc_g_sensor/bma253/reg
+	chmod 0660 /sys/class/htc_g_sensor/bma253/selftest
+	chmod 0660 /sys/class/htc_g_sensor/bma253/set_k_value
+	chown 0660 /sys/class/htc_g_sensor/bma253/nvram_cali_data
+	chmod 0660 /sys/class/htc_g_sensor/bma253/slope_duration
+	chmod 0660 /sys/class/htc_g_sensor/bma253/slope_threshold
+	chmod 0660 /sys/class/htc_g_sensor/bma253/tap_duration
+	chmod 0660 /sys/class/htc_g_sensor/bma253/tap_quiet
+	chmod 0660 /sys/class/htc_g_sensor/bma253/tap_samp
+	chmod 0660 /sys/class/htc_g_sensor/bma253/tap_shock
+	chmod 0660 /sys/class/htc_g_sensor/bma253/tap_threshold
+
+	# P-sensor
+	chown radio radio /sys/class/optical_sensors/proximity/PhoneApp_status
+	chown system system /sys/class/optical_sensors/proximity/ps_nvram_cali_data
+	chown system system /sys/class/optical_sensors/lightsensor/ls_nvram_cali_data
+	chmod 0660 /sys/class/optical_sensors/proximity/PhoneApp_status
+	chown 0660 /sys/class/optical_sensors/proximity/ls_nvram_cali_data
+	chown 0660 /sys/class/optical_sensors/lightsensor/ls_nvram_cali_data
+
+	# G-Sensor Calibration USER
+	chown system system /sys/class/htc_g_sensor/g_sensor/g_sensor_user_offset
+	chmod 0660 /sys/class/htc_g_sensor/g_sensor/g_sensor_user_offset
+
+# HTC SSD Peripheral UI - END
+
+#
+# Connectivity related services (End)
+#
+# Start Daemon (Registry directories should already be present)
+# service mobicore /system/bin/mcDriverDaemon -r /system/app/mcRegistry/020f0000000000000000000000000000.drbin -r /system/app/mcRegistry/05120000000000000000000000000000.drbin -r /system/app/mcRegistry/070b0000000000000000000000000000.drbin
+service mobicore /system/bin/mcDriverDaemon -r /system/app/mcRegistry/020f0000000000000000000000000000.drbin -r /system/app/mcRegistry/05120000000000000000000000000000.drbin -r /system/app/mcRegistry/070b0000000000000000000000000000.drbin  -r /system/app/mcRegistry/b5fde92dbeef4ac28855478daa6e6fd7.drbin
+        user system
+        group system
+        class core
+        oneshot
+service pnpmgr /system/bin/pnpmgr
+    class core
+    user root
+
+service setFOTA /system/bin/sh /system/bin/setFOTAfreq.sh
+    class main
+    user root
+    cgroup bg
+    oneshot
+
+# HTC Embedded Log +++
+service htc_ebdlogd /system/bin/htc_ebdlogd -s -k -P 7
+    user root
+    disabled
+    oneshot
+    ioprio idle 0
+
+service htc_ebdlogd_rel /system/bin/htc_ebdlogd -s -k
+    user root
+    disabled
+    oneshot
+    ioprio idle 0
+
+on property:ro.build.tags=test-keys
+    start htc_ebdlogd
+
+on property:ro.build.tags=release-keys
+    start htc_ebdlogd_rel
+# HTC Embedded Log ---
+
+# sensor daemon
+service sensord /system/bin/sensord
+    user system
+    group system
+    class main
+
+# HTC Automotive - BEGIN
+service cand /system/bin/cand
+    class main
+    user root
+# HTC Automotive - END
+
+
+# HTC sensor_hub - BEGIN
+    service shub_dbg /system/bin/shub_dbg
+    class main
+    user system
+    group system
+# HTC sensor_hub - END
+
+# Security Tamper Detection
+service tpd_daemon /system/bin/tpd_daemon
+    class core
+    user root
+service clockd /system/bin/clockd
+    class main
+user root
+

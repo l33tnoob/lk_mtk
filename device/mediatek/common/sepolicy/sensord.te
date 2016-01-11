@@ -1,0 +1,92 @@
+#sensord - BST sensor daemon
+type sensord, domain;
+type sensord_exec, exec_type, file_type;
+# Started by init
+init_daemon_domain(sensord)
+# Change own perms to (nobody,nobody)
+allow sensord self:capability { setuid setgid };
+# Chown /data/misc/sensors/debug/ to nobody
+allow sensord self:capability chown;
+dontaudit sensord self:capability fsetid;
+# Access /data/system/sensors/settings
+allow sensord self:capability { fowner dac_override dac_read_search };
+allow sensord sysfs:file rw_file_perms;
+# Create directories and files under /data/misc/
+# and /data/system/. Allow generic r/w file access.
+allow sensord sensord_data_file:file create_file_perms;
+allow sensord sensord_data_file:dir create_dir_perms;
+allow sensord sensord_data_file:fifo_file create_file_perms;
+# Lunch /system/bin/sensord
+allow sensord sensord_exec:file { entrypoint rx_file_perms };
+# Access input nodes
+allow sensord input_device:dir { rw_dir_perms search };
+allow sensord input_device:chr_file { rw_file_perms };
+
+allow sensord system_data_file:file { open read write create append unlink ioctl getattr setattr };
+allow sensord system_data_file:dir { search open read write unlink add_name remove_name create getattr setattr };
+allow sensord clockd:dir { search };
+allow sensord clockd:file { open read write };
+allow sensord clockd:lnk_file { read };
+allow sensord guiext-server:dir { search };
+allow sensord guiext-server:file { open read write };
+allow sensord guiext-server:lnk_file { read };
+allow sensord sn:dir { search };
+allow sensord sn:file { open read write };
+allow sensord sn:lnk_file { read };
+allow sensord thermal:dir { search };
+allow sensord thermal:file { open read write };
+allow sensord thermal:lnk_file { read };
+allow sensord mtkbt:dir { search };
+allow sensord mtkbt:file { read };
+allow sensord mtkbt:lnk_file { read };
+allow sensord zygote:dir { search };
+allow sensord zygote:file { open read write };
+allow sensord zygote:lnk_file { open read write };
+#allow sensord ssd_tool:lnk_file { read };
+allow sensord batterywarning:dir { search };
+allow sensord batterywarning:file { open read write };
+allow sensord batterywarning:lnk_file { open read write };
+allow sensord cand:dir { search };
+allow sensord cand:file { open read write };
+allow sensord cand:lnk_file { read };
+allow sensord adbd:dir { search };
+allow sensord adbd:file { open read write };
+allow sensord MtkCodecService:dir { search };
+allow sensord MtkCodecService:file { open read write };
+allow sensord MtkCodecService:lnk_file { open read write };
+allow sensord surfaceflinger:dir { search read };
+allow sensord program_binary:dir { search };
+allow sensord program_binary:file { read };
+allow sensord program_binary:file { open };
+allow sensord thermal_manager:dir { search };
+allow sensord init_shell:dir { search };
+allow sensord init_shell:file { open read write };
+allow sensord init_shell:lnk_file { read };
+allow sensord vold:dir { search };
+allow sensord vold:file { read };
+allow sensord enableswap:dir { search };
+allow sensord mtk_agpsd:dir { search };
+allow sensord mtk_agpsd:file { read };
+allow sensord dumpstate:dir { search };
+allow sensord ppl_agent:dir { search };
+allow sensord ppl_agent:file { read };
+allow sensord mobile_log_d:dir { search };
+allow sensord pnpmgr:dir { search };
+allow sensord pnpmgr:file { read };
+allow sensord mnld:dir { search };
+allow sensord mnld:file { open read write };
+allow sensord mnld:lnk_file { read };
+allow sensord logd:dir { search };
+allow sensord logd:file { open read write };
+allow sensord logd:lnk_file { read };
+allow sensord thermald:dir { search };
+allow sensord thermald:file { open read write };
+allow sensord thermald:lnk_file { read };
+allow sensord nvram_agent_binder:dir { search };
+allow sensord nvram_agent_binder:file { read };
+allow sensord nvram_agent_binder:lnk_file { read };
+allow sensord em_svr:dir { search };
+allow sensord debuggerd:dir { search };
+allow sensord sdcardd:dir { search };
+allow sensord permission_check:dir { search };
+allow sensord kernel:dir { search };

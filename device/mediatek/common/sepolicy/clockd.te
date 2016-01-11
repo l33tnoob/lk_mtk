@@ -1,0 +1,26 @@
+type clockd_exec, exec_type, file_type;
+type clockd ,domain;
+
+
+init_daemon_domain(clockd)
+net_domain(clockd)
+
+#qmux_socket(clockd);
+
+allow clockd clockd_exec:file entrypoint;
+allow clockd socket_device:dir {remove_name add_name write};
+allow clockd socket_device:sock_file {unlink create setattr getattr write relabelfrom};
+allow clockd self:capability {chown fowner fsetid};
+allow clockd clockd_socket:sock_file {unlink relabelto};
+allow clockd block_device:dir search;
+allow clockd device:dir write;
+
+allow clockd platform_app:unix_stream_socket connectto;
+allow clockd self:unix_stream_socket connectto;
+allow clockd system_data_file:dir {remove_name add_name write};
+allow clockd system_data_file:file {unlink create write open};
+allow clockd sysfs:file write;
+
+allow clockd platformblk_device:blk_file {open read write};
+
+

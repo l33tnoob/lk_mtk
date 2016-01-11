@@ -1,0 +1,35 @@
+This directory contains NvRAM Meta Editor library
+
+
+WHAT IT DOES?
+=============
+It provide NvRAM editing feature on PC side,which allow read and modify NvRAM item as GUI.
+
+HOW IT WAS BUILT?
+==================
+
+It needs the following libs from AOSP:
+1.  libc.so
+
+and the following libs from MediaTek:
+1. libnvram.so
+2. libft.a
+
+All source/dependency modules of this module are already put in
+'vendor/mediatek/libs' folder.
+
+
+HOW TO USE IT?
+==============
+
+Files in this directory is used to
+generate a library which's name is 'libmeta_apeditor'
+
+
+META_Editor
+The lib  'libmeta_apeditor' is loaded when SP Meta tool and related libs,
+all NvRAM GUI opertations will call META_Editor_xxx API, then it calls NvRAM native API to access NvRAM data.
+
+
+All the source code of this library were written by MediaTek co..
+

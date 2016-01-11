@@ -1,0 +1,7 @@
+#include "../cfgdefault/CFG_Custom1_Default.h"
+#include "../cfgdefault/CFG_GPS_Default.h"
+#include "../cfgdefault/CFG_PRODUCT_INFO_Default.h"
+#include "../cfgdefault/CFG_WIFI_Default.h"
+#include "../cfgdefault/CFG_HTC_DATA_Default.h"
+#include "../cfgfileinc/CFG_FACTORY_RESERVED_Default.h"
+#include "../../../../custom/common/cgen/cfgdefault/CFG_HTC_CAMERA_Default.h"

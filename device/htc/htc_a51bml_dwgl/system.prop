@@ -1,0 +1,103 @@
+#
+# system.prop for generic sdk
+#
+
+rild.libpath=mtk-ril.so
+rild.libargs=-d /dev/ttyC0
+
+
+# MTK, Infinity, 20090720 {
+wifi.interface=wlan0
+# MTK, Infinity, 20090720 }
+
+# MTK, mtk03034, 20101210 {
+ro.mediatek.wlan.wsc=1
+# MTK, mtk03034 20101210}
+# MTK, mtk03034, 20110318 {
+ro.mediatek.wlan.p2p=1
+# MTK, mtk03034 20110318}
+
+# MTK, mtk03034, 20101213 {
+mediatek.wlan.ctia=0
+# MTK, mtk03034 20101213}
+
+
+#
+wifi.tethering.interface=ap0
+#
+
+ro.opengles.version=196608
+
+wifi.direct.interface=p2p0
+dalvik.vm.heapgrowthlimit=128m
+dalvik.vm.heapsize=256m
+
+# USB MTP WHQL
+ro.sys.usb.mtp.whql.enable=0
+
+# Power off opt in IPO
+sys.ipo.pwrdncap=2
+
+ro.sys.usb.storage.type=mtp,mass_storage
+
+# USB BICR function
+ro.sys.usb.bicr=yes
+
+# USB Charge only function
+ro.sys.usb.charging.only=yes
+
+# HTC_AUD System props for ALT feature
+#htc.audio.swalt.enable=1
+#htc.audio.swalt.mingain=3284
+
+# HTC_AUD System property for Subwoofer
+htc.audio.subwoofer.enable=1
+
+# HTC_AUD WA:need to be removed later. This parameter is for Beats using.
+htc.audio.global.speaker=1
+
+# audio
+ro.camera.sound.forced=0
+ro.audio.silent=0
+
+ro.zygote.preload.enable=0
+
+# temporary enables NAV bar (soft keys)
+qemu.hw.mainkeys=0
+
+ro.kernel.zio=38,108,105,16
+#ro.kernel.qemu=1
+#ro.kernel.qemu.gles=0
+#ro.boot.selinux=disable
+
+# Disable dirty region for Mali
+debug.hwui.render_dirty_regions=false
+
+ro.sf.lcd_density=480
+ro.product.display_resolution=5.5 inch 1080p resolution
+ro.product.ram = 2GB
+
+# disable ipo for development
+sys.ipo.disable=1
+
+#SSD_RIL: delay 2s before stop RIL daemon and send unsol notification for MD Exception
+persist.ril.ee.delay=2
+
+#Simulate sdcard on /data/media
+persist.fuse_sdcard=true
+
+# ro.storage_structure: define the storage structure of this project
+# FUSE: 0x8, FAT: 0x4, SD: 0x2, INS: 0x1
+# Example: If the project has FUSE with SD card, the value should be defined as 10 (dec)
+ro.storage_structure = 10
+
+# ro.storage_encryption_type: define the storage encryption type of this project
+# not support encryption: 0x0 block level: 0x1 file level: 0x2
+ro.storage_encryption_type = 2
+
+#For usb storage
+ro.usb_host = 1
+# HTC BT
+# system property for Bluetooth SIM Access Profile
+#
+ro.htc.bluetooth.sap=false

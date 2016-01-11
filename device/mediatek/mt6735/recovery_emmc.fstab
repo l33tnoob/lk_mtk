@@ -1,0 +1,9 @@
+boot                    /boot           emmc            defaults        defaults
+cache                   /cache          ext4            defaults        defaults
+userdata                /data           ext4            defaults        defaults
+misc                    /misc           emmc            defaults        defaults
+recovery                /recovery       emmc            defaults        defaults
+/dev/block/mmcblk1p1    /sdcard         vfat            defaults        defaults
+system                  /system         ext4            defaults        defaults
+devlog                  /devlog         ext4            defaults        defaults
+

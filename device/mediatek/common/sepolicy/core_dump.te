@@ -1,0 +1,30 @@
+# [framework] begin, Jim Guo, 2015/03/19, [DEBUG][corefump] Setup sepolicy for core dump.
+
+type core_dump, domain;
+type core_dump_exec, exec_type, file_type;
+
+# For STDIN_FILENO
+allow core_dump kernel:fifo_file { read getattr ioctl };
+
+# Execute the shell or system commands.
+allow core_dump shell_exec:file read;
+allow core_dump system_file:file { execute_no_trans };
+
+# To managed data/core files
+allow core_dump core_data_file:dir rw_dir_perms;
+allow core_dump core_data_file:file create_file_perms;
+
+# Allow core_dump to read app /proc/pid dirs
+allow core_dump appdomain:dir { getattr read open search };
+allow core_dump appdomain:file { read open};
+
+# Allow core_dump to read system_server /proc/pid dirs
+allow core_dump system_server:dir { getattr read open search };
+allow core_dump system_server:file { read open};
+
+# Allow core_dump to read zygote /proc/pid dirs
+allow core_dump zygote:dir { getattr read open search };
+allow core_dump zygote:file { read open };
+
+# [framework] end, Jim Guo, 2015/03/19.
+

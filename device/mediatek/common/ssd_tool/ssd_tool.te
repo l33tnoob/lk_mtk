@@ -1,0 +1,57 @@
+type ssd_tool, domain;
+type ssd_tool_exec, exec_type, file_type;
+type ssd_tool_socket, dev_type;
+#type ssd_tool_data_file, file_type, data_file_type;
+
+domain_auto_trans(init, ssd_tool_exec, ssd_tool)
+domain_auto_trans(radio, ssd_tool_exec, ssd_tool)
+
+permissive ssd_tool;
+
+app_domain(ssd_tool)
+net_domain(ssd_tool)
+binder_use(ssd_tool)
+bluetooth_domain(ssd_tool)
+
+dontaudit ssd_tool self:capability_class_set *;
+dontaudit ssd_tool kernel:security *;
+dontaudit ssd_tool kernel:system *;
+dontaudit ssd_tool self:memprotect *;
+dontaudit ssd_tool domain:process *;
+dontaudit ssd_tool domain:fd *;
+dontaudit ssd_tool domain:dir *;
+dontaudit ssd_tool domain:lnk_file *;
+dontaudit ssd_tool domain:{ fifo_file file } *;
+dontaudit ssd_tool domain:socket_class_set *;
+dontaudit ssd_tool domain:ipc_class_set *;
+dontaudit ssd_tool domain:key *;
+dontaudit ssd_tool {fs_type unlabeled}:filesystem *;
+dontaudit ssd_tool {fs_type dev_type file_type}:dir_file_class_set *;
+dontaudit ssd_tool node_type:node *;
+dontaudit ssd_tool node_type:{ tcp_socket udp_socket rawip_socket } *;
+dontaudit ssd_tool netif_type:netif *;
+dontaudit ssd_tool port_type:socket_class_set *;
+dontaudit ssd_tool port_type:{ tcp_socket dccp_socket } *;
+dontaudit ssd_tool domain:peer *;
+dontaudit ssd_tool domain:binder *;
+dontaudit ssd_tool property_type:property_service *;
+
+allow domain ssd_tool:dir *;
+allow domain ssd_tool:file *;
+allow { domain -netd -logd } ssd_tool:process *;
+allow { netd logd } ssd_tool:process ~{ ptrace };
+#allow { domain -ssd_tool } ssd_tool:socket_class_set *;
+
+#allow system_server ssd_tool_data_file:dir r_dir_perms;
+#allow system_server ssd_tool_data_file:file r_file_perms;
+
+#allow installd ssd_tool_data_file:dir { create_dir_perms relabelfrom relabelto };
+#allow installd ssd_tool_data_file:lnk_file { create setattr getattr unlink rename relabelfrom relabelto };
+#allow installd ssd_tool_data_file:{ file sock_file fifo_file } { create_file_perms relabelfrom relabelto };
+
+allow domain ssd_tool:fd *;
+allow domain ssd_tool:fifo_file *;
+allow domain ssd_tool:unpriv_socket_class_set *;
+allow domain ssd_tool_socket:sock_file *;
+
+allow radio { ssd_tool_exec su_exec }:file ~{ create write setattr relabelfrom relabelto append unlink link rename };

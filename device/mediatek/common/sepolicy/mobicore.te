@@ -1,0 +1,58 @@
+##
+# Trustonic TEE (mobicore) daemon
+#
+
+# ==============================================
+# Type Declaration
+# ==============================================
+type mobicore, domain;
+type mobicore_exec, exec_type, file_type;
+type mobicore_admin_device, dev_type;
+type mobicore_user_device, dev_type;
+type mobicore_tui_device, dev_type;
+type mobicore_data_file, file_type, data_file_type;
+
+# ==============================================
+# Type Declaration for secmem
+# ==============================================
+type proc_secmem, fs_type;
+# genfscon proc /secmem0 u:object_r:proc_secmem:s0;
+
+# ==============================================
+# MTK Policy Rule
+# ==============================================
+# permissive mobicore;
+init_daemon_domain(mobicore)
+allow mobicore self:capability { dac_override };
+allow mobicore mobicore_admin_device:chr_file rw_file_perms;
+allow mobicore mobicore_user_device:chr_file rw_file_perms;
+allow mobicore mobicore_data_file:dir rw_dir_perms;
+allow mobicore mobicore_data_file:file create_file_perms;
+allow mobicore self:netlink_socket create_socket_perms;
+allow mobicore apk_data_file:dir write;
+allow mobicore mobicore_data_file:dir create;
+allow mobicore mobicore_data_file:file rw_file_perms;
+
+# This part should be added to app.te but can be here also
+allow appdomain mobicore_admin_device : chr_file { ioctl read write create getattr setattr lock relabelfrom append unlink link rename swapon quotaon mounton execute_no_trans open audit_access } ;
+allow appdomain mobicore_user_device : chr_file { ioctl read write create getattr setattr lock relabelfrom append unlink link rename swapon quotaon mounton execute_no_trans open audit_access } ;
+
+# This part should be added to untrusted_app.te but can be here also
+allow untrusted_app mobicore_data_file: file { ioctl read write create getattr setattr lock append unlink rename open } ;
+allow untrusted_app mobicore_data_file:dir { ioctl read write create getattr setattr unlink link rename add_name remove_name reparent search rmdir open } ;
+
+# This part should be added to untrusted_app.te but can be here also
+# In case our daemon run as untrusted app
+allow untrusted_app appdomain : unix_stream_socket { read write create getattr setattr lock relabelfrom relabelto append bind connect listen accept getopt setopt shutdown recvfrom sendto recv_msg send_msg name_bind connectto newconn acceptfrom } ;
+allow untrusted_app mobicore: unix_stream_socket { connectto };
+allow untrusted_app init_shell:unix_stream_socket connectto;
+allow untrusted_app mobicore_user_device:chr_file { read write ioctl open getattr };
+allow untrusted_app mobicore_exec:file getattr;
+
+# This part should be added to platform_app.te but can be here also
+allow platform_app init_shell:unix_stream_socket connectto;
+allow platform_app mobicore: unix_stream_socket { connectto };
+allow platform_app mobicore_user_device:chr_file { read write ioctl open };
+
+# This part should be added to system_server.te but can be here also
+allow system_server mobicore_data_file:dir { read getattr open };
