@@ -365,7 +365,7 @@ literal:
 			/* take only those things in the class */
 			if (flags & SUPPRESS) {
 				n = 0;
-				while (ccltab[*char_ptr]) {
+				while (ccltab[(int)*char_ptr]) {
 					n++, chars_left--, char_ptr++;
 					if (--width == 0)
 						break;
@@ -379,7 +379,7 @@ literal:
 					goto match_failure;
 			} else {
 				p0 = p = va_arg(ap, char *);
-				while (ccltab[*char_ptr]) {
+				while (ccltab[(int)*char_ptr]) {
 					chars_left--;
 					*p++ = *char_ptr++;
 					if (--width == 0)

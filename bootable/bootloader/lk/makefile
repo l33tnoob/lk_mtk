@@ -149,7 +149,7 @@ DEFINES += \
 	$(addsuffix =1,$(addprefix WITH_,$(ALLMODULES)))
 
 ifeq ($(MTK_KERNEL_POWER_OFF_CHARGING),yes)
-CFLAGS += -DMTK_KERNEL_POWER_OFF_CHARGING=yes
+# CFLAGS += -DMTK_KERNEL_POWER_OFF_CHARGING=yes # zzytest fix redefined config.h
 endif
 
 ifeq ($(MTK_EMMC_SUPPORT),yes)

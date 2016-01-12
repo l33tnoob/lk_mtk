@@ -30,6 +30,7 @@
 #include <string.h>
 #include <ctype.h>
 
+extern void strrev(unsigned char *str);
 int
 itoa(int num, unsigned char* str, int len, int base)
 {
