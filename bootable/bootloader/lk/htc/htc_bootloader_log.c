@@ -57,14 +57,14 @@ void bldr_log_write(const char *s)
 		header->rotate_flag = true;
 	}
 
-	len = MIN(len, bldr_log_size - header->offset);
+	len = MIN(len, (int32_t)(bldr_log_size - header->offset));
 	memcpy(bldr_log_base + header->offset, s, len);
 	header->offset += len;
 }
 
 void bldr_log_init(void* bldr_log_base_pa, size_t size)
 {
-	volatile uint32_t magic;
+	// volatile uint32_t magic; // remove unused variable
 
 	if (!bldr_log_base_pa)
 	{

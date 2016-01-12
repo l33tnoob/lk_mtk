@@ -4,6 +4,7 @@
 #include <htc_aes_rijndael.h>
 #include <htc_crypto.h>
 
+extern const uint8_t* SHA256(const void *data, int len, uint8_t *digest);
 
 void compute_digest(void *data, unsigned dlen, void *digest_out)
 {

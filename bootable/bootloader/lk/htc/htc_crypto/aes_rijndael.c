@@ -1257,7 +1257,7 @@ void htc_AES_cbc_crypto(const unsigned char *in, unsigned char *out, unsigned lo
                         htc_rijndaelDecrypt(rk, nrounds, in, out);
 			for(i=0; i < AES_BLOCK_SIZE; ++i)
 				out[i] ^= ivec[i];
-			ivec = in;
+			ivec = (unsigned char *)in;
 			length -= AES_BLOCK_SIZE;
 			in += AES_BLOCK_SIZE;
 			out += AES_BLOCK_SIZE;

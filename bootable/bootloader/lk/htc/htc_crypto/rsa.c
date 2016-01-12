@@ -247,13 +247,13 @@ int RSA_verify_ext(RSAPublicKey *key,
 
     /* Check pkcs1.5 padding bytes. */
 	if (halg == HASH_SHA1){
-		for (i = 0; i < sizeof(padding); ++i) {
+		for (i = 0; (unsigned int)i < sizeof(padding); ++i) {
 			if (buf[i] != padding[i]) {
 				return 0;
 			}
 		}
 	} else if (halg == HASH_SHA256) {
-        for (i = 0; i < sizeof(sha256_padding); ++i) {
+        for (i = 0; (unsigned int)i < sizeof(sha256_padding); ++i) {
             if (buf[i] != sha256_padding[i]) {
                 return 0;
             }

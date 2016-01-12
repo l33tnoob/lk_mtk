@@ -41,6 +41,7 @@
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
+uintmax_t strtoumax(const char *nptr, char **endptr, int base);
 unsigned long long
 strtoull(const char *nptr, char **endptr, int base)
 {

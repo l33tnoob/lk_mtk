@@ -19,7 +19,7 @@
 #define DRAMC0_BASE     (0x10214000)  //(0x10004000)
 
 // MCUCFG
-#define MCUCFG_BASE     (0x10200600)
+// #define MCUCFG_BASE     (0x10200600) // zzytest remove for redefined
 
 // APB Module gpio
 #define GPIO_BASE       (0x10211000)  //(0x10005000)

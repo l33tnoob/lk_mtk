@@ -174,7 +174,7 @@ void SHA256Update(SHA256Context *sc, uint8_t inbuf[], int inOff, int len){
 		len--;
 	}
 
-	while (len > sizeof(sc->xBuf)){
+	while ((unsigned int)len > sizeof(sc->xBuf)){
 		processWord(sc, inbuf, inOff);
 
 		inOff += sizeof(sc->xBuf);
@@ -208,7 +208,7 @@ void SHA256Final(SHA256Context *sc, uint8_t outbuf[], int outOff){
 const uint8_t* SHA256(const void *data, int len, uint8_t *digest) {
 	SHA256Context ctx;
 	SHA256Init(&ctx);
-	SHA256Update(&ctx, data, 0, len);
+	SHA256Update(&ctx, (uint8_t *)data, 0, len);
 	SHA256Final(&ctx, digest, 0);
 
     return digest;

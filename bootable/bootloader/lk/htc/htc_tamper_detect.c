@@ -36,6 +36,10 @@ struct tamper_info_t
 	read misc: setting_misc_partition_read("misc");   (done by setting_init)
 	write misc: setting_save_misc();
 */
+
+extern void *malloc(size_t size);
+extern void free(void *ptr);
+extern int partition_read_pgfs(const char *name, int offset, void *buf, int len);
 static int tamper_read_from_misc(uint32_t *tamper_flag)
 {
 	struct tamper_info_t *t_info;
@@ -113,7 +117,7 @@ static int tamper_write_pgfs(char *tamper_info, int len)
 	write pg2fs: partition_update_pgfs("pg2fs_tamper", 0, xxx, sizeof(struct xxx_t));
 		radio:
 */
-static int tamper_read_secure_filesystem(int32_t *tamper_flag)
+static int tamper_read_secure_filesystem(uint32_t *tamper_flag)
 {
 	struct tamper_info_t *t_info;
 	int ret;
@@ -188,6 +192,7 @@ static int tamper_write_secure_filesystem(uint32_t tamper_flag)
 	return ret;
 }
 
+extern void tamper_set_display_string(uint32_t status);
 int tamper_set_flag(uint32_t tamper_flag)
 {
 	uint32_t tamper_type;
@@ -290,6 +295,8 @@ void tamper_rec_update_image(const char *image_name)
 
 }
 
+extern int setting_security(void);
+extern int get_unlock_status(void);
 void tamper_chk_update_image(void)
 {
 	uint32_t tamper_flag;
@@ -354,6 +361,7 @@ int tamper_get_timeout(void)
 	return 300;
 }
 
+extern int sprintf(char *str, const char *fmt, ...);
 void tamper_set_display_string(uint32_t status)
 {
 	memset(g_tamper_string, 0, sizeof(g_tamper_string));
