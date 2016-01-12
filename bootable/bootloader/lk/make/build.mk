@@ -24,7 +24,7 @@ ifeq ($(BUILD_SEC_LIB),yes)
 	@ar cq $(LK_TOP_DIR)/app/mt_boot/lib/libdevinfo.a $(DEVINFO_OBJS)
 endif
 	@echo linking $@
-	$(LD) $(LDFLAGS) -T $(LINKER_SCRIPT) $(OUTPUT_TZ_BIN) $(ALLOBJS) $(LIBGCC) $(LIBSEC) $(LIBSEC_PLAT) -o $@
+	$(NOECHO)$(LD) $(LDFLAGS) -T $(LINKER_SCRIPT) $(OUTPUT_TZ_BIN) $(ALLOBJS) $(LIBGCC) $(LIBSEC) $(LIBSEC_PLAT) -o $@
 else
 $(OUTELF): $(ALLOBJS) $(LINKER_SCRIPT)
 ifeq ($(BUILD_SEC_LIB),yes)
@@ -40,7 +40,7 @@ ifeq ($(BUILD_SEC_LIB),yes)
 	@ar cq $(LK_TOP_DIR)/app/mt_boot/lib/libdevinfo.a $(DEVINFO_OBJS)
 endif
 	@echo linking $@
-	$(LD) $(LDFLAGS) -T $(LINKER_SCRIPT) $(ALLOBJS) $(LIBGCC) $(LIBSEC) $(LIBSEC_PLAT) -o $@
+	$(NOECHO)$(LD) $(LDFLAGS) -T $(LINKER_SCRIPT) $(ALLOBJS) $(LIBGCC) $(LIBSEC) $(LIBSEC_PLAT) -o $@
 endif
 
 $(OUTELF).sym: $(OUTELF)
