@@ -730,7 +730,7 @@ unsigned long long partition_get_size_by_name(char* name)
 	return (unsigned long long)p->nr_sects * BLK_SIZE;
 }
 
-unsigned long partition_size(const name)
+unsigned long partition_size(const char* name)
 {
 	part_t *p = NULL;
 
@@ -741,7 +741,7 @@ unsigned long partition_size(const name)
 	return (unsigned long)p->nr_sects; // return sector number of the specific partition
 }
 
-unsigned long partition_start_block(const name)
+unsigned long partition_start_block(const char *name)
 {
 	part_t *p = NULL;
 

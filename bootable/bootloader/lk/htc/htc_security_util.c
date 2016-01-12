@@ -40,15 +40,26 @@ static RSAPublicKey g_ship_sign_key = {0};
 int Boot_Security_Check_Fail = 0;
 const char *SEC_BOOT_WARNING = "*** Security Warning ***";
 
-static unsigned char* verify_partitions_list[] = {"secro", "tee1", "tee2", "lk", "hosd"};
+static unsigned char* verify_partitions_list[] = {(unsigned char *)"secro", (unsigned char *)"tee1", (unsigned char *)"tee2", (unsigned char *)"lk", (unsigned char *)"hosd"};
 
 
 extern u8 g_oemkey[OEM_PUBK_SZ];
 extern BOOT_ARGUMENT *g_boot_arg;
 
+extern int seclib_set_oemkey(u8 *key, u32 key_size);
+extern void *malloc(size_t size);
+extern void free(void *ptr);
+extern int memcmp(const void *cs, const void *ct, size_t count);
+extern void *memset(void *s, int c, size_t count);
+extern void *memalign(size_t boundary, size_t size);
+extern void *memcpy(void *dest, const void *src, size_t count);
+extern int strcmp(char const *cs, char const *ct);
 extern void seclib_image_buf_init(void);
 extern void seclib_image_buf_free(void);
 extern u32 seclib_image_check_buf(u8 *buf, u32 size);
+extern u32 seclib_image_check(u8 *buf, u32 size);
+extern int strncmp(char const *cs, char const *ct, size_t count);
+extern size_t strlen(char const *s);
 
 struct security_info_t* security_info = NULL;
 struct sec_ex_util_info_t* sec_ex_util_info = NULL;
@@ -262,7 +273,7 @@ err:
 int verifySecureBootPartitions(void)
 {
 	int i = 0;
-	for (i = 0; i < sizeof(verify_partitions_list)/sizeof(unsigned char*); i++)
+	for (i = 0; i < (int)sizeof(verify_partitions_list)/sizeof(unsigned char*); i++)
 	{
 		if (htc_verify_image(verify_partitions_list[i]) != 0)
 		{
@@ -353,14 +364,14 @@ int write_sec_ex_magic(int magic_type, int magic_num)
 	{
 		partition_read_pgfs("pg2fs_sec_ex_util", 0, sec_ex_util_info, sizeof(struct sec_ex_util_info_t));
 		// Should decrypt the "sec_ex_util_info" by RID first
-		if (htc_rid_encrypt(sec_ex_util_info, sizeof(struct sec_ex_util_info_t), AES_DECRYPT))
+		if (htc_rid_encrypt((unsigned char *)sec_ex_util_info, sizeof(struct sec_ex_util_info_t), AES_DECRYPT))
 		{
 			HLOGE("%s: htc_rid_encrypt dec failed\r\n", __FUNCTION__);
 			return -1;
 		}
 		 ((unsigned int*)sec_ex_util_info)[magic_type] = magic_num;
 		// Should encrypt the "sec_ex_util_info" by RID here...
-		if (htc_rid_encrypt(sec_ex_util_info, sizeof(struct sec_ex_util_info_t), AES_ENCRYPT))
+		if (htc_rid_encrypt((unsigned char *)sec_ex_util_info, sizeof(struct sec_ex_util_info_t), AES_ENCRYPT))
 		{
 			HLOGE("%s: htc_rid_encrypt enc failed\r\n", __FUNCTION__);
 			return -1;
@@ -382,7 +393,7 @@ int read_sec_ex_magic(int magic_type)
 	{
 		partition_read_pgfs("pg2fs_sec_ex_util", 0, sec_ex_util_info, sizeof(struct sec_ex_util_info_t));
 		// Should decrypt the "sec_ex_util_info" by RID here...
-		if (htc_rid_encrypt(sec_ex_util_info, sizeof(struct sec_ex_util_info_t), AES_DECRYPT))
+		if (htc_rid_encrypt((unsigned char *)sec_ex_util_info, sizeof(struct sec_ex_util_info_t), AES_DECRYPT))
 		{
 			HLOGE("%s: htc_rid_encrypt dec failed\r\n", __FUNCTION__);
 			return -1;
@@ -474,7 +485,7 @@ int sd_get_pg2fs_sign_key(RSAPublicKey *sign_key)
 	unsigned char digest[DIGEST256_SIZE];
 	int ret = 0, i;
 	const char* pgfs_name = "pg2fs_ship_signkey";
-	RSAPublicKey *pgfs_sigkey_pub_key = &g_pgfs_sigkey_pub_key;
+	RSAPublicKey *pgfs_sigkey_pub_key = (RSAPublicKey *)&g_pgfs_sigkey_pub_key;
 	unsigned char *mtk_product_name = g_boot_arg->htc_sign_key_id;
 
 	if (sign_key == NULL) {
@@ -660,11 +671,11 @@ int htc_verify_image(unsigned char* p_img_name)
 #ifdef MTK_SECURITY_SW_SUPPORT
 	int img_size = 0;
 	int atf_img_size = 0, tee_img_size = 0;
-	part_hdr_t part_hdr = {0};
+	part_hdr_t part_hdr = {{0}, 0};
 	unsigned char* buffer = NULL;
 
 	HLOGD("%s: verifying %s image\r\n...", __func__, p_img_name);
-	if (strncmp(p_img_name, TEE_IMG_NAME_PREFIX, strlen(TEE_IMG_NAME_PREFIX)) == 0)
+	if (strncmp((char const *)p_img_name, TEE_IMG_NAME_PREFIX, strlen(TEE_IMG_NAME_PREFIX)) == 0)
 	{
 		rc = seclib_set_oemkey(g_mteekey, MTEE_IMG_VFY_PUBK_SZ);
 	}
@@ -695,16 +706,16 @@ int htc_verify_image(unsigned char* p_img_name)
 		}
 		else if (strcmp(p_img_name, LK_IMG_NAME) == 0 ) // lk
 		{
-			partition_read(p_img_name, 0, &part_hdr, sizeof(part_hdr));
+			partition_read((char *)p_img_name, 0, &part_hdr, sizeof(part_hdr));
 			img_size = MTK_IMG_ALIGNMENT*(1 + (sizeof(part_hdr)+part_hdr.info.dsize-1)/MTK_IMG_ALIGNMENT) + SIGNATURE_SIZE;
 		}
-		else if (strncmp(p_img_name, TEE_IMG_NAME_PREFIX, strlen(TEE_IMG_NAME_PREFIX)) == 0)
+		else if (strncmp((char const *)p_img_name, TEE_IMG_NAME_PREFIX, strlen(TEE_IMG_NAME_PREFIX)) == 0)
 		{
 			// parse ATF header
-			partition_read(p_img_name, 0, &part_hdr, sizeof(part_hdr));
+			partition_read((char *)p_img_name, 0, &part_hdr, sizeof(part_hdr));
 			atf_img_size = sizeof(part_hdr)+part_hdr.info.dsize;
 			// parse TEE header
-			partition_read(p_img_name, atf_img_size, &part_hdr, sizeof(part_hdr));
+			partition_read((char *)p_img_name, atf_img_size, &part_hdr, sizeof(part_hdr));
 			tee_img_size = sizeof(part_hdr)+part_hdr.info.dsize;
 			img_size = atf_img_size + tee_img_size;
 			HLOGI("%s image: atf size = %d, tee size = %d\r\n", p_img_name, atf_img_size, tee_img_size);
@@ -721,7 +732,7 @@ int htc_verify_image(unsigned char* p_img_name)
 			HLOGE("%d byte buffer allocation failed!\r\n", img_size);
 			return -3;
 		}
-		partition_read(p_img_name, 0, buffer, img_size);
+		partition_read((char *)p_img_name, 0, buffer, img_size);
 		rc = seclib_image_check_buf((u8 *)buffer, (u32)img_size);
 
 		if (rc)
@@ -761,18 +772,18 @@ int htc_sec_boot_check (void)
 	case FACTORY_BOOT:
 	case ATE_FACTORY_BOOT:
 		// boot.img
-		p_img_name = "boot";
+		p_img_name = (unsigned char *)"boot";
 		break;
 
 	case RECOVERY_BOOT:
 		// recovery.img
-		p_img_name = "recovery";
+		p_img_name = (unsigned char *)"recovery";
 		break;
 
 	case HTC_DOWNLOAD:
 	case HTC_DOWNLOAD_RUU:
 		// hosd.img
-		p_img_name = "hosd";
+		p_img_name = (unsigned char *)"hosd";
 		break;
 
 	case FASTBOOT:

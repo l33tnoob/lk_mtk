@@ -50,6 +50,10 @@ pgfs_partition_t pg2fs_partition[] = {
 #define HTC_PGFS_DEBUG	0
 
 extern unsigned Crc32CheckSum(unsigned dwStartAddr, unsigned dwTotalLen, unsigned crc);
+extern int strncmp(char const *cs, char const *ct, size_t count);
+extern void * memset(void *s, int c, size_t count);
+extern int atoi(const char *num);
+extern int sscanf(char *str, char const *fmt0, ...);
 
 int emmc_init(void)
 {
@@ -876,7 +880,7 @@ static int32 htc_pg_part_traverse(uint32 pg_sector, int8 *name, uint32 offset, v
 		return PG_ERR_PARAMETER;
 	}
 
-	pg_hdr = alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
+	pg_hdr = (htc_pg_hdr *)alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
 	if (pg_hdr == NULL) {
 		PGERR("pg_hdr allocate failed\r\n");
 		return PG_ERR_ALLOC;
@@ -887,7 +891,7 @@ static int32 htc_pg_part_traverse(uint32 pg_sector, int8 *name, uint32 offset, v
 		goto free_pg_hdr;
 	}
 
-	part_hdr = alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
+	part_hdr = (htc_part_hdr *)alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
 	if (part_hdr == NULL) {
 		PGERR("part_hdr allocate failed\r\n");
 		rc = PG_ERR_ALLOC;
@@ -978,7 +982,7 @@ static int32 htc_pg_part_traverse(uint32 pg_sector, int8 *name, uint32 offset, v
 
 			if (count) {
 				PGDBG("read sector %d, count %d\r\n", start, count);
-				if (len < (count * SECTOR_SIZE))
+				if (len < (int)(count * SECTOR_SIZE))
 					count = (len + SECTOR_SIZE - 1) / SECTOR_SIZE;
 				if (buf) {
 					rc = sd_read_sector(buf, start, count);
@@ -1054,7 +1058,9 @@ static uint32 htc_pg_part_update(uint32 sector, uint32 count, uint32 addr, uint3
 
 static uint32 htc_pg_part_clear(uint32 sector, uint32 count, uint32 addr, uint32 len, uint32 argu)
 {
+#ifdef eMMC_SQN
 	int rc;
+#endif
 
 	(void)addr;
 	(void)len;
@@ -1080,7 +1086,7 @@ int32 htc_pg_part_read(uint32 pg_sector, int8 *name, uint32 offset, void *buf, u
 
 	sec = offset / SECTOR_SIZE;
 	ofs = offset % SECTOR_SIZE;
-	buf2 = alloc_page_aligned(len + SECTOR_SIZE);
+	buf2 = (char *)alloc_page_aligned(len + SECTOR_SIZE);
 	if (buf2 == NULL) {
 		PGERR("pgfs read buffer allocate failed\r\n");
 		return PG_ERR_ALLOC;
@@ -1119,7 +1125,7 @@ int32 htc_pg_update_crc(uint32 pg_sector, int8 *name)
 		return PG_ERR_EMMC_INIT;
 	}
 
-	pg_hdr = alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
+	pg_hdr = (htc_pg_hdr *)alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
 	if (pg_hdr == NULL) {
 		PGERR("pg_hdr allocate failed\r\n");
 		return PG_ERR_ALLOC;
@@ -1132,7 +1138,7 @@ int32 htc_pg_update_crc(uint32 pg_sector, int8 *name)
 		return rc;
 	}
 
-	part_hdr = alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
+	part_hdr = (htc_part_hdr *)alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
 	if (part_hdr == NULL) {
 		PGERR("part_hdr allocate failed\r\n");
 		free(pg_hdr);
@@ -1171,7 +1177,7 @@ static int32 htc_pg_part_modify(uint32 pg_sector, int8 *name, uint32 offset, voi
 		return PG_ERR_EMMC_INIT;
 	}
 
-	pg_hdr = alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
+	pg_hdr = (htc_pg_hdr *)alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
 	if (pg_hdr == NULL) {
 		PGERR("pg_hdr allocate failed\r\n");
 		return PG_ERR_ALLOC;
@@ -1183,7 +1189,7 @@ static int32 htc_pg_part_modify(uint32 pg_sector, int8 *name, uint32 offset, voi
 		return rc;
 	}
 
-	part_hdr = alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
+	part_hdr = (htc_part_hdr *)alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
 	if (part_hdr == NULL) {
 		PGERR("part_hdr allocate failed\r\n");
 		free(pg_hdr);
@@ -1270,7 +1276,7 @@ int32 htc_pg_free_size(uint32 pg_sector)
 		return PG_ERR_EMMC_INIT;
 	}
 
-	pg_hdr = alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
+	pg_hdr = (htc_pg_hdr *)alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
 	if (pg_hdr == NULL) {
 		PGERR("pg_hdr allocate failed\r\n");
 		return PG_ERR_ALLOC;
@@ -1282,7 +1288,7 @@ int32 htc_pg_free_size(uint32 pg_sector)
 		return rc;
 	}
 
-	part_hdr_list = alloc_cache_page_aligned(HTC_PART_HEADER_LEN * pg_hdr->max_part_num);
+	part_hdr_list = (htc_part_hdr *)alloc_cache_page_aligned(HTC_PART_HEADER_LEN * pg_hdr->max_part_num);
 	if (part_hdr_list == NULL) {
 		PGERR("part_hdr_list allocate failed\r\n");
 		free(pg_hdr);
@@ -1351,7 +1357,7 @@ int32 htc_pg_part_crc(uint32 pg_sector, int8 *name)
 		return PG_ERR_EMMC_INIT;
 	}
 
-	part_hdr = alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
+	part_hdr = (htc_part_hdr *)alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
 	if (part_hdr == NULL) {
 		PGERR("part_hdr allocate failed\r\n");
 		return PG_ERR_ALLOC;
@@ -1365,7 +1371,7 @@ int32 htc_pg_part_crc(uint32 pg_sector, int8 *name)
 
 	size = part_hdr->size;
 
-	pg_buf = alloc_cache_page_aligned(size);
+	pg_buf = (uint8 *)alloc_cache_page_aligned(size);
 	if (pg_buf == NULL) {
 		PGERR("pg_buf allocate failed\r\n");
 		free(part_hdr);
@@ -1414,7 +1420,7 @@ int32 htc_check_pgfs(void)
 #ifdef QCT_PLATFORM
 	struct partition_t *p;
 #else
-	struct pg_partition_t pg_partition = {0};
+	struct pg_partition_t pg_partition = {{0}, 0};
 	struct pg_partition_t *p = &pg_partition;
 	
 #endif
@@ -1446,7 +1452,7 @@ int32 htc_check_pgfs(void)
 		HLOGD("check %s\r\n", p->name);
 		build_new = 0;
 		pg_sector = p->start_block;
-		pg_hdr = alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
+		pg_hdr = (htc_pg_hdr *)alloc_cache_page_aligned(HTC_PG_HEADER_LEN);
 		if (pg_hdr == NULL) {
 			PGERR("pg_hdr allocate failed\r\n");
 			return PG_ERR_ALLOC;
@@ -1490,7 +1496,7 @@ int32 htc_check_pgfs(void)
 		}
 
 		/* check partition */
-		part_hdr = alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
+		part_hdr = (htc_part_hdr *)alloc_cache_page_aligned(HTC_PART_HEADER_LEN);
 		if (part_hdr == NULL) {
 			PGERR("pg_hdr allocate failed\r\n");
 			free(pg_hdr);
@@ -1501,7 +1507,7 @@ int32 htc_check_pgfs(void)
 		g = 0;
 		while (part[g].name != NULL) {
 			if (!build_new)
-				rc = htc_pg_part_hdr_get(pg_sector, part[g].name, part_hdr);
+				rc = htc_pg_part_hdr_get(pg_sector, (int8 *)part[g].name, part_hdr);
 			else
 				rc = PG_ERR_NOT_FOUND;
 
@@ -1512,26 +1518,26 @@ int32 htc_check_pgfs(void)
 					strncpy(part_hdr->name, part[g].name, sizeof(part_hdr->name)-1);
 					part_hdr->size = part[g].size;
 					part_hdr->attr = HTC_PG_ATTR_LINK;
-					rc = htc_pg_part_hdr_set(pg_sector, part[g].name, part_hdr, 0);
+					rc = htc_pg_part_hdr_set(pg_sector, (int8 *)part[g].name, part_hdr, 0);
 				} else {
 					if (p->start_block > 0) {
 						HLOGD("%s add %s %d %d\r\n", p->name, part[g].name,
 													partition_start_block(part[g].name),
 													partition_size(part[g].name));
-						rc = htc_pg_fix_part_hdr_add(pg_sector, part[g].name,
+						rc = htc_pg_fix_part_hdr_add(pg_sector, (int8 *)part[g].name,
 													partition_start_block(part[g].name),
 													partition_size(part[g].name));
 					}
 				}
 			} else {
 				/* check pgfs size  */
-				if ((part[g].size > 0) && (part_hdr->size > 0) && (part[g].size != part_hdr->size)) {
+				if ((part[g].size > 0) && (part_hdr->size > 0) && (part[g].size != (int)part_hdr->size)) {
 					HLOGD("%s_%s change size from %d to %d\r\n", p->name, part[g].name, part_hdr->size, part[g].size);
 					memset(part_hdr, 0, HTC_PART_HEADER_LEN);
 					strncpy(part_hdr->name, part[g].name, sizeof(part_hdr->name)-1);
 					part_hdr->size = part[g].size;
 					part_hdr->attr = HTC_PG_ATTR_LINK;
-					rc = htc_pg_part_hdr_set(pg_sector, part[g].name, part_hdr, 0);
+					rc = htc_pg_part_hdr_set(pg_sector, (int8 *)part[g].name, part_hdr, 0);
 				}
 			}
 			if (rc != PG_ERR_NONE) {
@@ -1633,22 +1639,22 @@ int32 htc_pg_process(int argc, char *argv[])
 			strncpy(part_hdr.name, argv[3], sizeof(part_hdr.name)-1);
 			sscanf(argv[5], "%X", &(part_hdr.size));
 			sscanf(argv[6], "%X", &(part_hdr.attr));
-			rc = htc_pg_part_hdr_set(atoi(argv[2]), argv[3], &part_hdr, atoi(argv[4]));
+			rc = htc_pg_part_hdr_set(atoi(argv[2]), (int8 *)argv[3], &part_hdr, atoi(argv[4]));
 			HLOGD("htc_pg_part_hdr_set ret = %d\r\n", rc);
-			rc = htc_pg_part_erase(atoi(argv[2]), argv[3], 1);
+			rc = htc_pg_part_erase(atoi(argv[2]), (int8 *)argv[3], 1);
 			HLOGD("htc_pg_part_hdr_set ret = %d\r\n", rc);
 		} else if (!strcmp(argv[1], "addfix")) {
-			rc = htc_pg_fix_part_hdr_add(atoi(argv[2]), argv[3], atoi(argv[4]), atoi(argv[5]));
+			rc = htc_pg_fix_part_hdr_add(atoi(argv[2]), (int8 *)argv[3], atoi(argv[4]), atoi(argv[5]));
 			HLOGD("ret = %d\r\n", rc);
 		} else if (!strcmp(argv[1], "erase")) {
-			rc = htc_pg_part_erase(atoi(argv[2]), argv[3], 1);
+			rc = htc_pg_part_erase(atoi(argv[2]), (int8 *)argv[3], 1);
 			HLOGD("ret = %d\r\n", rc);
 		} else if (!strcmp(argv[1], "get")) {
 			int unit, start, end;
 			memset(&pg_hdr, 0, sizeof(pg_hdr));
 			rc = htc_pg_hdr_get(atoi(argv[2]), &pg_hdr);
 			memset(&part_hdr, 0, sizeof(part_hdr));
-			rc = htc_pg_part_hdr_get(atoi(argv[2]), argv[3], &part_hdr);
+			rc = htc_pg_part_hdr_get(atoi(argv[2]), (int8 *)argv[3], &part_hdr);
 			HLOGD("name = %s\r\n", part_hdr.name);
 			HLOGD("size = 0x%X\r\n", part_hdr.size);
 			HLOGD("checksum = 0x%X\r\n", part_hdr.checksum);
@@ -1684,10 +1690,10 @@ int32 htc_pg_process(int argc, char *argv[])
 			rc = htc_pg_free_size(atoi(argv[2]));
 			HLOGD("ret = 0x%X(%d)\r\n", rc, rc);
 		} else if (!strcmp(argv[1], "crc")) {
-			rc = htc_pg_part_crc(atoi(argv[2]), argv[3]);
+			rc = htc_pg_part_crc(atoi(argv[2]), (int8 *)argv[3]);
 			HLOGD("ret = 0x%X(%d)\r\n", rc, rc);
 		} else if (!strcmp(argv[1], "update_crc")) {
-		    rc = htc_pg_update_crc(atoi(argv[2]), argv[3]);
+		    rc = htc_pg_update_crc(atoi(argv[2]), (int8 *)argv[3]);
 			HLOGD("ret = 0x%X(%d)\r\n", rc, rc);
 #if HTC_PGFS_DEBUG
 		} else if (!strcmp(argv[1], "dump")) {

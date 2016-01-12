@@ -40,6 +40,8 @@ struct tamper_info_t
 extern void *malloc(size_t size);
 extern void free(void *ptr);
 extern int partition_read_pgfs(const char *name, int offset, void *buf, int len);
+extern int partition_update_pgfs(const char *name, int offset, void *buf, int len);
+
 static int tamper_read_from_misc(uint32_t *tamper_flag)
 {
 	struct tamper_info_t *t_info;

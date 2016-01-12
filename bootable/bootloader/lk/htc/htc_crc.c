@@ -8,6 +8,7 @@
 
 static unsigned dwCrcTable[256];
 
+extern void *memcpy(void *dest, const void *src, unsigned long count);
 
 unsigned Reflect(unsigned ref, char ch)
 {
