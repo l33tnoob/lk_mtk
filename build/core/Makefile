@@ -2260,23 +2260,23 @@ ifneq ($(HTC_PROTECT_CONFIDENTIAL_FLAG),true)
 endif
 
 ifneq ($(HTC_PROTECT_CONFIDENTIAL_FLAG),true)
-  $(info HTC DEBUG BOOT: Patch USB root on SELinux ...)
+  #$(info HTC DEBUG BOOT: Patch USB root on SELinux ...)
   $(shell sed -i -e "s/^permissive adbd;/permissive adbd;/" -e t -e "1 i permissive adbd;\n" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)
-  $(info ($(shell grep -nrC2 "permissive adbd" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
+  #$(info ($(shell grep -nrC2 "permissive adbd" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
   $(shell sed -i -e "s/^domain_trans(init, rootfs, su)/domain_trans(init, rootfs, su)/" -e t -e "1 i domain_trans(init, rootfs, su)\n" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/init.te || true)
-  $(info ($(shell grep -nrC2 "domain_trans(init, rootfs, su)" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/init.te || true)))
+  #$(info ($(shell grep -nrC2 "domain_trans(init, rootfs, su)" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/init.te || true)))
   $(shell sed -i -e "s/^allow adbd self:process setcurrent;/allow adbd self:process setcurrent;/" -e t -e "1 i allow adbd self:process setcurrent;\n" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)
   $(shell sed -i -e "s/^allow adbd su:process dyntransition;/allow adbd su:process dyntransition;/" -e t -e "1 i allow adbd su:process dyntransition;\n" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)
-  $(info ($(shell grep -nrC2 "allow adbd su:process dyntransition" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
+  #$(info ($(shell grep -nrC2 "allow adbd su:process dyntransition" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
 else
-  $(info HTC DEBUG BOOT: Patch USB root on SELinux ...)
+  #$(info HTC DEBUG BOOT: Patch USB root on SELinux ...)
   $(shell sed -i -e "s/^permissive adbd;//g" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)
-  $(info ($(shell grep -nrC2 "permissive adbd" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
+  #$(info ($(shell grep -nrC2 "permissive adbd" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
   $(shell sed -i -e "s/^domain_trans(init, rootfs, su)//g" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/init.te || true)
-  $(info ($(shell grep -nrC2 "domain_trans(init, rootfs, su)" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/init.te || true)))
+  #$(info ($(shell grep -nrC2 "domain_trans(init, rootfs, su)" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/init.te || true)))
   $(shell sed -i -e "s/^allow adbd self:process setcurrent;//g" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)
   $(shell sed -i -e "s/^allow adbd su:process dyntransition;//g" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)
-  $(info ($(shell grep -nrC2 "allow adbd su:process dyntransition" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
+  #$(info ($(shell grep -nrC2 "allow adbd su:process dyntransition" $(ANDROID_BUILD_TOP)/device/mediatek/common/sepolicy/adbd.te || true)))
 endif
 
 # -----------------------------------------------------------------
