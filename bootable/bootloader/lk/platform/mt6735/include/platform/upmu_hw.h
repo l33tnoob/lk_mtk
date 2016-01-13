@@ -774,7 +774,9 @@
 #define MT6328_CHR_CON43             ((MT6328_PMIC_REG_BASE+0x0FA0))
 #define MT6328_EOSC_CALI_CON0        ((MT6328_PMIC_REG_BASE+0x0FAA))
 #define MT6328_EOSC_CALI_CON1        ((MT6328_PMIC_REG_BASE+0x0FAC))
+#ifndef MT6328_VRTC_PWM_CON0   // zzytest fix warning
 #define MT6328_VRTC_PWM_CON0         ((MT6328_PMIC_REG_BASE+0x0FAE))
+#endif
 //mask is HEX;  shift is Integer
 #define MT6328_PMIC_THR_DET_DIS_ADDR                          MT6328_STRUP_CON0
 #define MT6328_PMIC_THR_DET_DIS_MASK                          0x1

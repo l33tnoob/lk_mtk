@@ -21,6 +21,7 @@
 
 extern void mt_pwm_disable(U32 pwm_no, BOOL pmic_pad);
 extern int strcmp(const char *cs, const char *ct);
+extern kal_uint16 pmic_set_register_value(PMU_FLAGS_LIST_ENUM flagname,kal_uint32 val);
 
 /****************************************************************************
  * DEBUG MACROS
@@ -56,7 +57,7 @@ static int mt65xx_led_set_cust(struct cust_mt65xx_led *cust, int level);
 /****************************************************************************
  * global variables
  ***************************************************************************/
-static unsigned int limit = 255;
+// static unsigned int limit = 255;
 
 /****************************************************************************
  * global variables
@@ -229,7 +230,7 @@ static int led_set_pwm(int pwm_num, enum led_brightness level)
 
 static int brightness_set_pmic(enum mt65xx_led_pmic pmic_type, enum led_brightness level)
 {
-	int tmp_level = level;
+	// int tmp_level = level;
 	int led_duty, led_fsel;
 
 	switch(level){

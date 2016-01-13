@@ -49,6 +49,8 @@ const unsigned long ulNumberOfSkuidData =
 (sizeof(skuidDataTable) / sizeof(skuidDataTable[0]));
 
 extern void htc_voprintf(const char *msg, ...);
+extern void * htc_get_mmc_ext_csd();
+
 void cmd_oem_help(const char *arg, void *data, unsigned sz) {
 	extern struct fastboot_cmd *cmdlist;
 	struct fastboot_cmd *cmd = cmdlist;
