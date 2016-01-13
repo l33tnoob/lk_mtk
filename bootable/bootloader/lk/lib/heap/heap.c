@@ -401,7 +401,7 @@ void heap_init(void)
 	theheap.base = (void *)HEAP_START;
 	theheap.len = HEAP_LEN;
 
-	dprintf(INFO, "base %p size %zd bytes\n", theheap.base, theheap.len);
+	dprintf(CRITICAL, "zzytest, heap base %p heap size %zd bytes\n", theheap.base, theheap.len);
 
 	// initialize the free list
 	list_initialize(&theheap.free_list);
