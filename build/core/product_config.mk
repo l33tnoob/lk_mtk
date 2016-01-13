@@ -224,7 +224,7 @@ endif
 ifneq (1,$(words $(current_product_makefile)))
 $(error Product "$(TARGET_PRODUCT)" ambiguous: matches $(current_product_makefile))
 endif
-$(info zzytest, current_product_makefile=$(current_product_makefile))
+#$(info zzytest, current_product_makefile=$(current_product_makefile))
 $(call import-products, $(current_product_makefile)) # zzytest
 # include device/htc/htc_a51bml_dwgl/htc_a51bml_dwgl.mk # zzytest
 endif  # Import all or just the current product makefile
