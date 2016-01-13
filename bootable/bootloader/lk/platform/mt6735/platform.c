@@ -506,6 +506,7 @@ void platform_early_init(void)
     unsigned int time_pmic_init;
     unsigned int time_platform_early_init;
 #endif
+    zzytest_printf("begin platform_early_init\n");
     platform_init_interrupts();
 
     platform_early_init_timer();

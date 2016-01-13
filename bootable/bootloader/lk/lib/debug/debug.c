@@ -50,6 +50,45 @@ void halt(void)
 	platform_halt();
 }
 
+#define ZZYTEST_LOG_ADDR 0x60000000  // start from 500M, ddr from 1G
+#define ZZYTEST_LOG_LEN  (0x10000000-100)  // len 256M
+unsigned char *zzytest_log_addr = (unsigned char *)0x60000008;
+static int *zzy_log_curr_len = (int *)0x60000000;
+int zzytest_printf(const char *fmt, ...)
+{
+        char buf[256];
+        // char ts_buf[13];
+        int log_len = 0;
+        int err;
+        static int flag = 0;
+        
+	if(*zzy_log_curr_len > ZZYTEST_LOG_LEN)
+	{
+		return -1;
+	}
+
+        if(flag == 0)
+        {
+        	*zzy_log_curr_len = 0;
+        	flag = 1;
+        }
+
+        // snprintf(ts_buf, sizeof(ts_buf), "[%u] ", (unsigned int)current_time());
+        // dputs(ALWAYS, ts_buf);
+
+        va_list ap; 
+        va_start(ap, fmt);
+        err = vsnprintf(buf, sizeof(buf), fmt, ap);
+        va_end(ap);
+
+        log_len = strlen(buf);
+        memcpy(&zzytest_log_addr[*zzy_log_curr_len], buf, log_len);
+        *zzy_log_curr_len = *zzy_log_curr_len + log_len;
+	zzytest_log_addr[*zzy_log_curr_len] = 0;
+
+	return err;
+}
+
 void _panic(void *caller, const char *fmt, ...)
 {
 	dprintf(ALWAYS, "panic (caller %p): ", caller);

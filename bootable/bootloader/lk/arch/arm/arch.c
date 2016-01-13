@@ -44,7 +44,7 @@ unsigned int zzy_arch_early_init_tick = 0;
 void arch_early_init(void)
 {
 	/* turn off the cache */
-	zzy_arch_early_init_tick = (unsigned int)current_time();
+	zzytest_printf("arch_early_init begin\n");
 	arch_disable_cache(UCACHE);
 #if 0 // def ENABLE_L2_SHARING 
 	config_L2_size();

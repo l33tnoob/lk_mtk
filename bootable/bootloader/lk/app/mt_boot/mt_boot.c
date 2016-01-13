@@ -917,6 +917,7 @@ int boot_linux_fdt(void *kernel, unsigned *tags,
 
 extern long long zzy_test_flags;
 extern unsigned int zzy_arch_early_init_tick;
+extern unsigned char *zzytest_log_addr;
 void zzy_debug_log()
 {
 #ifdef ENABLE_L2_SHARING
@@ -964,6 +965,8 @@ void zzy_debug_log()
 #else
 	dprintf(CRITICAL, "zzytest, ENABLE_NANDWRITE is not defined\n");
 #endif
+	dprintf(CRITICAL, "*************early log*********\n");
+	dprintf(CRITICAL, "%s\n", zzytest_log_addr);
 }
 
 void boot_linux(void *kernel, unsigned *tags,

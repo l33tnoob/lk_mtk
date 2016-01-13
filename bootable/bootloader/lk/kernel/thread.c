@@ -538,6 +538,7 @@ void thread_init_early(void)
 	int i;
 
 	/* initialize the run queues */
+	zzytest_printf("thread_init_early begin\n");
 	for (i=0; i < NUM_PRIORITIES; i++)
 		list_initialize(&run_queue[i]);
 

@@ -65,7 +65,7 @@ void bldr_log_write(const char *s)
 void bldr_log_init(void* bldr_log_base_pa, size_t size)
 {
 	// volatile uint32_t magic; // remove unused variable
-
+	zzytest_printf("begin bldr_log_init\n");
 	if (!bldr_log_base_pa)
 	{
 		dprintf(CRITICAL, "Ramlog address is NULL!\r\n\n");
