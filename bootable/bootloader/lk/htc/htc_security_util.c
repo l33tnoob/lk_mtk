@@ -60,6 +60,9 @@ extern u32 seclib_image_check_buf(u8 *buf, u32 size);
 extern u32 seclib_image_check(u8 *buf, u32 size);
 extern int strncmp(char const *cs, char const *ct, size_t count);
 extern size_t strlen(char const *s);
+extern int seclib_get_random_id(unsigned char* rid, int id);
+extern int encrypt_custom(unsigned char *buf, int len, unsigned char *iv, int iv_size, unsigned char *rid, int rid_len);
+extern int decrypt_custom(unsigned char *buf, int len, unsigned char *iv, int iv_size, unsigned char *rid, int rid_len);
 
 struct security_info_t* security_info = NULL;
 struct sec_ex_util_info_t* sec_ex_util_info = NULL;
@@ -273,7 +276,7 @@ err:
 int verifySecureBootPartitions(void)
 {
 	int i = 0;
-	for (i = 0; i < (int)sizeof(verify_partitions_list)/sizeof(unsigned char*); i++)
+	for (i = 0; i < (int)(sizeof(verify_partitions_list)/sizeof(unsigned char*)); i++)
 	{
 		if (htc_verify_image(verify_partitions_list[i]) != 0)
 		{
@@ -557,7 +560,7 @@ int sd_get_pg2fs_sign_key(RSAPublicKey *sign_key)
 	for (i = 0; i < (int)p_count; i++) {
 		HLOGD("%s: key table: %s\r\n", __FUNCTION__, header->key_table[i].product_name);
 
-		if (!strcmp(header->key_table[i].product_name, mtk_product_name) && (key_id = header->key_table[i].key_id) <= keycount) {
+		if (!strcmp((const char *)header->key_table[i].product_name, (const char *)mtk_product_name) && (key_id = header->key_table[i].key_id) <= keycount) {
 
 			HLOGD("%s: meet sign key product name: %s, kid: %d\r\n", __FUNCTION__, mtk_product_name, key_id);
 
@@ -671,13 +674,14 @@ int htc_verify_image(unsigned char* p_img_name)
 #ifdef MTK_SECURITY_SW_SUPPORT
 	int img_size = 0;
 	int atf_img_size = 0, tee_img_size = 0;
-	part_hdr_t part_hdr = {{0}, 0};
+	part_hdr_t part_hdr;
 	unsigned char* buffer = NULL;
 
+	memset((void *)&part_hdr, 0, sizeof(part_hdr_t));
 	HLOGD("%s: verifying %s image\r\n...", __func__, p_img_name);
 	if (strncmp((char const *)p_img_name, TEE_IMG_NAME_PREFIX, strlen(TEE_IMG_NAME_PREFIX)) == 0)
 	{
-		rc = seclib_set_oemkey(g_mteekey, MTEE_IMG_VFY_PUBK_SZ);
+		rc = seclib_set_oemkey((u8 *)g_mteekey, MTEE_IMG_VFY_PUBK_SZ);
 	}
 	else
 	{
@@ -689,9 +693,9 @@ int htc_verify_image(unsigned char* p_img_name)
 		HLOGD("seclib_set_oemkey failed, rc = %d!\r\n", rc);
 		return -1;
 	}
-	if (strcmp(p_img_name, BOOT_IMG_NAME) == 0 ||
-		strcmp(p_img_name, HOSD_IMG_NAME) == 0 ||
-		strcmp(p_img_name, RECOVERY_IMG_NAME) == 0 )
+	if (strcmp((const char *)p_img_name, BOOT_IMG_NAME) == 0 ||
+		strcmp((const char *)p_img_name, HOSD_IMG_NAME) == 0 ||
+		strcmp((const char *)p_img_name, RECOVERY_IMG_NAME) == 0 )
 	{
 		// boot/hosd/recovery image
 		seclib_image_buf_init();
@@ -700,11 +704,11 @@ int htc_verify_image(unsigned char* p_img_name)
 	}
 	else
 	{
-		if (strcmp(p_img_name, SECRO_IMG_NAME) == 0)
+		if (strcmp((const char *)p_img_name, SECRO_IMG_NAME) == 0)
 		{
 			img_size = SECRO_IMG_SIZE;
 		}
-		else if (strcmp(p_img_name, LK_IMG_NAME) == 0 ) // lk
+		else if (strcmp((const char *)p_img_name, LK_IMG_NAME) == 0 ) // lk
 		{
 			partition_read((char *)p_img_name, 0, &part_hdr, sizeof(part_hdr));
 			img_size = MTK_IMG_ALIGNMENT*(1 + (sizeof(part_hdr)+part_hdr.info.dsize-1)/MTK_IMG_ALIGNMENT) + SIGNATURE_SIZE;

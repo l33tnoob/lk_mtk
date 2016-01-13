@@ -114,7 +114,7 @@ void cmd_dump(const char *arg, void *data, unsigned sz)
 		if (dump_src == DUMP_RAM) {
 			/* For normal region, just transfer them. */
 			//cbuf = (uint8_t *)start_addr;
-			memcpy((void *)cbuf, (const void *)start_addr, (size_t)read_length);
+			memcpy((void *)cbuf, (const void *)(uint64_t *)start_addr, (size_t)read_length);
 		} else if (dump_src == DUMP_EMMC) {
 			/* read data from emmc, the unit of read_length is still byte */
 			if (htc_mmc_read(start_addr, (unsigned int *)cbuf, read_length)) {
