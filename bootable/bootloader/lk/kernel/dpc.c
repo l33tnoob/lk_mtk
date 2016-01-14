@@ -42,6 +42,7 @@ static int dpc_thread_routine(void *arg);
 
 void dpc_init(void)
 {
+	dprintf(CRITICAL, "zzytest, dpc_init begin\n");
 	event_init(&dpc_event, false, 0);
 
 	thread_resume(thread_create("dpc", &dpc_thread_routine, NULL, DPC_PRIORITY, DEFAULT_STACK_SIZE));

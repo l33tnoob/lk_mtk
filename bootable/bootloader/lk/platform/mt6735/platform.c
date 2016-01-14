@@ -506,7 +506,7 @@ void platform_early_init(void)
     unsigned int time_pmic_init;
     unsigned int time_platform_early_init;
 #endif
-    zzytest_printf("begin platform_early_init\n");
+    zzytest_printf("zzytest, begin platform_early_init\n");
     platform_init_interrupts();
 
     platform_early_init_timer();
@@ -674,7 +674,7 @@ void platform_init(void)
     time_platform_init = get_timer(0);
 #endif
 
-    dprintf(CRITICAL, "platform_init()\n");
+    dprintf(CRITICAL, "zzytest, platform_init begin\n");
 
 #ifdef DUMMY_AP
     dummy_ap_entry();

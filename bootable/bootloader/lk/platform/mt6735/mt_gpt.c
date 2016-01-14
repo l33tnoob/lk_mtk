@@ -253,22 +253,22 @@ void reset_timer (void)
 
 #define MAX_TIMESTAMP_MS  0xffffffff
 
-ulong get_timer (ulong base)
+ulong get_timer(ulong base)
 {
-    ulong current_timestamp = 0;
-    ulong temp = 0;
+	ulong current_timestamp = 0;
+	ulong temp = 0;
 
-    current_timestamp = get_timer_masked ();
+	current_timestamp = get_timer_masked ();
 
-    if (current_timestamp >= base)
-    {                         /* timestamp normal */
-        return (current_timestamp - base);
-    }
-    /* timestamp overflow */
-    //dbg_print("return = 0x%x\n",MAX_TIMESTAMP_MS - ( base - current_timestamp ));
-    temp = base - current_timestamp;
+	if (current_timestamp >= base)
+	{                         /* timestamp normal */
+		return (current_timestamp - base);
+	}
+	/* timestamp overflow */
+	//dbg_print("return = 0x%x\n",MAX_TIMESTAMP_MS - ( base - current_timestamp ));
+	temp = base - current_timestamp;
 
-    return (MAX_TIMESTAMP_MS - temp);
+	return (MAX_TIMESTAMP_MS - temp);
 }
 
 void set_timer (ulong ticks)

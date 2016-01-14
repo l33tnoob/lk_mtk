@@ -55,25 +55,6 @@ volatile unsigned int boot_time = 0;
 
 static int bootstrap2(void *arg);
 
-#if 0 // (ENABLE_NANDWRITE)
-void bootstrap_nandwrite(void);
-#endif
-
-static void call_constructors(void)
-{
-	void **ctor;
-   
-	ctor = &__ctor_list;
-	while(ctor != &__ctor_end) {
-		void (*func)(void);
-
-		func = (void (*)())*ctor;
-
-		func();
-		ctor++;
-	}
-}
-
 /* called from crt0.S */
 void kmain(void) __NO_RETURN __EXTERNALLY_VISIBLE;
 void kmain(void)
@@ -93,19 +74,8 @@ void kmain(void)
 	// do any super early platform initialization
 	platform_early_init();
 
-	zzytest_printf("zzytest printf log end\n");
+	zzytest_printf("zzytest, printf log end\n");
 	dprintf(CRITICAL, "zzytest, after platform_early_init\n");
-
-	boot_time = get_timer(0);
-
-	// do any super early target initialization
-	target_early_init();
-
-	dprintf(CRITICAL, "zzytest, welcome to lk\n");
-	dprintf(INFO, "welcome to lk\n\n");
-	
-	// deal with any static constructors
-	call_constructors();
 
 	// bring up the kernel heap
 	heap_init();
@@ -135,50 +105,11 @@ int main(void);
 static int bootstrap2(void *arg)
 {
 	dprintf(CRITICAL, "zzytest, bootstrap2\n");
-	dprintf(SPEW, "top of bootstrap2()\n");
-
-	arch_init();
-
-	// XXX put this somewhere else
-#if 0 // WITH_LIB_BIO
-	bio_init();
-#endif
-#if 0 // WITH_LIB_FS
-	fs_init();
-#endif
 
 	// initialize the rest of the platform
-	dprintf(SPEW, "initializing platform\n");
 	platform_init();
 	
-	// initialize the target
-	dprintf(SPEW, "initializing target\n");
-	target_init();
-
-	dprintf(SPEW, "calling apps_init()\n");
 	apps_init();
 
 	return 0;
 }
-
-#if 0 // (ENABLE_NANDWRITE)
-void bootstrap_nandwrite(void)
-{
-	dprintf(SPEW, "top of bootstrap2()\n");
-
-	arch_init();
-
-	// initialize the rest of the platform
-	dprintf(SPEW, "initializing platform\n");
-	platform_init();
-
-	// initialize the target
-	dprintf(SPEW, "initializing target\n");
-	target_init();
-
-	dprintf(SPEW, "calling nandwrite_init()\n");
-	nandwrite_init();
-
-	return 0;
-}
-#endif

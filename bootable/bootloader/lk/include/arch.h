@@ -28,7 +28,6 @@ extern "C" {
 #endif
 
 void arch_early_init(void);
-void arch_init(void);
 void arch_uninit(void);
 
 #if defined(__cplusplus)

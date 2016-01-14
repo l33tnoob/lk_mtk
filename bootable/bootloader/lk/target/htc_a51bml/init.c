@@ -49,10 +49,6 @@ void target_early_init(void)
 
 }
 
-void target_init(void)
-{
-}
-
 unsigned board_machtype(void)
 {
   return MACH_TYPE;

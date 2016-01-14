@@ -538,7 +538,7 @@ void thread_init_early(void)
 	int i;
 
 	/* initialize the run queues */
-	zzytest_printf("thread_init_early begin\n");
+	zzytest_printf("zzytest, thread_init_early begin\n");
 	for (i=0; i < NUM_PRIORITIES; i++)
 		list_initialize(&run_queue[i]);
 
@@ -564,7 +564,9 @@ void thread_init_early(void)
  */
 void thread_init(void)
 {
+	dprintf(CRITICAL, "zzytest, thread_init begin\n");
 #if PLATFORM_HAS_DYNAMIC_TIMER
+	dprintf(CRITICAL, "zzytest, #if PLATFORM_HAS_DYNAMIC_TIMER OK\n");
 	timer_initialize(&preempt_timer);
 #endif
 }

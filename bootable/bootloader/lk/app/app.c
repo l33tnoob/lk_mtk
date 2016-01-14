@@ -34,7 +34,7 @@ void apps_init(void)
 {
 	const struct app_descriptor *app;
 
-	dprintf(CRITICAL, "zzytest, apps_init, app/app.c\n");
+	dprintf(CRITICAL, "zzytest, apps_init begin\n");
 	/* call all the init routines */
 	for (app = &__apps_start; app != &__apps_end; app++) {
 		if (app->init)

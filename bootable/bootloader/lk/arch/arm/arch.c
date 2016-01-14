@@ -44,7 +44,7 @@ unsigned int zzy_arch_early_init_tick = 0;
 void arch_early_init(void)
 {
 	/* turn off the cache */
-	zzytest_printf("arch_early_init begin\n");
+	zzytest_printf("zzytest, arch_early_init begin\n");
 	arch_disable_cache(UCACHE);
 #if 0 // def ENABLE_L2_SHARING 
 	config_L2_size();
@@ -114,10 +114,6 @@ void arch_early_init(void)
 	__asm__ volatile("mcr	p15, 0, %0, c9, c12, 1" :: "r" (en));
 #endif
 #endif
-}
-
-void arch_init(void)
-{
 }
 
 void arch_uninit(void)

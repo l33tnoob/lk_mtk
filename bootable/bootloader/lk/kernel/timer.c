@@ -273,6 +273,7 @@ static enum handler_return timer_tick(void *arg, time_t now)
 
 void timer_init(void)
 {
+	dprintf(CRITICAL, "zzytest, timer_init begin\n");
 	list_initialize(&timer_queue);
 
 	/* register for a periodic timer tick */

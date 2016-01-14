@@ -37,10 +37,6 @@ __WEAK void target_early_init(void)
 {
 }
 
-__WEAK void target_init(void)
-{
-}
-
 __WEAK void *target_get_scratch_address(void)
 {
     return (void *)(SCRATCH_ADDR);
