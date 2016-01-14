@@ -78,9 +78,8 @@ static void call_constructors(void)
 void kmain(void) __NO_RETURN __EXTERNALLY_VISIBLE;
 void kmain(void)
 {
-#if !defined(MACH_FPGA) && !defined(SB_LK_BRINGUP)
 	boot_time = get_timer(0);
-#endif
+	zzytest_printf("kmain begin, boot_time=%d\n", boot_time);
 
 	// get us into some sort of thread context
 	thread_init_early();
@@ -88,16 +87,16 @@ void kmain(void)
 	// early arch stuff
 	arch_early_init();
 
-#if _MAKE_HTC_LK
 	// do bootloader log init
 	bldr_log_init(BOOT_DEBUG_LOG_BASE_PA, BOOT_DEBUG_LOG_SIZE);
-#endif
+
 	// do any super early platform initialization
 	platform_early_init();
-	printf(CRITICAL, "zzytest, after platform_early_init\n");
-#if defined(MACH_FPGA) || defined(SB_LK_BRINGUP)
+
+	zzytest_printf("zzytest printf log end\n");
+	dprintf(CRITICAL, "zzytest, after platform_early_init\n");
+
 	boot_time = get_timer(0);
-#endif
 
 	// do any super early target initialization
 	target_early_init();
@@ -106,33 +105,21 @@ void kmain(void)
 	dprintf(INFO, "welcome to lk\n\n");
 	
 	// deal with any static constructors
-	dprintf(SPEW, "calling constructors\n");
 	call_constructors();
 
 	// bring up the kernel heap
-	dprintf(SPEW, "initializing heap\n");
 	heap_init();
 
 	// initialize the threading system
-	dprintf(SPEW, "initializing threads\n");
 	thread_init();
 
 	// initialize the dpc system
-	dprintf(SPEW, "initializing dpc\n");
 	dpc_init();
 
 	// initialize kernel timers
-	dprintf(SPEW, "initializing timers\n");
 	timer_init();
 
-#ifdef  MTK_LK_IRRX_SUPPORT
-   mtk_ir_init(0);
-#endif
-
-
-#if 1 // (!ENABLE_NANDWRITE)
 	// create a thread to complete system initialization
-	dprintf(SPEW, "creating bootstrap completion thread\n");
 	thread_resume(thread_create("bootstrap2", &bootstrap2, NULL, DEFAULT_PRIORITY, DEFAULT_STACK_SIZE));
 
 	// enable interrupts
@@ -141,10 +128,6 @@ void kmain(void)
 	// become the idle thread
 	dprintf(CRITICAL, "zzytest, thread_become_idle\n");
 	thread_become_idle();
-#else
-	dprintf(CRITICAL, "zzytest, bootstrap_nandwrite\n");
-        bootstrap_nandwrite();
-#endif
 }
 
 int main(void);

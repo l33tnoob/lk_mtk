@@ -965,6 +965,13 @@ void zzy_debug_log()
 #else
 	dprintf(CRITICAL, "zzytest, ENABLE_NANDWRITE is not defined\n");
 #endif
+
+#ifdef MTK_LK_IRRX_SUPPORT
+	dprintf(CRITICAL, "zzytest, MTK_LK_IRRX_SUPPORT is defined\n");
+#else
+	dprintf(CRITICAL, "zzytest, MTK_LK_IRRX_SUPPORT is not defined\n");
+#endif
+
 	dprintf(CRITICAL, "*************early log*********\n");
 	dprintf(CRITICAL, "%s\n", zzytest_log_addr);
 }

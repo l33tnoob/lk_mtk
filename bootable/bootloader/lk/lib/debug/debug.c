@@ -54,9 +54,10 @@ void halt(void)
 #define ZZYTEST_LOG_LEN  (0x10000000-100)  // len 256M
 unsigned char *zzytest_log_addr = (unsigned char *)0x60000008;
 static int *zzy_log_curr_len = (int *)0x60000000;
+#define ZZYTEST_LOG_BUF_LEN  256
 int zzytest_printf(const char *fmt, ...)
 {
-        char buf[256];
+        static char buf[ZZYTEST_LOG_BUF_LEN];
         // char ts_buf[13];
         int log_len = 0;
         int err;
@@ -76,6 +77,7 @@ int zzytest_printf(const char *fmt, ...)
         // snprintf(ts_buf, sizeof(ts_buf), "[%u] ", (unsigned int)current_time());
         // dputs(ALWAYS, ts_buf);
 
+	memset(buf, 0, ZZYTEST_LOG_BUF_LEN);
         va_list ap; 
         va_start(ap, fmt);
         err = vsnprintf(buf, sizeof(buf), fmt, ap);
