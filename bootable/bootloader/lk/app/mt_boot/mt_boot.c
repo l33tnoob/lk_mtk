@@ -972,6 +972,13 @@ void zzy_debug_log()
 	dprintf(CRITICAL, "zzytest, MTK_LK_IRRX_SUPPORT is not defined\n");
 #endif
 
+	// dump lk memory layout
+	{
+		extern int _start;
+		extern int _end;
+		extern int _end_of_ram;
+		dprintf(CRITICAL, "zzytest, &_start=0x%x, &_end=0x%x, &_end_of_ram=0x%x\n", &_start, &_end, &_end_of_ram);
+	}
 	dprintf(CRITICAL, "*************early log*********\n");
 	dprintf(CRITICAL, "%s\n", zzytest_log_addr);
 }
