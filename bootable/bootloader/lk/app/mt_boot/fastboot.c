@@ -476,7 +476,7 @@ int fastboot_init(void *base, unsigned size)
 {
 	thread_t *thr;
 
-	dprintf(ALWAYS, "fastboot_init()\n");
+	dprintf(ALWAYS, "zzytest, fastboot_init begin\n");
 
 	download_base = base;
 	download_max = size;

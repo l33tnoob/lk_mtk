@@ -96,6 +96,7 @@ void mt_part_dump(void)
 {
     part_t *part = partition;
     
+	dprintf(CRITICAL, "zzytest, mt_part_dump begin\n");
     part_info("Part Info.(1blk=%dB):\n", BLK_SIZE);
     while (part->nr_sects) {
     	 part_info("[0x%016llx-0x%016llx] (%.8ld blocks): \"%s\"\n", 

@@ -2010,6 +2010,7 @@ int udc_init(struct udc_device *dev)
 	u32 usb_l1intm;
 #endif
 
+	dprintf(CRITICAL, "zzytest, udc_init begin\n");
 	DBG_I("[USB] %s:\n", __func__);
 
 	DBG_I("[USB] ep0_urb: %p\n", ep0_urb);
@@ -2301,6 +2302,7 @@ int udc_start(void)
 	unsigned char *data;
 	unsigned size;
 
+	dprintf(CRITICAL, "zzytest, udc_start begin\n");
 	DBG_C("[USB] %s\n", __func__);
 
 	if (!the_device) {

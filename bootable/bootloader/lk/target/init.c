@@ -58,6 +58,7 @@ __WEAK int target_is_emmc_boot(void)
 #endif
 __WEAK unsigned long long target_get_max_flash_size(void)
 {
+	dprintf(CRITICAL, "zzytest, target_get_max_flash_size begin\n");
 #ifdef MTK_EMMC_SUPPORT
 		return g_emmc_size;
 #else

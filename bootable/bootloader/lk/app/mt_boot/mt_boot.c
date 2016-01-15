@@ -1278,8 +1278,8 @@ int boot_linux_from_storage(void)
 #endif
 
     // 2 weak function for mt6572 memory preserved mode
-    platform_mem_preserved_load_img();
-    platform_mem_preserved_dump_mem();
+    // platform_mem_preserved_load_img();
+    // platform_mem_preserved_dump_mem();
 
     custom_port_in_kernel(g_boot_mode, commanline);
 
@@ -1386,118 +1386,54 @@ int get_serial(u64 hwkey, u32 chipid, char ser[SERIALNO_LEN])
 }
 #endif /* CONFIG_MTK_USB_UNIQUE_SERIAL */
 
-#ifdef SERIAL_NUM_FROM_BARCODE
-static inline int read_product_info(char *buf)
-{
-	int tmp = 0;
-
-	if(!buf) return 0;
-
-	mboot_recovery_load_raw_part("proinfo", buf, SN_BUF_LEN);
-
-	for( ; tmp < SN_BUF_LEN; tmp++) {
-		if( (buf[tmp] == 0 || buf[tmp] == 0x20) && tmp > 0) {
-			break;
-		} else if( !isalpha(buf[tmp]) && !isdigit(buf[tmp]))
-			return 0;
-	}
-	return tmp;
-}
-#endif
-
 void mt_boot_init(const struct app_descriptor *app)
 {
 	unsigned usb_init = 0;
 	unsigned sz = 0;
         int sec_ret = 0;
-#ifdef SERIAL_NUM_FROM_BARCODE
-	char tmp[SN_BUF_LEN+1] = {0};
-	unsigned ser_len = 0;
-#endif
-#ifdef CONFIG_MTK_USB_UNIQUE_SERIAL
-	u64 key;
-	u32 chip_code;
-#endif
 	char serial_num[SERIALNO_LEN];
 
-	dprintf(CRITICAL, "zzytest, mt_boot_init, app/mt_boot/mt_boot.c\n");
-#if _MAKE_HTC_LK
-       memset( sn_buf, 0, sizeof(sn_buf));
-       strncpy(sn_buf, htc_setting_get_barcode(), sizeof(sn_buf));
-#else
-#ifdef CONFIG_MTK_USB_UNIQUE_SERIAL
-	/* Please enable EFUSE clock in platform.c before reading sn key */
-
-	/* serial string adding */
-
-	key = readl(SERIAL_KEY_HI);
-	key = (key << 32) | readl(SERIAL_KEY_LO);
-	chip_code = DRV_Reg32(APHW_CODE);
-
-	if (key != 0)
-		get_serial(key, chip_code, serial_num);
-	else
-		memcpy(serial_num, DEFAULT_SERIAL_NUM, SN_BUF_LEN);
-	/* copy serial from serial_num to sn_buf */
-	memcpy(sn_buf, serial_num, SN_BUF_LEN);
-			dprintf(CRITICAL,"serial number %s\n",serial_num);
-#else
-			memcpy(sn_buf, DEFAULT_SERIAL_NUM, strlen(DEFAULT_SERIAL_NUM));
-#endif
-
-#ifdef SERIAL_NUM_FROM_BARCODE
-	ser_len = read_product_info(tmp);
-	if(ser_len == 0) {
-		ser_len = strlen(DEFAULT_SERIAL_NUM);
-		strncpy(tmp, DEFAULT_SERIAL_NUM, ser_len);
-	}
+	dprintf(CRITICAL, "zzytest, mt_boot_init begin\n");
 	memset( sn_buf, 0, sizeof(sn_buf));
-	strncpy( sn_buf, tmp, ser_len);
-#endif
-#endif //_MAKE_HTC_LK
+	strncpy(sn_buf, htc_setting_get_barcode(), sizeof(sn_buf));
 	sn_buf[SN_BUF_LEN] = '\0';
 	surf_udc_device.serialno = sn_buf;
 
+	switch (htc_setting_get_bootmode()) {
+		case BOOTMODE_FASTBOOT:
+			g_boot_mode = FASTBOOT;
+			break;
 
+		case BOOTMODE_RECOVERY:
+			g_boot_mode = RECOVERY_BOOT;
+			break;
 
-#if _MAKE_HTC_LK
-		switch (htc_setting_get_bootmode()) {
-				case BOOTMODE_FASTBOOT:
-						g_boot_mode = FASTBOOT;
-						break;
+		case BOOTMODE_FTM1:
+			g_boot_mode = META_BOOT;
+			g_boot_arg->meta_com_type = META_USB_COM;
+			break;
 
-				case BOOTMODE_RECOVERY:
-						g_boot_mode = RECOVERY_BOOT;
-						break;
+		case BOOTMODE_FTM2:
+			g_boot_mode = FACTORY_BOOT;//ATE_FACTORY_BOOT;
+			break;
 
-				case BOOTMODE_FTM1:
-						g_boot_mode = META_BOOT;
-						g_boot_arg->meta_com_type = META_USB_COM;
-						break;
+		case BOOTMODE_DOWNLOAD:
+			g_boot_mode = HTC_DOWNLOAD;
+			break;
 
-				case BOOTMODE_FTM2:
-						g_boot_mode = FACTORY_BOOT;//ATE_FACTORY_BOOT;
-						break;
+		case BOOTMODE_DOWNLOAD_RUU:
+			g_boot_mode = HTC_DOWNLOAD_RUU;
+			break;
 
-				case BOOTMODE_DOWNLOAD:
-						g_boot_mode = HTC_DOWNLOAD;
-						break;
-
-				case BOOTMODE_DOWNLOAD_RUU:
-						g_boot_mode = HTC_DOWNLOAD_RUU;
-						break;
-
-				case BOOTMODE_NORMAL:
-				case BOOTMODE_REBOOT:
-				default:
-						break;
+		case BOOTMODE_NORMAL:
+		case BOOTMODE_REBOOT:
+		default:
+			break;
 		}
-#endif //_MAKE_HTC_LK
 
 	if (g_boot_mode == FASTBOOT)
 		goto fastboot;
 
-#if _MAKE_HTC_LK
 	// HTC_CSP_START, #21487(Dybert_Wang), Add
 	g_bEnterDloadForSmartCard = false;
 	g_dwNextBootModeAfterDload = DLOAD_TO_NONE;
@@ -1584,36 +1520,24 @@ void mt_boot_init(const struct app_descriptor *app)
 		htc_setting_set_wipe_done_flag();
 	}
 	// HTC_CSP_END
-#endif //_MAKE_HTC_LK
-
-// HTC_CSP_START, #21487(Dybert_Wang), Del
-// move secure boot check to "boot_linux_from_storage()"
-#if !_MAKE_HTC_LK
-#ifdef MTK_SECURITY_SW_SUPPORT
-    /* Do not block fastboot if check failed */
-    if(0 != sec_boot_check(0))
-    {
-        dprintf(CRITICAL,"<ASSERT> %s:line %d\n",__FILE__,__LINE__);
-        while(1);
-    }
-#endif
-#endif
-// HTC_CSP_END
 
 	/* Will not return */
 	boot_linux_from_storage();
 
 fastboot:
-	target_fastboot_init();
-	if(!usb_init)
-		/*Hong-Rong: wait for porting*/
-		udc_init(&surf_udc_device);
-
+	dprintf(CRITICAL, "zzytest, enter fastboot mode\n");
+	udc_init(&surf_udc_device);
 	mt_part_dump();
-/*test*/
-#if 0
+	sz = target_get_max_flash_size();
+	fastboot_init(target_get_scratch_address(), sz);
+	htc_key_and_menu_init();
+	udc_start();
+}
 
-    {
+
+#if 0
+void partition_test(void)
+{
         char buf[2048];
         char buf_t[2048];
         int i;
@@ -1646,22 +1570,8 @@ fastboot:
         if(ret == true){
             dprintf(CRITICAL,"---partition test sucess\n-----");
         }
-
-
-    }
-#endif
-/*test*/
-	sz = target_get_max_flash_size();
-	fastboot_init(target_get_scratch_address(), sz);
-
-#if _MAKE_HTC_LK
-	htc_key_and_menu_init();
-#endif
-
-	udc_start();
-
 }
-
+#endif
 
 APP_START(mt_boot)
 .init = mt_boot_init,

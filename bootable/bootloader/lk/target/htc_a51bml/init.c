@@ -57,7 +57,7 @@ unsigned board_machtype(void)
 /* Do any target specific intialization needed before entering fastboot mode */
 void target_fastboot_init(void)
 {
-
+	dprintf(CRITICAL, "zzytest, target_fastboot_init empty\n");
 }
 
 extern BOOTMODE g_boot_mode;

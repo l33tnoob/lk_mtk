@@ -72,6 +72,7 @@ void htc_key_and_menu_init(void)
 {
 	thread_t *thr = NULL;
 
+	dprintf(CRITICAL, "zzytest, htc_key_and_menu_init begin\n");
 	event_init(&key_pressed, 0, EVENT_FLAG_AUTOUNSIGNAL);
 	//periodic timer to poll key status
 	timer_initialize(&key_polling_timer);

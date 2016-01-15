@@ -46,8 +46,8 @@ unsigned check_reboot_mode(void);
 void platform_uninit_timer(void);
 void reboot_device(unsigned);
 
-void platform_mem_preserved_load_img(void);
-void platform_mem_preserved_dump_mem(void);
+// void platform_mem_preserved_load_img(void);
+// void platform_mem_preserved_dump_mem(void);
 void config_L2_size(void);
 
 typedef struct        /* RAM configuration */
