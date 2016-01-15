@@ -102,14 +102,14 @@ void kmain(void)
 
 int main(void);
 
+extern const struct app_descriptor __apps_start;
 static int bootstrap2(void *arg)
 {
 	dprintf(CRITICAL, "zzytest, bootstrap2\n");
 
 	// initialize the rest of the platform
 	platform_init();
-	
-	apps_init();
+	mt_boot_init(&__apps_start);
 
 	return 0;
 }

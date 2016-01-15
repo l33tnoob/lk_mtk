@@ -37,16 +37,20 @@ void apps_init(void)
 	dprintf(CRITICAL, "zzytest, apps_init begin\n");
 	/* call all the init routines */
 	for (app = &__apps_start; app != &__apps_end; app++) {
-		if (app->init)
+		if (app->init) {
+			dprintf(CRITICAL, "zzytest, app->init\n");
 			app->init(app);
+		}
 	}
 
 	/* start any that want to start on boot */
 	for (app = &__apps_start; app != &__apps_end; app++) {
 		if (app->entry && (app->flags & APP_FLAG_DONT_START_ON_BOOT) == 0) {
+			dprintf(CRITICAL, "zzytest, start_app\n");
 			start_app(app);
 		}
 	}
+	dprintf(CRITICAL, "zzytest, apps_init end\n");
 }
 
 static int app_thread_entry(void *arg)
