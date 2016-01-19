@@ -85,15 +85,7 @@ extern int mmc_legacy_init(int);
 #ifdef MT_SRAM_REPAIR_SUPPORT
 extern int repair_sram(void);
 #endif
-#ifdef MTK_EFUSE_WRITER_SUPPORT
-extern void mt_efuse_get(void);
-#endif
 extern bool g_boot_menu;
-
-#ifdef MTK_BATLOWV_NO_PANEL_ON_EARLY
-extern kal_bool is_low_battery(kal_int32 val);
-extern int hw_charging_get_charger_type(void);
-#endif
 
 #ifdef MTK_MT8193_SUPPORT
 extern int mt8193_init(void);
@@ -654,85 +646,132 @@ int kernel_charging_boot(void)
 }
 #endif
 
-void platform_init(void)
+void platform_init_log(void)
 {
 #ifdef LK_PROFILING
+        dprintf(CRITICAL, "LK_PROFILING is defined\n");
+#else
+        dprintf(CRITICAL, "LK_PROFILING is not defined\n");
+#endif
+
+#ifdef DUMMY_AP
+	dprintf(CRITICAL, "DUMMY_AP is defined\n");
+#else
+	dprintf(CRITICAL, "DUMMY_AP is not defined\n");
+#endif
+
+#ifdef MTK_EMMC_SUPPORT
+	dprintf(CRITICAL, "MTK_EMMC_SUPPORT is defined\n");
+#else
+	dprintf(CRITICAL, "MTK_EMMC_SUPPORT is not defined\n");
+#endif
+
+#ifdef MTK_KERNEL_POWER_OFF_CHARGING
+	dprintf(CRITICAL, "MTK_KERNEL_POWER_OFF_CHARGING is defined\n");
+#else
+	dprintf(CRITICAL, "MTK_KERNEL_POWER_OFF_CHARGING is not defined\n");
+#endif
+
+#ifdef MTK_SECURITY_SW_SUPPORT
+	dprintf(CRITICAL, "MTK_SECURITY_SW_SUPPORT is defined\n");
+#else
+	dprintf(CRITICAL, "MTK_SECURITY_SW_SUPPORT is not defined\n");
+#endif
+
+#ifdef HTC_BANK28_SUPPORT
+	dprintf(CRITICAL, "HTC_BANK28_SUPPORT is defined\n");
+#else
+	dprintf(CRITICAL, "HTC_BANK28_SUPPORT is not defined\n");
+#endif
+
+#ifdef MACH_FPGA_NO_DISPLAY
+	dprintf(CRITICAL, "MACH_FPGA_NO_DISPLAY is defined\n");
+#else
+	dprintf(CRITICAL, "MACH_FPGA_NO_DISPLAY is not defined\n");
+#endif
+
+#ifdef MTK_EFUSE_WRITER_SUPPORT
+	dprintf(CRITICAL, "MTK_EFUSE_WRITER_SUPPORT is defined\n");
+#else
+	dprintf(CRITICAL, "MTK_EFUSE_WRITER_SUPPORT is not defined\n");
+#endif
+
+#ifdef MTK_NEW_COMBO_EMMC_SUPPORT
+	dprintf(CRITICAL, "MTK_NEW_COMBO_EMMC_SUPPORT is defined\n");
+#else
+	dprintf(CRITICAL, "MTK_NEW_COMBO_EMMC_SUPPORT is not defined\n");
+#endif
+
+#ifdef MACH_FPGA
+	dprintf(CRITICAL, "MACH_FPGA is defined\n");
+#else
+	dprintf(CRITICAL, "MACH_FPGA is not defined\n");
+#endif
+
+#ifdef HAVE_CACHE_PL310
+	dprintf(CRITICAL, "HAVE_CACHE_PL310 is defined\n");
+#else
+	dprintf(CRITICAL, "HAVE_CACHE_PL310 is not defined\n");
+#endif
+
+#ifdef ENABLE_L2_SHARING
+	dprintf(CRITICAL, "ENABLE_L2_SHARING is defined\n");
+#else
+	dprintf(CRITICAL, "ENABLE_L2_SHARING is not defined\n");
+#endif
+
+#ifdef CFG_POWER_CHARGING
+	dprintf(CRITICAL, "CFG_POWER_CHARGING is defined\n");
+#else
+	dprintf(CRITICAL, "CFG_POWER_CHARGING is not defined\n");
+#endif
+
+#ifdef MTK_BATLOWV_NO_PANEL_ON_EARLY
+	dprintf(CRITICAL, "MTK_BATLOWV_NO_PANEL_ON_EARLY is defined\n");
+#else
+	dprintf(CRITICAL, "MTK_BATLOWV_NO_PANEL_ON_EARLY is not defined\n");
+#endif
+}
+
+void platform_init(void)
+{
     unsigned int time_nand_emmc;
     unsigned int time_env;
     unsigned int time_disp_init;
     unsigned int time_load_logo;
     unsigned int time_backlight;
     unsigned int time_boot_mode;
-#ifdef MTK_SECURITY_SW_SUPPORT
     unsigned int time_security_init;
-#endif
     unsigned int time_bat_init;
     unsigned int time_RTC_boot_Check;
     unsigned int time_show_logo;
     unsigned int time_sw_env;
     unsigned int time_platform_init;
     time_platform_init = get_timer(0);
-#endif
 
     dprintf(CRITICAL, "zzytest, platform_init begin\n");
+    platform_init_log();
 
-#ifdef DUMMY_AP
-    dummy_ap_entry();
-#endif
-
-#ifdef LK_PROFILING
     time_nand_emmc = get_timer(0);
-#endif
-#ifdef MTK_EMMC_SUPPORT
     mmc_legacy_init(1);
-#else
-#ifndef MACH_FPGA
-    nand_init();
-    nand_driver_test();
-#endif
-#endif
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- NAND/EMMC init takes %d ms -------- \n", (int)get_timer(time_nand_emmc));
-#endif
 
-#ifdef MTK_KERNEL_POWER_OFF_CHARGING
     if((g_boot_arg->boot_reason == BR_USB) && (upmu_is_chr_det() == KAL_FALSE))
     {
         dprintf(INFO, "[%s] Unplugged Charger/Usb between Pre-loader and Uboot in Kernel Charging Mode, Power Off \n", __func__);
         mt6575_power_off();
     }
-#endif
 
-#ifdef LK_PROFILING
     time_env = get_timer(0);
-#endif
     env_init();
     print_env();
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- ENV init takes %d ms -------- \n", (int)get_timer(time_env));
-#endif
 
-#if _MAKE_HTC_LK
 // HTC_CSP_START, #21487(Dybert_Wang), Add
-// move from below section
-#ifdef MTK_SECURITY_SW_SUPPORT
-#ifdef LK_PROFILING
     time_security_init = get_timer(0);
-#endif
 		/* initialize security library */
-#ifdef MTK_EMMC_SUPPORT
-    #ifdef MTK_NEW_COMBO_EMMC_SUPPORT
         sec_func_init(3);
-    #else
-        sec_func_init(1);
-    #endif
-#else
-    sec_func_init(0);
-#endif
-#ifdef LK_PROFILING
     dprintf(INFO,"[PROFILE] ------- Security init takes %d ms -------- \n", (int)get_timer(time_security_init));
-#endif
-#endif // MTK_SECURITY_SW_SUPPORT
 // HTC_CSP_END
 
 	/* print HTC LK Version Info */
@@ -766,82 +805,39 @@ void platform_init(void)
 
     htc_setting_init_bootmode();
     dprintf(CRITICAL, "main firmware version: %s\n", htc_setting_get_firmware_main_version());
-#if defined(HTC_BANK28_SUPPORT)
-	htc_open_b28();
-	dprintf(CRITICAL, "htc_open_B28\n");
-#else
-	dprintf(CRITICAL, "htc_unopen_B28\n");
-#endif
-#endif
+    dprintf(CRITICAL, "htc_unopen_B28\n");
 
-
-#ifdef LK_PROFILING
     time_disp_init = get_timer(0);
-#endif
 
 /* initialize the frame buffet information */
-#ifndef MACH_FPGA_NO_DISPLAY
     g_fb_size = mt_disp_get_vram_size();
-#else
-    g_fb_size = 0x1000000;
-#endif
-#if 0
-    g_fb_base = memory_size() - g_fb_size + DRAM_PHY_ADDR;
-#else
 
-#if 0
-    if (g_is_64bit_kernel) {
-        g_fb_base = mblock_reserve(&g_boot_arg->mblock_info, g_fb_size, 0x200000, 0x100000000, RANKMAX);
-        g_fb_base = ALIGN_TO(g_fb_base,0x200000); // size 2MB align
-    }
-    else {
-        g_fb_base = mblock_reserve(&g_boot_arg->mblock_info, g_fb_size, 0x100000, 0x100000000, RANKMAX);
-    }
-#else
      g_fb_base = mblock_reserve(&g_boot_arg->mblock_info, g_fb_size, 0x10000, 0x100000000, RANKMAX);
-#endif
 
     if (!g_fb_base) {
         /* ERROR */
     }
-#endif
 
   dprintf(CRITICAL, "FB base = 0x%x, FB size = %d\n", g_fb_base, g_fb_size);
 
-#ifndef MACH_FPGA_NO_DISPLAY
     mt_disp_init((void *)g_fb_base);
     /* show black picture fisrtly in case of  backlight is on before nothing is drawed*/
     //mt_disp_fill_rect(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT, 0x0);
     //mt_disp_update(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT);
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- disp init takes %d ms -------- \n", (int)get_timer(time_disp_init));
-#endif
 
-#ifdef LK_PROFILING
     time_load_logo = get_timer(0);
-#endif
     drv_video_init();
 
     mboot_common_load_logo((unsigned long)mt_get_logo_db_addr_pa(), "logo");
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- load_logo takes %d ms -------- \n", (int)get_timer(time_load_logo));
-#endif
-#endif
 
     /*for kpd pmic mode setting*/
     set_kpd_pmic_mode();
 
-#ifdef MTK_EFUSE_WRITER_SUPPORT 
-    mt_efuse_get();
-#endif
-
-#ifndef MACH_FPGA
-#ifdef LK_PROFILING
     time_boot_mode = get_timer(0);
-#endif
     boot_mode_select();
 
-#if _MAKE_HTC_LK
 	/** sync hTC BOOT MODE to MTK BOOT MODE **/
 	if (g_boot_mode == NORMAL_BOOT) {
 		switch(htc_setting_get_bootmode()) {
@@ -854,51 +850,17 @@ void platform_init(void)
 		case BOOTMODE_DOWNLOAD_RUU:  g_boot_mode = HTC_DOWNLOAD_RUU;break;
 		}
 	}
-#endif
 	
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- boot mode select takes %d ms -------- \n", (int)get_timer(time_boot_mode));
-#endif
-#endif
-
-// HTC_CSP_START, #21487(Dybert_Wang), Modify
-#if _MAKE_HTC_LK
-    // do nothing, move below section to above
-#else
-#ifdef MTK_SECURITY_SW_SUPPORT
-#ifdef LK_PROFILING
-    time_security_init = get_timer(0);
-#endif
-    /* initialize security library */
-#ifdef MTK_EMMC_SUPPORT
-    #ifdef MTK_NEW_COMBO_EMMC_SUPPORT
-        sec_func_init(3);
-    #else
-        sec_func_init(1);
-    #endif
-#else
-    sec_func_init(0);
-#endif
-#ifdef LK_PROFILING
-    dprintf(INFO,"[PROFILE] ------- Security init takes %d ms -------- \n", (int)get_timer(time_security_init));
-#endif
-#endif
-#endif // #if _MAKE_HTC_LK
-// HTC_CSP_END
 
     /*Show download logo & message on screen */
     if (g_boot_arg->boot_mode == DOWNLOAD_BOOT)
     {
         dprintf(CRITICAL, "[LK] boot mode is DOWNLOAD_BOOT\n");
 
-#ifdef MTK_SECURITY_SW_SUPPORT
         /* verify da before jumping to da*/
 	// HTC_CSP_START, #21487(Dybert_Wang), Modify
-	#if _MAKE_HTC_LK
 	if (setting_security()) { // if S-on
-	#else
-        if (sec_usbdl_enabled()) {
-	#endif
 	// HTC_CSP_END
             u8  *da_addr = (u8*)g_boot_arg->da_info.addr;
             u32 da_len   = g_boot_arg->da_info.len;
@@ -919,126 +881,61 @@ void platform_init(void)
             }
         }
         else
-#endif
         {
             dprintf(INFO, " DA verification disabled...\n");
         }
 
-#ifndef MACH_FPGA_NO_DISPLAY
         mt_disp_show_boot_logo();
-#endif
         video_printf(" => Downloading...\n");
         dprintf(CRITICAL, "enable backlight after show bootlogo! \n");
         mt65xx_backlight_on();
 
         mtk_wdt_disable(); //Disable wdt before jump to DA
         platform_uninit();
-#ifdef HAVE_CACHE_PL310
-        l2_disable();
-#endif
         arch_disable_cache(UCACHE);
         arch_disable_mmu();
-#ifdef ENABLE_L2_SHARING
-        config_shared_SRAM_size();
-#endif
 
         jump_da(g_boot_arg->da_info.addr, g_boot_arg->da_info.arg1, g_boot_arg->da_info.arg2);
     }
 
-#ifdef LK_PROFILING
     time_bat_init = get_timer(0);
-#endif
     mt65xx_bat_init();
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- battery init takes %d ms -------- \n", (int)get_timer(time_bat_init));
-#endif
 
-#ifndef CFG_POWER_CHARGING
-#ifdef LK_PROFILING
     time_RTC_boot_Check = get_timer(0);
-#endif
     /* NOTE: if define CFG_POWER_CHARGING, will rtc_boot_check() in mt65xx_bat_init() */
     rtc_boot_check(false);
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- RTC boot check Init  takes %d ms -------- \n", (int)get_timer(time_RTC_boot_Check));
-#endif
-#endif
 
-#ifdef LK_PROFILING
     time_show_logo = get_timer(0);
-#endif
-#ifdef MTK_KERNEL_POWER_OFF_CHARGING
 	if(kernel_charging_boot() == 1)
 	{
-		#ifdef MTK_BATLOWV_NO_PANEL_ON_EARLY
-		CHARGER_TYPE CHR_Type_num = CHARGER_UNKNOWN;
-		CHR_Type_num = hw_charging_get_charger_type();
-		if ((g_boot_mode != LOW_POWER_OFF_CHARGING_BOOT) ||
-		((CHR_Type_num != STANDARD_HOST) && (CHR_Type_num != NONSTANDARD_CHARGER)))
-		{
-		#endif
 		mt_disp_power(TRUE);
 		mt_disp_show_low_battery();
 		mt65xx_leds_brightness_set(6, 110);
-		#ifdef MTK_BATLOWV_NO_PANEL_ON_EARLY
-		}
-		#endif
 	}
 	else if(g_boot_mode != KERNEL_POWER_OFF_CHARGING_BOOT && g_boot_mode != LOW_POWER_OFF_CHARGING_BOOT)
 	{
 		if (g_boot_mode != ALARM_BOOT && (g_boot_mode != FASTBOOT))
 		{
-#ifndef MACH_FPGA_NO_DISPLAY
 			mt_disp_show_boot_logo();
-#endif
 		}
 	}
-#else
-    if (g_boot_mode != ALARM_BOOT && (g_boot_mode != FASTBOOT))
-    {
-#ifndef MACH_FPGA_NO_DISPLAY
-        mt_disp_show_boot_logo();
-#endif
-    }
-#endif
-#ifdef LK_PROFILING
     time_backlight = get_timer(0);
-#endif
 
-#ifdef MTK_BATLOWV_NO_PANEL_ON_EARLY
-    if(!is_low_battery(0))
-    {
-#endif
         mt65xx_backlight_on();
-#ifndef MACH_FPGA_NO_DISPLAY
         //pwm need display sof
         mt_disp_update(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT);
-#endif
-#ifdef MTK_BATLOWV_NO_PANEL_ON_EARLY
-    }
-#endif
 
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- backlight takes %d ms -------- \n", (int)get_timer(time_backlight));
-#endif
 
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- show logo takes %d ms -------- \n", (int)get_timer(time_show_logo));
-#endif
 
-#ifndef MACH_FPGA
-#ifdef LK_PROFILING
     time_sw_env = get_timer(0);
-#endif
     sw_env();
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- sw_env takes %d ms -------- \n", (int)get_timer(time_sw_env));
-#endif
-#endif
 
-#ifdef LK_PROFILING
     dprintf(INFO, "[PROFILE] ------- platform_init takes %d ms -------- \n", (int)get_timer(time_platform_init));
-#endif
 }
 
 void platform_uninit(void)
