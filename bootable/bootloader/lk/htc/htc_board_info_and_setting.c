@@ -73,30 +73,31 @@ HTC_BOARD_INFO* board_info = NULL;
 //quote from hboot function chipset_setting_init
 void htc_board_info_init()
 {
-		bool found = false;
+	bool found = false;
 
-		board_info = (HTC_BOARD_INFO *)memalign(4096, sizeof(HTC_BOARD_INFO));
-		if(!board_info)
-			goto err;
+	dprintf(CRITICAL, "zzytest, htc_board_info_init begin\n");
+	board_info = (HTC_BOARD_INFO *)memalign(4096, sizeof(HTC_BOARD_INFO));
+	if(!board_info)
+		goto err;
 
-		memset(board_info, 0, sizeof(HTC_BOARD_INFO));
+	memset(board_info, 0, sizeof(HTC_BOARD_INFO));
 
-		partition_read("proinfo", HTC_BOARD_INFO_OFFSET, board_info, (board_info->end - board_info->start));
+	partition_read("proinfo", HTC_BOARD_INFO_OFFSET, board_info, (board_info->end - board_info->start));
 
-		if(strncmp(board_info->data.magic, BOARD_INFO_MAGIC, sizeof(board_info->data.magic))) {
-			dprintf(CRITICAL, "%s: invalid board info\r\n", __func__);
-			goto clear;
-		}
+	if(strncmp(board_info->data.magic, BOARD_INFO_MAGIC, sizeof(board_info->data.magic))) {
+		dprintf(CRITICAL, "%s: invalid board info\r\n", __func__);
+		goto clear;
+	}
 
-		return;
+	return;
 
-	clear:
-		memset(board_info, 0, sizeof(HTC_BOARD_INFO));
-	err:
-		dprintf(CRITICAL, "%s: fail to read board info\r\n", __func__);
-	restore:
-		memcpy(board_info->data.magic, BOARD_INFO_MAGIC, sizeof(board_info->data.magic));
-		partition_write("proinfo", HTC_BOARD_INFO_OFFSET, board_info, (board_info->end - board_info->start));
+clear:
+	memset(board_info, 0, sizeof(HTC_BOARD_INFO));
+err:
+	dprintf(CRITICAL, "%s: fail to read board info\r\n", __func__);
+restore:
+	memcpy(board_info->data.magic, BOARD_INFO_MAGIC, sizeof(board_info->data.magic));
+	partition_write("proinfo", HTC_BOARD_INFO_OFFSET, board_info, (board_info->end - board_info->start));
 }
 
 int htc_get_pid()
@@ -111,9 +112,9 @@ int htc_get_pid()
 
 //from hboot include/utils.h
 #define HEXSYMBOLCHK(c) (((c) >= '0' && (c) <= '9') ||\
-                                                ((c) >= 'A' && (c) <= 'Z') ||\
-                                                ((c) >= 'a' && (c) <= 'z') ||\
-                                                ((c) == '-' || (c) == '_'))
+		((c) >= 'A' && (c) <= 'Z') ||\
+		((c) >= 'a' && (c) <= 'z') ||\
+		((c) == '-' || (c) == '_'))
 //from hboot common/utils.c
 static int invalid_cid(const char *cid)
 {
@@ -174,11 +175,11 @@ struct heap_test_param{
 };
 
 typedef struct {
-    char command[32];
-    char status[32];
-    char recovery[768];
-    char stage[32];
-    char reserved[224];
+	char command[32];
+	char status[32];
+	char recovery[768];
+	char stage[32];
+	char reserved[224];
 } bootloader_message;
 
 struct setting_data_2k_page{
@@ -355,12 +356,12 @@ static int setting_page_range_check(void)
 #if defined(ENG_BUILD)
 	/* The page size in misc setting should be equal to 2K */
 	if (((setting->misc_page0_end - setting->misc_page0_start) != SETTING_PAGE_SIZE) ||
-		((setting->misc_page1_end - setting->misc_page1_start) != SETTING_PAGE_SIZE) ||
-		((setting->misc_page2_end - setting->misc_page2_start) != SETTING_PAGE_SIZE) ||
-		((setting->misc_page3_end - setting->misc_page3_start) != SETTING_PAGE_SIZE) ||
-		((setting->misc_page4_end - setting->misc_page4_start) != SETTING_PAGE_SIZE) ||
-		((setting->misc_page5_end - setting->misc_page5_start) != SETTING_PAGE_SIZE) ||
-		((setting->misc_page6_end - setting->misc_page6_start) != SETTING_PAGE_SIZE)) {
+			((setting->misc_page1_end - setting->misc_page1_start) != SETTING_PAGE_SIZE) ||
+			((setting->misc_page2_end - setting->misc_page2_start) != SETTING_PAGE_SIZE) ||
+			((setting->misc_page3_end - setting->misc_page3_start) != SETTING_PAGE_SIZE) ||
+			((setting->misc_page4_end - setting->misc_page4_start) != SETTING_PAGE_SIZE) ||
+			((setting->misc_page5_end - setting->misc_page5_start) != SETTING_PAGE_SIZE) ||
+			((setting->misc_page6_end - setting->misc_page6_start) != SETTING_PAGE_SIZE)) {
 		dprintf(CRITICAL, "[ERROR] Loop here, some page size in MISC setting is not equal to %d...\r\n", SETTING_PAGE_SIZE);
 		while (1) ;
 	}
@@ -533,7 +534,7 @@ static int setting_check_and_update_firmware_main_version()
 		if (0 == parsing_android_info( p_reserve_buf, &htc_android_info) ) {
 			if ( strlen(htc_android_info.image_mainver) > 0) {
 				dprintf(CRITICAL, "[setting] htc_android_info.image_mainver:%s\r\n",
-									htc_android_info.image_mainver);
+						htc_android_info.image_mainver);
 				htc_setting_set_firmware_main_version(htc_android_info.image_mainver);
 			}
 		}
@@ -629,6 +630,7 @@ int htc_setting_init(void)
 {
 	int page_size;
 
+	dprintf(CRITICAL, "zzytest, htc_setting_init begin\n");
 	page_size = get_page_size();
 
 	setting = (struct setting_data_2k_page *)memalign(4096, sizeof(struct setting_data_2k_page));
@@ -649,12 +651,12 @@ int htc_setting_init(void)
 	}
 
 	//DEBUG MISC Size RANGE
-	#if 0
+#if 0
 	memset(setting->backup_cid, '1', sizeof(setting->backup_cid)/sizeof(char));
 	memset(setting->reserve0, 0xE0, sizeof(setting->reserve0));
 	memset(setting->reserve6, 0xE6, sizeof(setting->reserve6));
 	setting_save_misc();
-	#endif
+#endif
 
 	partition_read("proinfo", HTC_MFG_OFFSET, &setting->mfg, sizeof(setting->mfg));
 	if (setting_cfgdata_is_valid() == false) { // Read failed OR cfgdata[] is invalid
@@ -691,7 +693,7 @@ int htc_setting_init(void)
 	setting->batt_level_check = 1;
 
 #if TAMPER_DETECT
-		setting_init_tamper_status();
+	setting_init_tamper_status();
 #endif
 
 	return 0;
@@ -736,27 +738,27 @@ static int setting_if_enter_recovery_mode(void)
 
 static int setting_check_bootmode(void)
 {
-		if (setting_if_enter_recovery_mode())
-				return BOOTMODE_RECOVERY;
+	if (setting_if_enter_recovery_mode())
+		return BOOTMODE_RECOVERY;
 
-		if (!memcmp(setting->auto_enter_bootloader, enter_fastboot_str, sizeof(enter_fastboot_str))) {
-				memset(setting->auto_enter_bootloader, 0, sizeof(setting->auto_enter_bootloader));
-				setting_save_misc();
-				return BOOTMODE_FASTBOOT;
-		}
+	if (!memcmp(setting->auto_enter_bootloader, enter_fastboot_str, sizeof(enter_fastboot_str))) {
+		memset(setting->auto_enter_bootloader, 0, sizeof(setting->auto_enter_bootloader));
+		setting_save_misc();
+		return BOOTMODE_FASTBOOT;
+	}
 
-		if (!memcmp(setting->auto_enter_bootloader, reboot_str, sizeof(reboot_str))) {
-				memset(setting->auto_enter_bootloader, 0, sizeof(setting->auto_enter_bootloader));
-				setting_save_misc();
-				return BOOTMODE_REBOOT;
-		}
+	if (!memcmp(setting->auto_enter_bootloader, reboot_str, sizeof(reboot_str))) {
+		memset(setting->auto_enter_bootloader, 0, sizeof(setting->auto_enter_bootloader));
+		setting_save_misc();
+		return BOOTMODE_REBOOT;
+	}
 
-		if(!memcmp(setting->boot.command, update_zip_str, sizeof(update_zip_str)))
-		{
-			return BOOTMODE_DOWNLOAD_RUU ;
-		}
+	if(!memcmp(setting->boot.command, update_zip_str, sizeof(update_zip_str)))
+	{
+		return BOOTMODE_DOWNLOAD_RUU ;
+	}
 
-		return BOOTMODE_NORMAL;
+	return BOOTMODE_NORMAL;
 }
 
 static int chipset_bootmode(void)
@@ -769,68 +771,68 @@ static int chipset_bootmode(void)
 
 	if ((reset_reason & 0xFFFFFF00) == 0x77665500){
 		switch (reset_reason & 0xFF){
-		case 0x00:	//stay in bootloader, fastboot mode
-		case 0xCC:	//for DDR2G ramdump/ramtest bottom-half
-			return BOOTMODE_FASTBOOT;
+			case 0x00:	//stay in bootloader, fastboot mode
+			case 0xCC:	//for DDR2G ramdump/ramtest bottom-half
+				return BOOTMODE_FASTBOOT;
 
-		case 0x01:	//boot boot.img
-			return BOOTMODE_REBOOT;
+			case 0x01:	//boot boot.img
+				return BOOTMODE_REBOOT;
 
-		case 0x02:	//boot recovery.img
-			return BOOTMODE_RECOVERY;
+			case 0x02:	//boot recovery.img
+				return BOOTMODE_RECOVERY;
 
-		default:	//boot boot.img
-			return BOOTMODE_REBOOT;
+			default:	//boot boot.img
+				return BOOTMODE_REBOOT;
 		}
 	}else if ((reset_reason & 0xFFFFFF00) == 0x6F656D00){
 		//oem reset reason, TBD
 		switch (reset_reason & 0xFF) {
-		case 0x11:  // oem-11, skip ram dump and boot to kernel
-			// NOT IMPEMENTED YET
-			break;
+			case 0x11:  // oem-11, skip ram dump and boot to kernel
+				// NOT IMPEMENTED YET
+				break;
 
 #if TAMPER_DETECT
-		case 0x68:
-			dprintf(INFO, "Tamper-Detect do sync!\r\n");
-			tamper_sync_from_misc();
-			break;
+			case 0x68:
+				dprintf(INFO, "Tamper-Detect do sync!\r\n");
+				tamper_sync_from_misc();
+				break;
 #endif //! TAMPER_DETECT
 
-		case 0x76:  // oem-76,
-			// NOT IMPEMENTED YET
-			break;
+			case 0x76:  // oem-76,
+				// NOT IMPEMENTED YET
+				break;
 
-		case 0x78:  // oem-78, rebootRUU
-			return BOOTMODE_DOWNLOAD_RUU;
+			case 0x78:  // oem-78, rebootRUU
+				return BOOTMODE_DOWNLOAD_RUU;
 
-		case 0x88:  // use "adb shell reboot oem-88" to trigger kernel rebooting to normal mode
-			return BOOTMODE_NORMAL;
+			case 0x88:  // use "adb shell reboot oem-88" to trigger kernel rebooting to normal mode
+				return BOOTMODE_NORMAL;
 
-		case 0x8A: // trigger remote kill, only do this on s-off devices
-			if (read_security_level() == SECLEVEL_MFG)
-			{
-				partition_format_emmc("hosd");
-				partition_format_emmc("system");
-				partition_format_emmc("userdata");
-				reboot_device(0);
-			}
-			return BOOTMODE_NORMAL;
+			case 0x8A: // trigger remote kill, only do this on s-off devices
+				if (read_security_level() == SECLEVEL_MFG)
+				{
+					partition_format_emmc("hosd");
+					partition_format_emmc("system");
+					partition_format_emmc("userdata");
+					reboot_device(0);
+				}
+				return BOOTMODE_NORMAL;
 
-		case 0xE0:	// oem-E0, download mode
-			return BOOTMODE_DOWNLOAD;
+			case 0xE0:	// oem-E0, download mode
+				return BOOTMODE_DOWNLOAD;
 
-		case 0xF1:	// oem-F1, for FTM1 /* MTK META_BOOT */
-			return BOOTMODE_FTM1;
-		case 0xF2:  // oem-F2, for FTM2 /* MTK FACTORY_BOOT */
-			return BOOTMODE_FTM2;
-                case 0xFF:
-                        return BOOTMODE_DDRTEST;
+			case 0xF1:	// oem-F1, for FTM1 /* MTK META_BOOT */
+				return BOOTMODE_FTM1;
+			case 0xF2:  // oem-F2, for FTM2 /* MTK FACTORY_BOOT */
+				return BOOTMODE_FTM2;
+			case 0xFF:
+				return BOOTMODE_DDRTEST;
 #ifdef MFG_BUILD
-		case 0xF3:  // oem-F3, for FTM3 /* MTK META_BOOT and auto Backup NVRAM then reboot to OS */
-			return BOOTMODE_FTM3;
+			case 0xF3:  // oem-F3, for FTM3 /* MTK META_BOOT and auto Backup NVRAM then reboot to OS */
+				return BOOTMODE_FTM3;
 #endif
-		default:
-			return BOOTMODE_NORMAL;
+			default:
+				return BOOTMODE_NORMAL;
 		}
 	}
 
@@ -858,6 +860,7 @@ static int bootmode_key_check(void)
 
 int htc_setting_init_bootmode(void)
 {
+	dprintf(CRITICAL, "zzytest, htc_setting_init_bootmode begin\n");
 	setting->bootmode = setting_check_bootmode();
 
 	if(setting->bootmode == BOOTMODE_NORMAL)
@@ -879,7 +882,7 @@ int htc_setting_get_bootmode(void)
 
 void htc_setting_set_bootmode(int bootmode)
 {
-        setting->bootmode = bootmode;
+	setting->bootmode = bootmode;
 }
 
 int htc_setting_cfgdata_get(int id)
@@ -1101,19 +1104,19 @@ int htc_setting_check_device_is_super_cid(void)
 /* for calibration tool in ASP */
 void htc_setting_set_wipe_done_flag(void)
 {
-        memset(setting->wipe_data_done, 0, sizeof(setting->wipe_data_done));
-        setting_save_misc();
+	memset(setting->wipe_data_done, 0, sizeof(setting->wipe_data_done));
+	setting_save_misc();
 }
 
 void htc_setting_reset_wipe_done_flag(void)
 {
-        memcpy(setting->wipe_data_done, "WIPEDONE", sizeof("WIPEDONE"));
-        setting_save_misc();
+	memcpy(setting->wipe_data_done, "WIPEDONE", sizeof("WIPEDONE"));
+	setting_save_misc();
 }
 
 const char* htc_setting_get_wipe_done_flag(void)
 {
-    return setting->wipe_data_done;
+	return setting->wipe_data_done;
 }
 
 static char *get_cid_cmdline(void)
@@ -1138,7 +1141,7 @@ static char *get_cid_cmdline(void)
 
 static char *get_mid_cmdline(void)
 {
-	#define MIDLeng 32
+#define MIDLeng 32
 	static char mid[MIDLeng + 1] = {0};
 
 	htc_setting_get_modelid(mid);
@@ -1154,30 +1157,30 @@ static char *get_bootloader_ver_cmdline(void)
 static int get_maxcpus_cmdline()
 {
 	switch (g_boot_mode) {
-	case META_BOOT:
-	case FACTORY_BOOT:
-	case ADVMETA_BOOT:
-	case ATE_FACTORY_BOOT:
-		/* If MFG calibration mode, limit max 4 core */
-		return 4;
+		case META_BOOT:
+		case FACTORY_BOOT:
+		case ADVMETA_BOOT:
+		case ATE_FACTORY_BOOT:
+			/* If MFG calibration mode, limit max 4 core */
+			return 4;
 #if _MAKE_HTC_LK
-	case HTC_DOWNLOAD:
-	case HTC_DOWNLOAD_RUU:
+		case HTC_DOWNLOAD:
+		case HTC_DOWNLOAD_RUU:
 #endif
-	case DOWNLOAD_BOOT:
-		/* If download mode, limit max 4 core */
-		return 4;
+		case DOWNLOAD_BOOT:
+			/* If download mode, limit max 4 core */
+			return 4;
 #if defined (MTK_KERNEL_POWER_OFF_CHARGING)
-	case KERNEL_POWER_OFF_CHARGING_BOOT:
-	case LOW_POWER_OFF_CHARGING_BOOT:
-		return 2;
+		case KERNEL_POWER_OFF_CHARGING_BOOT:
+		case LOW_POWER_OFF_CHARGING_BOOT:
+			return 2;
 #endif
-	case RECOVERY_BOOT:
-		/* If recovery mode, limit max 4 core */
-		return 4;
-	default:
-		/* By default, no limit max cpus */
-		return -1;
+		case RECOVERY_BOOT:
+			/* If recovery mode, limit max 4 core */
+			return 4;
+		default:
+			/* By default, no limit max cpus */
+			return -1;
 	}
 }
 
@@ -1313,13 +1316,13 @@ int htc_cmdline_update(void** cmdline)
 		SET_BOOTARGS_STR(" kmemleak=off");
 
 #if defined (MFG_BUILD)
-               dprintf(CRITICAL, "disable default disk encryption in MFG hboot\r\n");
-               SET_BOOTARGS_STR(" force_fde=off");
+	dprintf(CRITICAL, "disable default disk encryption in MFG hboot\r\n");
+	SET_BOOTARGS_STR(" force_fde=off");
 #else
-               if (!setting_security() && (htc_setting_bootloaderflag_get() & BOOTLOADER_DISABLE_FORCE_DISK_ENCRYPTION)) {
-                       dprintf(CRITICAL, "disable default disk encryption due to [7][80000]\r\n");
-                       SET_BOOTARGS_STR(" force_fde=off");
-               }
+	if (!setting_security() && (htc_setting_bootloaderflag_get() & BOOTLOADER_DISABLE_FORCE_DISK_ENCRYPTION)) {
+		dprintf(CRITICAL, "disable default disk encryption due to [7][80000]\r\n");
+		SET_BOOTARGS_STR(" force_fde=off");
+	}
 #endif
 
 	if(strlen(htc_setting_color_ID_read()) > 0) {
@@ -1365,15 +1368,15 @@ int htc_cmdline_update(void** cmdline)
 	}
 
 #if TAMPER_DETECT
-		/* tamper detection */
-		SET_BOOTARGS_INT(tpd_td_cmdline, tamper_get_status());
-		SET_BOOTARGS_INT(tpd_ofs_cmdline, tamper_get_partition_offset());
-		SET_BOOTARGS_INT(tpd_prd_cmdline, tamper_get_periof());
-		SET_BOOTARGS_INT(tpd_dly_cmdline, tamper_get_delay());
-		SET_BOOTARGS_INT(tpd_tmo_cmdline, tamper_get_timeout());
+	/* tamper detection */
+	SET_BOOTARGS_INT(tpd_td_cmdline, tamper_get_status());
+	SET_BOOTARGS_INT(tpd_ofs_cmdline, tamper_get_partition_offset());
+	SET_BOOTARGS_INT(tpd_prd_cmdline, tamper_get_periof());
+	SET_BOOTARGS_INT(tpd_dly_cmdline, tamper_get_delay());
+	SET_BOOTARGS_INT(tpd_tmo_cmdline, tamper_get_timeout());
 #endif //!TAMPER_DETECT
 
-    SET_BOOTARGS_INT(unlock_cmdline, unlock_status);
+	SET_BOOTARGS_INT(unlock_cmdline, unlock_status);
 
 
 	/* Assign the updated buffer to cmdline */

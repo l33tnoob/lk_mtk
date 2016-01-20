@@ -55,10 +55,10 @@
 #ifdef	CFB_LIT_END
 #define SWAP16(x)	 ((((x) & 0x00ff) << 8) | ( (x) >> 8))
 #define SHTSWAP32(x)	 ((((x) & 0x000000ff) <<  8) | (((x) & 0x0000ff00) >> 8)|\
-			  (((x) & 0x00ff0000) <<  8) | (((x) & 0xff000000) >> 8) )
+		(((x) & 0x00ff0000) <<  8) | (((x) & 0xff000000) >> 8) )
 
 #define SWAP32(x)	 ((((x) & 0x000000ff) << 24) | (((x) & 0x0000ff00) << 8)|\
-				  (((x) & 0x00ff0000) >>  8) | (((x) & 0xff000000) >> 24) )
+		(((x) & 0x00ff0000) >>  8) | (((x) & 0xff000000) >> 24) )
 
 #else
 #define SWAP16(x)	     (x)
@@ -80,57 +80,57 @@ static int vdo_fb_height = CFB_HEIGHT;
 
 // Disrupted defined sequence 
 static const int lk_cfb_font_dtb24[16][3] = {
-	    {DR_TB_0, DR_TB_0, DR_TB_0},
-	    {DR_TB_0, DR_TB_0, DR_TB_7},
-	    {DR_TB_0, DR_TB_3, DR_TB_8},
-	    {DR_TB_0, DR_TB_3, DR_TB_F},
-	    {DR_TB_1, DR_TB_C, DR_TB_0},
-	    {DR_TB_1, DR_TB_C, DR_TB_7},
-	    {DR_TB_1, DR_TB_F, DR_TB_8},
-	    {DR_TB_1, DR_TB_F, DR_TB_F},
-	    {DR_TB_E, DR_TB_0, DR_TB_0},
-	    {DR_TB_E, DR_TB_0, DR_TB_7},
-	    {DR_TB_E, DR_TB_3, DR_TB_8},
-	    {DR_TB_E, DR_TB_3, DR_TB_F},
-	    {DR_TB_F, DR_TB_C, DR_TB_0},
-	    {DR_TB_F, DR_TB_C, DR_TB_7},
-	    {DR_TB_F, DR_TB_F, DR_TB_8},
-	    {DR_TB_F, DR_TB_F, DR_TB_F}};
+	{DR_TB_0, DR_TB_0, DR_TB_0},
+	{DR_TB_0, DR_TB_0, DR_TB_7},
+	{DR_TB_0, DR_TB_3, DR_TB_8},
+	{DR_TB_0, DR_TB_3, DR_TB_F},
+	{DR_TB_1, DR_TB_C, DR_TB_0},
+	{DR_TB_1, DR_TB_C, DR_TB_7},
+	{DR_TB_1, DR_TB_F, DR_TB_8},
+	{DR_TB_1, DR_TB_F, DR_TB_F},
+	{DR_TB_E, DR_TB_0, DR_TB_0},
+	{DR_TB_E, DR_TB_0, DR_TB_7},
+	{DR_TB_E, DR_TB_3, DR_TB_8},
+	{DR_TB_E, DR_TB_3, DR_TB_F},
+	{DR_TB_F, DR_TB_C, DR_TB_0},
+	{DR_TB_F, DR_TB_C, DR_TB_7},
+	{DR_TB_F, DR_TB_F, DR_TB_8},
+	{DR_TB_F, DR_TB_F, DR_TB_F}};
 
 static const int lk_cfb_font_dtable32[16][4] = {
-	     {DR_TB_0, DR_TB_0, DR_TB_0, DR_TB_0},
-	     {DR_TB_0, DR_TB_0, DR_TB_0, DR_TB_7},
-	     {DR_TB_0, DR_TB_0, DR_TB_7, DR_TB_0},
-	     {DR_TB_0, DR_TB_0, DR_TB_7, DR_TB_7},
-	     {DR_TB_0, DR_TB_7, DR_TB_0, DR_TB_0},
-	     {DR_TB_0, DR_TB_7, DR_TB_0, DR_TB_7},
-	     {DR_TB_0, DR_TB_7, DR_TB_7, DR_TB_0},
-	     {DR_TB_0, DR_TB_7, DR_TB_7, DR_TB_7},
-	     {DR_TB_7, DR_TB_0, DR_TB_0, DR_TB_0},
-	     {DR_TB_7, DR_TB_0, DR_TB_0, DR_TB_7},
-	     {DR_TB_7, DR_TB_0, DR_TB_7, DR_TB_0},
-	     {DR_TB_7, DR_TB_0, DR_TB_7, DR_TB_7},
-	     {DR_TB_7, DR_TB_7, DR_TB_0, DR_TB_0},
-	     {DR_TB_7, DR_TB_7, DR_TB_0, DR_TB_7},
-	     {DR_TB_7, DR_TB_7, DR_TB_7, DR_TB_0},
-	     {DR_TB_7, DR_TB_7, DR_TB_7, DR_TB_7}};
+	{DR_TB_0, DR_TB_0, DR_TB_0, DR_TB_0},
+	{DR_TB_0, DR_TB_0, DR_TB_0, DR_TB_7},
+	{DR_TB_0, DR_TB_0, DR_TB_7, DR_TB_0},
+	{DR_TB_0, DR_TB_0, DR_TB_7, DR_TB_7},
+	{DR_TB_0, DR_TB_7, DR_TB_0, DR_TB_0},
+	{DR_TB_0, DR_TB_7, DR_TB_0, DR_TB_7},
+	{DR_TB_0, DR_TB_7, DR_TB_7, DR_TB_0},
+	{DR_TB_0, DR_TB_7, DR_TB_7, DR_TB_7},
+	{DR_TB_7, DR_TB_0, DR_TB_0, DR_TB_0},
+	{DR_TB_7, DR_TB_0, DR_TB_0, DR_TB_7},
+	{DR_TB_7, DR_TB_0, DR_TB_7, DR_TB_0},
+	{DR_TB_7, DR_TB_0, DR_TB_7, DR_TB_7},
+	{DR_TB_7, DR_TB_7, DR_TB_0, DR_TB_0},
+	{DR_TB_7, DR_TB_7, DR_TB_0, DR_TB_7},
+	{DR_TB_7, DR_TB_7, DR_TB_7, DR_TB_0},
+	{DR_TB_7, DR_TB_7, DR_TB_7, DR_TB_7}};
 
 static const int lk_cfb_font_dtable16[] = {
 #if 0
-	    0x00000000, 0x0000ffff, 0xffff0000, 0xffffffff };
+	0x00000000, 0x0000ffff, 0xffff0000, 0xffffffff };
 #else   // Jett Patch: RGB565 with Little Endian Table
-        0x00000000, 0xffff0000, 0x0000ffff, 0xffffffff };
+0x00000000, 0xffff0000, 0x0000ffff, 0xffffffff };
 #endif
 
 static const int lk_cfb_font_dtable15[] = {
-	    0x00000000, 0x00007fff, 0x7fff0000, 0x7fff7fff };
+	0x00000000, 0x00007fff, 0x7fff0000, 0x7fff7fff };
 
 
 static const int lk_cfb_font_dtable8[] = {
-	    0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff,
-	    0x00ff0000, 0x00ff00ff, 0x00ffff00, 0x00ffffff,
-	    0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff,
-	    0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff };
+	0x00000000, 0x000000ff, 0x0000ff00, 0x0000ffff,
+	0x00ff0000, 0x00ff00ff, 0x00ffff00, 0x00ffffff,
+	0xff000000, 0xff0000ff, 0xff00ff00, 0xff00ffff,
+	0xffff0000, 0xffff00ff, 0xffffff00, 0xffffffff };
 
 ////////////////////////////////////function///////////////////////////////////////////////////////////////////////////////////
 static void cfb_memset (int *cfb_p, int cfb_c, int cfb_v)
@@ -139,45 +139,45 @@ static void cfb_memset (int *cfb_p, int cfb_c, int cfb_v)
 	{
 		*cfb_p = cfb_v;
 		++cfb_p;
-    }
+	}
 }
 static void cfb_memcpy (int *cfb_d, int *cfb_s, int cfb_c)
 {
 	while (cfb_c--)
 	{
-	    *cfb_d = *cfb_s;
-	    ++cfb_d;
-	    ++cfb_s;
+		*cfb_d = *cfb_s;
+		++cfb_d;
+		++cfb_s;
 	}
 }
 
 static int get_cols(void)
 {
-    return cfb_cols;
+	return cfb_cols;
 }
 
 static void set_cols(int value)
 {
-    cfb_cols = value;
+	cfb_cols = value;
 }
 static void inc_cols(int value)
 {
-    cfb_cols += value;
+	cfb_cols += value;
 }
 
 static int get_rows(void)
 {
-    return cfb_rows;
+	return cfb_rows;
 }
 
 static void set_rows(int value)
 {
-    cfb_rows = value;
+	cfb_rows = value;
 }
 
 static void inc_rows(int value)
 {
-    cfb_rows += value;
+	cfb_rows += value;
 }
 
 static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
@@ -194,7 +194,7 @@ static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
 
 	switch (data_fmt) 
 	{
-		
+
 		case CFB_555RGB_15BIT:
 			while (count--) 
 			{
@@ -205,7 +205,7 @@ static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
 				if (0 == strncmp(MTK_LCM_PHYSICAL_ROTATION, "180", 3)) {
 					for (tdest = pdest + row * LINE_LEN; row--; tdest -= LINE_LEN)
 					{
-						 unsigned char bits = *pos++;
+						unsigned char bits = *pos++;
 						((unsigned int *) tdest)[3] = SHTSWAP32 ((lk_cfb_font_dtable15 [bits >> 6] & cfb_eorx) ^ cfb_bgx);
 						((unsigned int *) tdest)[2] = SHTSWAP32 ((lk_cfb_font_dtable15 [bits >> 4 & 3] & cfb_eorx) ^ cfb_bgx);
 						((unsigned int *) tdest)[1] = SHTSWAP32 ((lk_cfb_font_dtable15 [bits >> 2 & 3] & cfb_eorx) ^ cfb_bgx);
@@ -215,7 +215,7 @@ static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
 				} else {
 					for (tdest = pdest;row--;tdest += LINE_LEN)
 					{
-						 unsigned char bits = *pos++;
+						unsigned char bits = *pos++;
 						((unsigned int *) tdest)[0] = SHTSWAP32 ((lk_cfb_font_dtable15 [bits >> 6] & cfb_eorx) ^ cfb_bgx);
 						((unsigned int *) tdest)[1] = SHTSWAP32 ((lk_cfb_font_dtable15 [bits >> 4 & 3] & cfb_eorx) ^ cfb_bgx);
 						((unsigned int *) tdest)[2] = SHTSWAP32 ((lk_cfb_font_dtable15 [bits >> 2 & 3] & cfb_eorx) ^ cfb_bgx);
@@ -229,7 +229,7 @@ static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
 		case CFB_565RGB_16BIT:
 			while (count--) 
 			{
-			    offs = (*s++) * MTK_VFH;
+				offs = (*s++) * MTK_VFH;
 				pos = mtk_vdo_fntdata + offs;
 				row = MTK_VFH;
 
@@ -287,7 +287,7 @@ static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
 		case CFB_888RGB_24BIT:
 			while (count--) 
 			{
-			    offs = (*s++) * MTK_VFH;
+				offs = (*s++) * MTK_VFH;
 				pos = mtk_vdo_fntdata + offs;
 				row = MTK_VFH;
 
@@ -324,7 +324,7 @@ static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
 		case CFB_X888RGB_32BIT:
 			while (count--) 
 			{
-			    offs = (*s++) * MTK_VFH;
+				offs = (*s++) * MTK_VFH;
 				pos = mtk_vdo_fntdata + offs;
 				row = MTK_VFH;
 
@@ -363,7 +363,7 @@ static void cfb_lk_dchars (int xx, int yy, unsigned char *s, int count)
 			break;
 
 		default:
-	    	break;
+			break;
 	}
 
 }
@@ -429,11 +429,11 @@ void video_putc (const char c)
 {
 	static int next_line = 1;
 
-    // Jett: check newline here in order to
-    //         scroll the screen immediately for the first time video_printf()
+	// Jett: check newline here in order to
+	//         scroll the screen immediately for the first time video_printf()
 
-    if (cfb_cols >= (int)(CFB_COL))
-      cfb_lk_newline ();
+	if (cfb_cols >= (int)(CFB_COL))
+		cfb_lk_newline ();
 
 	switch (c) 
 	{
@@ -468,18 +468,18 @@ void video_putc (const char c)
 			// draw-the-char
 			if (0 == strncmp(MTK_LCM_PHYSICAL_ROTATION, "180", 3)) {
 				cfb_lk_putchar((CFB_COL - get_cols() - 1) * MTK_VFW,
-								(CFB_ROW - get_rows()) * MTK_VFH, c);
+						(CFB_ROW - get_rows()) * MTK_VFH, c);
 			} else {
 				cfb_lk_putchar(get_cols() * MTK_VFW,get_rows() * MTK_VFH,c);
 			}
 			inc_cols(1);
 
-		//check-for-newline
-		if (get_cols() >= (int)(CFB_COL))
-		{
-			cfb_lk_newline ();
-			next_line = 0;
-		}
+			//check-for-newline
+			if (get_cols() >= (int)(CFB_COL))
+			{
+				cfb_lk_newline ();
+				next_line = 0;
+			}
 	}
 }
 
@@ -514,7 +514,7 @@ void video_printf (const char *fmt, ...)
 	// Print the string 
 	video_puts (printbuffer);
 #else
-  printf("%s\n", fmt);
+	printf("%s\n", fmt);
 #endif
 }
 
@@ -530,21 +530,21 @@ static int video_lk_init (void)
 	}
 
 	cfb_fb_addrs = (void *) VDO_CFB_ADDRS;
-    data_fmt = DATA_FMT;
+	data_fmt = DATA_FMT;
 	//Init  drawing pats
 	switch (data_fmt)
 	{
 		case CFB_555RGB_15BIT:
 			cfb_fgx = ((FC_5B << 26) | (FC_5B << 21) | (FC_5B << 16) | // high 16 0555 
-			       (FC_5B << 10) | (FC_5B << 5)  |  FC_5B); /// low 16 0555 
+					(FC_5B << 10) | (FC_5B << 5)  |  FC_5B); /// low 16 0555 
 			cfb_bgx = ((BC_5B << 26) | (BC_5B << 21) | (BC_5B << 16) | // high 16 0555
-			       (BC_5B << 10) | (BC_5B << 5)  |  BC_5B); // low 16 0555 
+					(BC_5B << 10) | (BC_5B << 5)  |  BC_5B); // low 16 0555 
 			break;
 		case CFB_565RGB_16BIT:
 			cfb_fgx = ((FC_5B << 27) | (FC_6B << 21) | (FC_5B << 16) | // high 16 565 
-			       (FC_5B << 11) | (FC_6B << 5)  |  FC_5B); //low 16 565
+					(FC_5B << 11) | (FC_6B << 5)  |  FC_5B); //low 16 565
 			cfb_bgx = ((BC_5B << 27) | (BC_6B << 21) | (BC_5B << 16) | // high 16 565 
-			       (BC_5B << 11) | (BC_6B << 5)  |  BC_5B); // low 16 565 
+					(BC_5B << 11) | (BC_6B << 5)  |  BC_5B); // low 16 565 
 			break;
 		case CFB_FMT_8BIT:
 			video_set_lut (0x01, CS_FG_COL, CS_FG_COL, CS_FG_COL);
@@ -558,10 +558,10 @@ static int video_lk_init (void)
 			break;	
 		case CFB_332RGB_8BIT:
 			color8bit = ((CS_FG_COL & 0xe0) |
-				  ((CS_FG_COL >> 3) & 0x1c) | CS_FG_COL >> 6);
+					((CS_FG_COL >> 3) & 0x1c) | CS_FG_COL >> 6);
 			cfb_fgx = (color8bit << 24) | (color8bit << 16) | (color8bit << 8) | color8bit;
 			color8bit = ((CS_BG_COL & 0xe0) |
-				  ((CS_BG_COL >> 3) & 0x1c) | CS_BG_COL >> 6);
+					((CS_BG_COL >> 3) & 0x1c) | CS_BG_COL >> 6);
 			cfb_bgx = (color8bit << 24) | (color8bit << 16) | (color8bit << 8) | color8bit;
 			break;
 		case CFB_888RGB_24BIT:
@@ -572,7 +572,7 @@ static int video_lk_init (void)
 			break;
 
 		default:
-		    break;
+			break;
 	}
 	cfb_eorx = cfb_fgx ^ cfb_bgx;
 
@@ -586,42 +586,43 @@ static int video_lk_init (void)
 
 void video_set_cursor(int row, int col)
 {
-    if (row >= 0 && row < (int)(CFB_ROW) &&
-        col >= 0 && col <= (int)(CFB_COL))
-    {
-        cfb_rows = row;
-        cfb_cols = col;
-    }
+	if (row >= 0 && row < (int)(CFB_ROW) &&
+			col >= 0 && col <= (int)(CFB_COL))
+	{
+		cfb_rows = row;
+		cfb_cols = col;
+	}
 }
 
 int video_get_rows(void)
 {
-    return CFB_ROW;
+	return CFB_ROW;
 }
 
 int video_get_colums(void)
 {
-    return CFB_COL;
+	return CFB_COL;
 }
 
 void video_clean_screen(void)
 {
-    memset((void*)VDO_CFB_ADDRS, 0, VDO_CFB_SIZE);
-    mt_disp_update(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT);
+	memset((void*)VDO_CFB_ADDRS, 0, VDO_CFB_SIZE);
+	mt_disp_update(0, 0, CFG_DISPLAY_WIDTH, CFG_DISPLAY_HEIGHT);
 }
 
 int drv_video_init (void)
 {
-    if (video_lk_init () == -1)
-    {
-        return 0;
-    }
+	dprintf(CRITICAL, "zzytest, drv_video_init begin\n");
+	if (video_lk_init () == -1)
+	{
+		return 0;
+	}
 
-    // Jett: set cursor to the right-bottom corner
-    //       scroll screen immediately for the first time video_printf()
+	// Jett: set cursor to the right-bottom corner
+	//       scroll screen immediately for the first time video_printf()
 
-    video_set_cursor(CFB_ROW - 1, CFB_COL);
-    return 0;
+	video_set_cursor(CFB_ROW - 1, CFB_COL);
+	return 0;
 }
 
 

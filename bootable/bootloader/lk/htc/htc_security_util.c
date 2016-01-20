@@ -237,6 +237,7 @@ int htc_set_security_info(struct security_info_t * sec_info, int size)
 
 void htc_security_init(void)
 {
+	dprintf(CRITICAL, "zzytest, htc_security_init begin\n");
 	//get security level from pg1fs security partition
 	security_info = (struct security_info_t *)alloc_cache_page_aligned(sizeof(struct security_info_t));
 	if(!security_info)

@@ -1429,6 +1429,8 @@ int32 htc_check_pgfs(void)
 	htc_part_hdr *part_hdr = NULL;
 	int build_new;
 	pgfs_partition_t *part;
+
+	dprintf(CRITICAL, "zzytest, htc_check_pgfs begin\n");
 #ifdef QCT_PLATFORM
 	for (p = &partition_tb[0]; p->name != 0; p++) {
 		if (p->format != DF_PGFS)

@@ -56,6 +56,7 @@ int htc_is_valid_reboot_info() {
 }
 
 void  htc_reboot_info_init(void* phys_addr, const char* emmc_part_name, unsigned int emmc_offset) {
+	dprintf(CRITICAL, "zzytest, htc_reboot_info_init begin\n");
 	if (htc_reboot_info_p != NULL) {
 		//htc_reboot_info_p has been inited already!
 		return;
@@ -72,7 +73,7 @@ void  htc_reboot_info_init(void* phys_addr, const char* emmc_part_name, unsigned
 	dprintf(CRITICAL, "%s: ddr last reboot_reason: 0x%08X\n", __func__, last_htc_reboot_info_p->reboot_reason);
 	dprintf(CRITICAL, "%s: ddr last reboot_string: %s\n", __func__, REBOOT_STRING(last_htc_reboot_info_p));
 
-	#ifdef ENABLE_HTC_REBOOT_INFO_SAVE_IN_EMMC
+#ifdef ENABLE_HTC_REBOOT_INFO_SAVE_IN_EMMC
 	if (emmc_part_name != NULL) {
 		if (0 >= partition_read(emmc_part_name, emmc_offset, &htc_reboot_info_emmc, sizeof(htc_reboot_info_struct))) {
 			dprintf(CRITICAL, "%s: partition_read failed!\n", __func__);
@@ -90,7 +91,7 @@ void  htc_reboot_info_init(void* phys_addr, const char* emmc_part_name, unsigned
 	if (!htc_is_valid_reboot_info() && htc_reboot_info_save_emmc_support.is_support) {
 		memcpy(htc_reboot_info_p, &htc_reboot_info_emmc, sizeof(htc_reboot_info_struct));
 	}
-	#endif
+#endif
 
 	if (!htc_is_valid_reboot_info() && htc_reboot_info_p->reboot_reason != 0x0 ) {
 		memset(htc_reboot_info_p, 0, sizeof(htc_reboot_info_struct));
@@ -101,13 +102,13 @@ void  htc_reboot_info_init(void* phys_addr, const char* emmc_part_name, unsigned
 	/* clean current reboot_info */
 	memset(htc_reboot_info_p, 0, sizeof(htc_reboot_info_struct));
 
-	#ifdef ENABLE_HTC_REBOOT_INFO_SAVE_IN_EMMC
+#ifdef ENABLE_HTC_REBOOT_INFO_SAVE_IN_EMMC
 	if (emmc_part_name != NULL && htc_reboot_info_save_emmc_support.is_support) {
 		if ( 0 >= partition_write(emmc_part_name, emmc_offset, htc_reboot_info_p, sizeof(htc_reboot_info_struct))) {
 			dprintf(CRITICAL, "%s: partition_write failed!\n", __func__);
 		}
 	}
-	#endif
+#endif
 }
 
 int htc_set_reboot_reason(unsigned int reboot_reason, const unsigned char* reboot_string) {
@@ -120,7 +121,7 @@ int htc_set_reboot_reason(unsigned int reboot_reason, const unsigned char* reboo
 			strncpy(htc_reboot_info_p->reboot_string, reboot_string, sizeof(htc_reboot_info_p->reboot_string)-1);
 		}
 
-		#ifdef ENABLE_HTC_REBOOT_INFO_SAVE_IN_EMMC
+#ifdef ENABLE_HTC_REBOOT_INFO_SAVE_IN_EMMC
 		if (htc_reboot_info_save_emmc_support.is_support) {
 			memset(&htc_reboot_info_emmc, 0, sizeof(htc_reboot_info_struct));
 			if (reboot_reason != 0xAABBCCDD) {
@@ -135,7 +136,7 @@ int htc_set_reboot_reason(unsigned int reboot_reason, const unsigned char* reboo
 				dprintf(CRITICAL, "%s: partition_write failed!\n", __func__);
 			}
 		}
-		#endif
+#endif
 
 		return 0;
 	}

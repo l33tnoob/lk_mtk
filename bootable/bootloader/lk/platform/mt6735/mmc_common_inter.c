@@ -46,16 +46,16 @@
 #define BUF_BLK_NUM                 4   /* 4 * 512bytes = 2KB */
 
 /**************************************************************************
-*  DEBUG CONTROL
-**************************************************************************/
+ *  DEBUG CONTROL
+ **************************************************************************/
 
 /**************************************************************************
-*  MACRO DEFINITION
-**************************************************************************/
+ *  MACRO DEFINITION
+ **************************************************************************/
 
 /**************************************************************************
-*  EXTERNAL DECLARATION
-**************************************************************************/
+ *  EXTERNAL DECLARATION
+ **************************************************************************/
 static addr_trans_info_t g_emmc_addr_trans[EMMC_PART_END];
 static addr_trans_tbl_t g_addr_trans_tbl;
 
@@ -72,47 +72,47 @@ u64 g_emmc_user_size = 0;
 
 int mmc_switch_part(u32 part_id)
 {
-    int err = MMC_ERR_NONE;
-    struct mmc_card *card;
-    struct mmc_host *host;
-    u8 part = (u8)part_id;
-    u8 cfg;
-    u8 *ext_csd;
+	int err = MMC_ERR_NONE;
+	struct mmc_card *card;
+	struct mmc_host *host;
+	u8 part = (u8)part_id;
+	u8 cfg;
+	u8 *ext_csd;
 
-    card = mmc_get_card(MMC_HOST_ID);
-    host = mmc_get_host(MMC_HOST_ID);
+	card = mmc_get_card(MMC_HOST_ID);
+	host = mmc_get_host(MMC_HOST_ID);
 
-    if (!card)
-        return MMC_ERR_INVALID;
+	if (!card)
+		return MMC_ERR_INVALID;
 
-    ext_csd = &card->raw_ext_csd[0];
+	ext_csd = &card->raw_ext_csd[0];
 
-    if (mmc_card_mmc(card) && ext_csd[EXT_CSD_REV] >= 3) {
+	if (mmc_card_mmc(card) && ext_csd[EXT_CSD_REV] >= 3) {
 #ifdef MTK_EMMC_SUPPORT
-        if (part_id == EMMC_PART_USER)
-            part = EXT_CSD_PART_CFG_DEFT_PART;
+		if (part_id == EMMC_PART_USER)
+			part = EXT_CSD_PART_CFG_DEFT_PART;
 
-        cfg = card->raw_ext_csd[EXT_CSD_PART_CFG];
+		cfg = card->raw_ext_csd[EXT_CSD_PART_CFG];
 
-        /* already set to specific partition */
-        if (part == (cfg & 0x7))
-            return MMC_ERR_NONE;
+		/* already set to specific partition */
+		if (part == (cfg & 0x7))
+			return MMC_ERR_NONE;
 
-        cfg = (cfg & ~0x7) | part;
+		cfg = (cfg & ~0x7) | part;
 
-        err = mmc_switch(host, card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CFG, cfg);
+		err = mmc_switch(host, card, EXT_CSD_CMD_SET_NORMAL, EXT_CSD_PART_CFG, cfg);
 
-        if (err == MMC_ERR_NONE) {
-            err = mmc_read_ext_csd(host, card);
-            if (err == MMC_ERR_NONE) {
-                ext_csd = &card->raw_ext_csd[0];
-                if (ext_csd[EXT_CSD_PART_CFG] != cfg)
-                    err = MMC_ERR_FAILED;
-            }
-        }
+		if (err == MMC_ERR_NONE) {
+			err = mmc_read_ext_csd(host, card);
+			if (err == MMC_ERR_NONE) {
+				ext_csd = &card->raw_ext_csd[0];
+				if (ext_csd[EXT_CSD_PART_CFG] != cfg)
+					err = MMC_ERR_FAILED;
+			}
+		}
 #endif
-    }
-    return err;
+	}
+	return err;
 }
 
 #if defined(MMC_MSDC_DRV_PRELOADER)
@@ -121,97 +121,97 @@ static int mmc_addr_trans_tbl_init(struct mmc_card *card, blkdev_t *bdev)
 static int mmc_addr_trans_tbl_init(struct mmc_card *card)
 #endif
 {
-    u32 wpg_sz;
-    u8 *ext_csd;
+	u32 wpg_sz;
+	u8 *ext_csd;
 
-    memset(&g_addr_trans_tbl, 0, sizeof(addr_trans_tbl_t));
+	memset(&g_addr_trans_tbl, 0, sizeof(addr_trans_tbl_t));
 
-    ext_csd = &card->raw_ext_csd[0];
+	ext_csd = &card->raw_ext_csd[0];
 
-    #if defined(MMC_MSDC_DRV_PRELOADER)
-    bdev->offset = 0;
-    #endif
+#if defined(MMC_MSDC_DRV_PRELOADER)
+	bdev->offset = 0;
+#endif
 
-    if (mmc_card_mmc(card) && ext_csd[EXT_CSD_REV] >= 3) {
-        u64 size[EMMC_PART_END];
-        u32 i;
+	if (mmc_card_mmc(card) && ext_csd[EXT_CSD_REV] >= 3) {
+		u64 size[EMMC_PART_END];
+		u32 i;
 
-        if ((ext_csd[EXT_CSD_ERASE_GRP_DEF] & EXT_CSD_ERASE_GRP_DEF_EN)
-            && (ext_csd[EXT_CSD_HC_WP_GPR_SIZE] > 0)) {
-            wpg_sz = 512 * 1024 * ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
-                ext_csd[EXT_CSD_HC_WP_GPR_SIZE];
-        } else {
-            wpg_sz = card->csd.write_prot_grpsz;
-        }
+		if ((ext_csd[EXT_CSD_ERASE_GRP_DEF] & EXT_CSD_ERASE_GRP_DEF_EN)
+				&& (ext_csd[EXT_CSD_HC_WP_GPR_SIZE] > 0)) {
+			wpg_sz = 512 * 1024 * ext_csd[EXT_CSD_HC_ERASE_GRP_SIZE] *
+				ext_csd[EXT_CSD_HC_WP_GPR_SIZE];
+		} else {
+			wpg_sz = card->csd.write_prot_grpsz;
+		}
 
-        size[EMMC_PART_UNKNOWN] = 0;
-        size[EMMC_PART_BOOT1] = ext_csd[EXT_CSD_BOOT_SIZE_MULT] * 128 * 1024;
-        size[EMMC_PART_BOOT2] = ext_csd[EXT_CSD_BOOT_SIZE_MULT] * 128 * 1024;
-        size[EMMC_PART_RPMB]  = ext_csd[EXT_CSD_RPMB_SIZE_MULT] * 128 * 1024;
-        size[EMMC_PART_GP1]   = ext_csd[EXT_CSD_GP1_SIZE_MULT + 2] * 256 * 256 +
-                                ext_csd[EXT_CSD_GP1_SIZE_MULT + 1] * 256 +
-                                ext_csd[EXT_CSD_GP1_SIZE_MULT + 0];
-        size[EMMC_PART_GP2]   = ext_csd[EXT_CSD_GP2_SIZE_MULT + 2] * 256 * 256 +
-                                ext_csd[EXT_CSD_GP2_SIZE_MULT + 1] * 256 +
-                                ext_csd[EXT_CSD_GP2_SIZE_MULT + 0];
-        size[EMMC_PART_GP3]   = ext_csd[EXT_CSD_GP3_SIZE_MULT + 2] * 256 * 256 +
-                                ext_csd[EXT_CSD_GP3_SIZE_MULT + 1] * 256 +
-                                ext_csd[EXT_CSD_GP3_SIZE_MULT + 0];
-        size[EMMC_PART_GP4]   = ext_csd[EXT_CSD_GP4_SIZE_MULT + 2] * 256 * 256 +
-                                ext_csd[EXT_CSD_GP4_SIZE_MULT + 1] * 256 +
-                                ext_csd[EXT_CSD_GP4_SIZE_MULT + 0];
-        size[EMMC_PART_USER]  = (u64)card->blklen * card->nblks;
+		size[EMMC_PART_UNKNOWN] = 0;
+		size[EMMC_PART_BOOT1] = ext_csd[EXT_CSD_BOOT_SIZE_MULT] * 128 * 1024;
+		size[EMMC_PART_BOOT2] = ext_csd[EXT_CSD_BOOT_SIZE_MULT] * 128 * 1024;
+		size[EMMC_PART_RPMB]  = ext_csd[EXT_CSD_RPMB_SIZE_MULT] * 128 * 1024;
+		size[EMMC_PART_GP1]   = ext_csd[EXT_CSD_GP1_SIZE_MULT + 2] * 256 * 256 +
+			ext_csd[EXT_CSD_GP1_SIZE_MULT + 1] * 256 +
+			ext_csd[EXT_CSD_GP1_SIZE_MULT + 0];
+		size[EMMC_PART_GP2]   = ext_csd[EXT_CSD_GP2_SIZE_MULT + 2] * 256 * 256 +
+			ext_csd[EXT_CSD_GP2_SIZE_MULT + 1] * 256 +
+			ext_csd[EXT_CSD_GP2_SIZE_MULT + 0];
+		size[EMMC_PART_GP3]   = ext_csd[EXT_CSD_GP3_SIZE_MULT + 2] * 256 * 256 +
+			ext_csd[EXT_CSD_GP3_SIZE_MULT + 1] * 256 +
+			ext_csd[EXT_CSD_GP3_SIZE_MULT + 0];
+		size[EMMC_PART_GP4]   = ext_csd[EXT_CSD_GP4_SIZE_MULT + 2] * 256 * 256 +
+			ext_csd[EXT_CSD_GP4_SIZE_MULT + 1] * 256 +
+			ext_csd[EXT_CSD_GP4_SIZE_MULT + 0];
+		size[EMMC_PART_USER]  = (u64)card->blklen * card->nblks;
 
-        size[EMMC_PART_GP1] *= wpg_sz;
-        size[EMMC_PART_GP2] *= wpg_sz;
-        size[EMMC_PART_GP3] *= wpg_sz;
-        size[EMMC_PART_GP4] *= wpg_sz;
+		size[EMMC_PART_GP1] *= wpg_sz;
+		size[EMMC_PART_GP2] *= wpg_sz;
+		size[EMMC_PART_GP3] *= wpg_sz;
+		size[EMMC_PART_GP4] *= wpg_sz;
 
-        for (i = EMMC_PART_BOOT1; i < EMMC_PART_END; i++) {
-            g_emmc_addr_trans[i].id  = i;
-            g_emmc_addr_trans[i].len = size[i] / 512; /* in 512B unit */
-            #if defined(MMC_MSDC_DRV_LK)
-            if (i<EMMC_PART_USER)
-                g_user_virt_addr += size[i];
-            #endif
-            g_emmc_size += size[i];
-        }
+		for (i = EMMC_PART_BOOT1; i < EMMC_PART_END; i++) {
+			g_emmc_addr_trans[i].id  = i;
+			g_emmc_addr_trans[i].len = size[i] / 512; /* in 512B unit */
+#if defined(MMC_MSDC_DRV_LK)
+			if (i<EMMC_PART_USER)
+				g_user_virt_addr += size[i];
+#endif
+			g_emmc_size += size[i];
+		}
 
-        /* determine user area offset */
-        #if defined(MMC_MSDC_DRV_PRELOADER)
-        for (i = EMMC_PART_BOOT1; i < EMMC_PART_USER; i++) {
-            bdev->offset += size[i];
-        }
-        bdev->offset /= bdev->blksz; /* in blksz unit */
-        #endif
+		/* determine user area offset */
+#if defined(MMC_MSDC_DRV_PRELOADER)
+		for (i = EMMC_PART_BOOT1; i < EMMC_PART_USER; i++) {
+			bdev->offset += size[i];
+		}
+		bdev->offset /= bdev->blksz; /* in blksz unit */
+#endif
 
-        g_emmc_user_size = size[EMMC_PART_USER];
-        g_addr_trans_tbl.num  = EMMC_PART_END;
-        g_addr_trans_tbl.info = &g_emmc_addr_trans[0];
-    } else {
-        g_addr_trans_tbl.num  = 0;
-        g_addr_trans_tbl.info = NULL;
-    }
+		g_emmc_user_size = size[EMMC_PART_USER];
+		g_addr_trans_tbl.num  = EMMC_PART_END;
+		g_addr_trans_tbl.info = &g_emmc_addr_trans[0];
+	} else {
+		g_addr_trans_tbl.num  = 0;
+		g_addr_trans_tbl.info = NULL;
+	}
 
-    return 0;
+	return 0;
 }
 
 
 #if defined(MMC_MSDC_DRV_PRELOADER)
 static int mmc_bread(blkdev_t *bdev, u32 blknr, u32 blks, u8 *buf, u32 part_id)
 {
-    struct mmc_host *host = (struct mmc_host*)bdev->priv;
+	struct mmc_host *host = (struct mmc_host*)bdev->priv;
 
-    mmc_switch_part(part_id);
-    return mmc_block_read(host->id, (unsigned long)blknr, blks, (unsigned long*)buf);
+	mmc_switch_part(part_id);
+	return mmc_block_read(host->id, (unsigned long)blknr, blks, (unsigned long*)buf);
 }
 
 static int mmc_bwrite(blkdev_t *bdev, u32 blknr, u32 blks, u8 *buf, u32 part_id)
 {
-    struct mmc_host *host = (struct mmc_host*)bdev->priv;
+	struct mmc_host *host = (struct mmc_host*)bdev->priv;
 
-    mmc_switch_part(part_id);
-    return mmc_block_write(host->id, (unsigned long)blknr, blks, (unsigned long*)buf);
+	mmc_switch_part(part_id);
+	return mmc_block_write(host->id, (unsigned long)blknr, blks, (unsigned long*)buf);
 }
 
 // ==========================================================
@@ -219,92 +219,92 @@ static int mmc_bwrite(blkdev_t *bdev, u32 blknr, u32 blks, u8 *buf, u32 part_id)
 // ==========================================================
 u32 mmc_init_device(void)
 {
-    int ret;
-    struct mmc_card *card;
+	int ret;
+	struct mmc_card *card;
 
-    if (!blkdev_get(BOOTDEV_SDMMC)) {
+	if (!blkdev_get(BOOTDEV_SDMMC)) {
 
-        ret = mmc_init(MMC_HOST_ID, MSDC_MODE_DEFAULT);
-        if (ret != 0) {
-            printf("[SD0] init card failed\n");
-            return ret;
-        }
+		ret = mmc_init(MMC_HOST_ID, MSDC_MODE_DEFAULT);
+		if (ret != 0) {
+			printf("[SD0] init card failed\n");
+			return ret;
+		}
 
-        memset(&g_mmc_bdev, 0, sizeof(blkdev_t));
+		memset(&g_mmc_bdev, 0, sizeof(blkdev_t));
 
-        card = mmc_get_card(MMC_HOST_ID);
+		card = mmc_get_card(MMC_HOST_ID);
 
-        g_mmc_bdev.blksz   = MMC_BLOCK_SIZE;
-        g_mmc_bdev.erasesz = MMC_BLOCK_SIZE;
-        g_mmc_bdev.blks    = card->nblks;
-        g_mmc_bdev.bread   = mmc_bread;
-        g_mmc_bdev.bwrite  = mmc_bwrite;
-        g_mmc_bdev.type    = BOOTDEV_SDMMC;
-        g_mmc_bdev.blkbuf  = NULL;
-        g_mmc_bdev.priv    = (void*)mmc_get_host(MMC_HOST_ID);
+		g_mmc_bdev.blksz   = MMC_BLOCK_SIZE;
+		g_mmc_bdev.erasesz = MMC_BLOCK_SIZE;
+		g_mmc_bdev.blks    = card->nblks;
+		g_mmc_bdev.bread   = mmc_bread;
+		g_mmc_bdev.bwrite  = mmc_bwrite;
+		g_mmc_bdev.type    = BOOTDEV_SDMMC;
+		g_mmc_bdev.blkbuf  = NULL;
+		g_mmc_bdev.priv    = (void*)mmc_get_host(MMC_HOST_ID);
 
-        mmc_addr_trans_tbl_init(card, &g_mmc_bdev);
+		mmc_addr_trans_tbl_init(card, &g_mmc_bdev);
 
-        blkdev_register(&g_mmc_bdev);
-    }
-    return 0;
+		blkdev_register(&g_mmc_bdev);
+	}
+	return 0;
 }
 
 u32 mmc_get_device_id(u8 *id, u32 len,u32 *fw_len)
 {
-    u8 buf[16]; /* CID = 128 bits */
-    struct mmc_card *card;
-    u8 buf_sanid[512];
-    u8 i;
+	u8 buf[16]; /* CID = 128 bits */
+	struct mmc_card *card;
+	u8 buf_sanid[512];
+	u8 i;
 
-    if (0 != mmc_init_device())
-        return -1;
+	if (0 != mmc_init_device())
+		return -1;
 
-    card = mmc_get_card(MMC_HOST_ID);
+	card = mmc_get_card(MMC_HOST_ID);
 
-    buf[0] = (card->raw_cid[0] >> 24) & 0xFF; /* Manufacturer ID */
-    buf[1] = (card->raw_cid[0] >> 16) & 0xFF; /* Reserved(6)+Card/BGA(2) */
-    buf[2] = (card->raw_cid[0] >> 8 ) & 0xFF; /* OEM/Application ID */
-    buf[3] = (card->raw_cid[0] >> 0 ) & 0xFF; /* Product name [0] */
-    buf[4] = (card->raw_cid[1] >> 24) & 0xFF; /* Product name [1] */
-    buf[5] = (card->raw_cid[1] >> 16) & 0xFF; /* Product name [2] */
-    buf[6] = (card->raw_cid[1] >> 8 ) & 0xFF; /* Product name [3] */
-    buf[7] = (card->raw_cid[1] >> 0 ) & 0xFF; /* Product name [4] */
-    buf[8] = (card->raw_cid[2] >> 24) & 0xFF; /* Product name [5] */
-    buf[9] = (card->raw_cid[2] >> 16) & 0xFF; /* Product revision */
-    buf[10] =(card->raw_cid[2] >> 8 ) & 0xFF; /* Serial Number [0] */
-    buf[11] =(card->raw_cid[2] >> 0 ) & 0xFF; /* Serial Number [1] */
-    buf[12] =(card->raw_cid[3] >> 24) & 0xFF; /* Serial Number [2] */
-    buf[13] =(card->raw_cid[3] >> 16) & 0xFF; /* Serial Number [3] */
-    buf[14] =(card->raw_cid[3] >> 8 ) & 0xFF; /* Manufacturer date */
-    buf[15] =(card->raw_cid[3] >> 0 ) & 0xFF; /* CRC7 + stuff bit*/
-    *fw_len = 1;
-	
-    /* sandisk */	
-    if(buf[0] == 0x45){
-        /* before v4.41 */
-        if (card->raw_ext_csd[EXT_CSD_REV] <= 5) {
-            if (0 == mmc_get_sandisk_fwid(MMC_HOST_ID,buf_sanid)){
-                *fw_len = 6;
-            }
-        } else if (card->raw_ext_csd[EXT_CSD_REV] == 6) { /* v4.5, v4.51 */
-            /* do nothing, same as other vendor */
-        } else if (card->raw_ext_csd[EXT_CSD_REV] == 7) { /* v5.0 */
-            /* sandisk only use 6 bytes */
-            *fw_len = 6;
-            for (i==0; i<6; i++) {
-                buf_sanid[32+i] = card->raw_ext_csd[EXT_CSD_FIRMWARE_VERSION+i];
-            }
-        }
-    }
+	buf[0] = (card->raw_cid[0] >> 24) & 0xFF; /* Manufacturer ID */
+	buf[1] = (card->raw_cid[0] >> 16) & 0xFF; /* Reserved(6)+Card/BGA(2) */
+	buf[2] = (card->raw_cid[0] >> 8 ) & 0xFF; /* OEM/Application ID */
+	buf[3] = (card->raw_cid[0] >> 0 ) & 0xFF; /* Product name [0] */
+	buf[4] = (card->raw_cid[1] >> 24) & 0xFF; /* Product name [1] */
+	buf[5] = (card->raw_cid[1] >> 16) & 0xFF; /* Product name [2] */
+	buf[6] = (card->raw_cid[1] >> 8 ) & 0xFF; /* Product name [3] */
+	buf[7] = (card->raw_cid[1] >> 0 ) & 0xFF; /* Product name [4] */
+	buf[8] = (card->raw_cid[2] >> 24) & 0xFF; /* Product name [5] */
+	buf[9] = (card->raw_cid[2] >> 16) & 0xFF; /* Product revision */
+	buf[10] =(card->raw_cid[2] >> 8 ) & 0xFF; /* Serial Number [0] */
+	buf[11] =(card->raw_cid[2] >> 0 ) & 0xFF; /* Serial Number [1] */
+	buf[12] =(card->raw_cid[3] >> 24) & 0xFF; /* Serial Number [2] */
+	buf[13] =(card->raw_cid[3] >> 16) & 0xFF; /* Serial Number [3] */
+	buf[14] =(card->raw_cid[3] >> 8 ) & 0xFF; /* Manufacturer date */
+	buf[15] =(card->raw_cid[3] >> 0 ) & 0xFF; /* CRC7 + stuff bit*/
+	*fw_len = 1;
 
-    len = len > 16 ? 16 : len;
-    memcpy(id, buf, len);
-    if(*fw_len == 6)
-        memcpy(id+len,buf_sanid+32,6);
-    else
-        *(id+len) = buf[9];
-    return 0;
+	/* sandisk */	
+	if(buf[0] == 0x45){
+		/* before v4.41 */
+		if (card->raw_ext_csd[EXT_CSD_REV] <= 5) {
+			if (0 == mmc_get_sandisk_fwid(MMC_HOST_ID,buf_sanid)){
+				*fw_len = 6;
+			}
+		} else if (card->raw_ext_csd[EXT_CSD_REV] == 6) { /* v4.5, v4.51 */
+			/* do nothing, same as other vendor */
+		} else if (card->raw_ext_csd[EXT_CSD_REV] == 7) { /* v5.0 */
+			/* sandisk only use 6 bytes */
+			*fw_len = 6;
+			for (i==0; i<6; i++) {
+				buf_sanid[32+i] = card->raw_ext_csd[EXT_CSD_FIRMWARE_VERSION+i];
+			}
+		}
+	}
+
+	len = len > 16 ? 16 : len;
+	memcpy(id, buf, len);
+	if(*fw_len == 6)
+		memcpy(id+len,buf_sanid+32,6);
+	else
+		*(id+len) = buf[9];
+	return 0;
 }
 
 #endif //#if defined(MMC_MSDC_DRV_PRELOADER)
@@ -321,69 +321,70 @@ static part_dev_t boot_dev;
 
 unsigned long mmc_wrap_bread(int dev_num, unsigned long blknr, lbaint_t blkcnt, void *dst, unsigned int part_id)
 {
-    mmc_switch_part(part_id);
-    return mmc_block_read(dev_num, blknr, blkcnt, (unsigned long *)dst) == MMC_ERR_NONE ? blkcnt : (unsigned long) -1;
+	mmc_switch_part(part_id);
+	return mmc_block_read(dev_num, blknr, blkcnt, (unsigned long *)dst) == MMC_ERR_NONE ? blkcnt : (unsigned long) -1;
 }
 unsigned long mmc_wrap_bwrite(int dev_num, unsigned long blknr, lbaint_t blkcnt, const void *src, unsigned int part_id)
 {
-    mmc_switch_part(part_id);
-    return mmc_block_write(dev_num, blknr, blkcnt, (unsigned long *)src) == MMC_ERR_NONE ? blkcnt : (unsigned long) -1;
+	mmc_switch_part(part_id);
+	return mmc_block_write(dev_num, blknr, blkcnt, (unsigned long *)src) == MMC_ERR_NONE ? blkcnt : (unsigned long) -1;
 }
 
 int mmc_legacy_init(int verbose)
 {
-    int id = verbose - 1;
-    int err = MMC_ERR_NONE;
-    struct mmc_host *host;
-    struct mmc_card *card;
-    block_dev_desc_t *bdev;
+	int id = verbose - 1;
+	int err = MMC_ERR_NONE;
+	struct mmc_host *host;
+	struct mmc_card *card;
+	block_dev_desc_t *bdev;
 
-    bdev = &sd_dev[id];
+	dprintf(CRITICAL, "zzytest, mmc_legacy_init begin\n");
+	bdev = &sd_dev[id];
 
-    //msdc_hard_reset(host);
+	//msdc_hard_reset(host);
 
-    err = mmc_init(id, MSDC_MODE_DEFAULT);
+	err = mmc_init(id, MSDC_MODE_DEFAULT);
 
-    if (err == MMC_ERR_NONE && !boot_dev_found) {
-        /* fill in device description */
-        card=mmc_get_card(id);
-        host=mmc_get_host(id);
-        mmc_addr_trans_tbl_init(card);
+	if (err == MMC_ERR_NONE && !boot_dev_found) {
+		/* fill in device description */
+		card=mmc_get_card(id);
+		host=mmc_get_host(id);
+		mmc_addr_trans_tbl_init(card);
 
-        bdev->dev         = id;
-        bdev->blksz       = MMC_BLOCK_SIZE;
-        bdev->lba         = card->nblks * card->blklen / MMC_BLOCK_SIZE;
-        bdev->block_read  = mmc_wrap_bread;
-        bdev->block_write = mmc_wrap_bwrite;
+		bdev->dev         = id;
+		bdev->blksz       = MMC_BLOCK_SIZE;
+		bdev->lba         = card->nblks * card->blklen / MMC_BLOCK_SIZE;
+		bdev->block_read  = mmc_wrap_bread;
+		bdev->block_write = mmc_wrap_bwrite;
 
-        #if defined(MEM_PRESERVED_MODE_ENABLE)
-        if ( id==1 ) {
-            host->boot_type = NON_BOOTABLE;
-            return err;
-        }
-        #endif
+#if defined(MEM_PRESERVED_MODE_ENABLE)
+		if ( id==1 ) {
+			host->boot_type = NON_BOOTABLE;
+			return err;
+		}
+#endif
 
-        host->boot_type   = RAW_BOOT;
+		host->boot_type   = RAW_BOOT;
 
-        /* FIXME. only one RAW_BOOT dev */
-        if (host->boot_type == RAW_BOOT) {
-            boot_dev.id = id;
-            boot_dev.init = 1;
-            boot_dev.blkdev = bdev;
-            mt_part_register_device(&boot_dev);
-            boot_dev_found = 1;
-            printf("[SD%d] boot device found\n", id);
-        } else if (host->boot_type == FAT_BOOT) {
-            #if (CONFIG_COMMANDS & CFG_CMD_FAT)
-            if (0 == fat_register_device(bdev, 1)) {
-                boot_dev_found = 1;
-                printf("[SD%d] FAT partition found\n", id);
-            }
-            #endif
-        }
-    }
+		/* FIXME. only one RAW_BOOT dev */
+		if (host->boot_type == RAW_BOOT) {
+			boot_dev.id = id;
+			boot_dev.init = 1;
+			boot_dev.blkdev = bdev;
+			mt_part_register_device(&boot_dev);
+			boot_dev_found = 1;
+			printf("[SD%d] boot device found\n", id);
+		} else if (host->boot_type == FAT_BOOT) {
+#if (CONFIG_COMMANDS & CFG_CMD_FAT)
+			if (0 == fat_register_device(bdev, 1)) {
+				boot_dev_found = 1;
+				printf("[SD%d] FAT partition found\n", id);
+			}
+#endif
+		}
+	}
 
-    return err;
+	return err;
 }
 
 // ==========================================================
@@ -391,14 +392,14 @@ int mmc_legacy_init(int verbose)
 // ==========================================================
 static int __mmc_do_erase(struct mmc_host *host,struct mmc_card *card, u64 start_addr, u64 len)
 {
-    int err = MMC_ERR_NONE;
-    u64 end_addr =((start_addr + len)/card->blklen - 1) * card->blklen;
+	int err = MMC_ERR_NONE;
+	u64 end_addr =((start_addr + len)/card->blklen - 1) * card->blklen;
 	u8 buf[512];
 
-    if (end_addr/card->blklen > card->nblks) {
-        printf("[MSDC%d]Erase address out of range! start<0x%llx>,len<0x%llx>,card_nblks<0x%x>\n",host->id, start_addr, len, card->nblks);
-        return MMC_ERR_INVALID;
-    }
+	if (end_addr/card->blklen > card->nblks) {
+		printf("[MSDC%d]Erase address out of range! start<0x%llx>,len<0x%llx>,card_nblks<0x%x>\n",host->id, start_addr, len, card->nblks);
+		return MMC_ERR_INVALID;
+	}
 resend:
 	/* Add dummy read to reset erase sequence error. */
 	err = mmc_block_read(host->id, 0, 1, (unsigned long*)buf);
@@ -407,99 +408,99 @@ resend:
 		goto out;
 	}
 
-    err = mmc_erase_start(card, start_addr);
-    if (err != MMC_ERR_NONE) {
-        printf("[MSDC%d]Set erase start addrees 0x%llx failed,Err<%d>\n", host->id, start_addr, err);
+	err = mmc_erase_start(card, start_addr);
+	if (err != MMC_ERR_NONE) {
+		printf("[MSDC%d]Set erase start addrees 0x%llx failed,Err<%d>\n", host->id, start_addr, err);
 
-        if (err == MMC_ERR_ERASE_SEQ) {
-            printf("[MSDC%d]Erase sequence error, retry erase.\n", host->id);
-            goto resend;
-        } else {
-            goto out;
-        }
-    }
+		if (err == MMC_ERR_ERASE_SEQ) {
+			printf("[MSDC%d]Erase sequence error, retry erase.\n", host->id);
+			goto resend;
+		} else {
+			goto out;
+		}
+	}
 
-    err = mmc_erase_end(card, end_addr);
-    if (err != MMC_ERR_NONE) {
-        printf("[MSDC%d]Set erase end addrees 0x%llx + 0x%llx failed,Err<%d>\n", host->id, start_addr, len, err);
+	err = mmc_erase_end(card, end_addr);
+	if (err != MMC_ERR_NONE) {
+		printf("[MSDC%d]Set erase end addrees 0x%llx + 0x%llx failed,Err<%d>\n", host->id, start_addr, len, err);
 
-        if (err == MMC_ERR_ERASE_SEQ) {
-            printf("[MSDC%d]Erase sequence error, retry erase.\n", host->id);
-            goto resend;
-        } else {
-            goto out;
-        }
-    }
+		if (err == MMC_ERR_ERASE_SEQ) {
+			printf("[MSDC%d]Erase sequence error, retry erase.\n", host->id);
+			goto resend;
+		} else {
+			goto out;
+		}
+	}
 
-    err = mmc_erase(card, MMC_ERASE_TRIM);
-    if (err != MMC_ERR_NONE) {
-        printf("[MSDC%d]Set erase <0x%llx - 0x%llx> failed,Err<%d>\n", host->id, start_addr, start_addr + len, err);
-        goto out;
-    }
+	err = mmc_erase(card, MMC_ERASE_TRIM);
+	if (err != MMC_ERR_NONE) {
+		printf("[MSDC%d]Set erase <0x%llx - 0x%llx> failed,Err<%d>\n", host->id, start_addr, start_addr + len, err);
+		goto out;
+	}
 
-    printf("[MSDC%d]0x%llx - 0x%llx Erased\n", host->id, start_addr, start_addr + len);
+	printf("[MSDC%d]0x%llx - 0x%llx Erased\n", host->id, start_addr, start_addr + len);
 out:
-    return err;
+	return err;
 }
 
 int mmc_do_erase(int dev_num,u64 start_addr,u64 len,u32 part_id)
 {
-    struct mmc_host *host = mmc_get_host(dev_num);
-    struct mmc_card *card = mmc_get_card(dev_num);
-    //struct mmc_erase_part erase_part[EMMC_PART_END];
+	struct mmc_host *host = mmc_get_host(dev_num);
+	struct mmc_card *card = mmc_get_card(dev_num);
+	//struct mmc_erase_part erase_part[EMMC_PART_END];
 #if 0
-    u32 s_blknr = 0;
-    u32 e_blknr = 0;
-    u32 s_pid,s_pid_o,e_pid;
+	u32 s_blknr = 0;
+	u32 e_blknr = 0;
+	u32 s_pid,s_pid_o,e_pid;
 #endif
-    u32 err;
-    if ((!card) || (!host) ) {
-        printf("[mmc_do_erase] card or host is NULL\n");
-        return MMC_ERR_INVALID;
-    }
+	u32 err;
+	if ((!card) || (!host) ) {
+		printf("[mmc_do_erase] card or host is NULL\n");
+		return MMC_ERR_INVALID;
+	}
 
-    if (!len ){
-        printf("[MSDC%d] invalid erase size! len<0x%llx>\n",host->id,len);
-        return MMC_ERR_INVALID;
-    }
-    if ((start_addr % card->blklen) || (len % card->blklen)) {
-        printf("[MSDC%d] non-alignment erase address! start<0x%llx>,len<0x%llx>,card_nblks<0x%x>\n",host->id,start_addr,len,card->nblks);
-        return MMC_ERR_INVALID;
-    }
+	if (!len ){
+		printf("[MSDC%d] invalid erase size! len<0x%llx>\n",host->id,len);
+		return MMC_ERR_INVALID;
+	}
+	if ((start_addr % card->blklen) || (len % card->blklen)) {
+		printf("[MSDC%d] non-alignment erase address! start<0x%llx>,len<0x%llx>,card_nblks<0x%x>\n",host->id,start_addr,len,card->nblks);
+		return MMC_ERR_INVALID;
+	}
 
 
 
-    if ((err = mmc_switch_part(part_id))) {
-        printf("[MSDC%d] mmc swtich failed.part<%d> error <%d> \n", host->id, part_id, err);
-        return err;
-    }
+	if ((err = mmc_switch_part(part_id))) {
+		printf("[MSDC%d] mmc swtich failed.part<%d> error <%d> \n", host->id, part_id, err);
+		return err;
+	}
 
-    if ((err = __mmc_do_erase(host, card, start_addr, len))) {
-        printf("[MSDC%d] mmc erase failed.error <%d> \n",host->id, err);
-        return err;
-    }
+	if ((err = __mmc_do_erase(host, card, start_addr, len))) {
+		printf("[MSDC%d] mmc erase failed.error <%d> \n",host->id, err);
+		return err;
+	}
 
-    return err;
+	return err;
 
 }
 
 int mmc_get_boot_part(int *bootpart)
 {
-    struct mmc_card *card;
-    int err = MMC_ERR_NONE;
-    u8 *ext_csd;
+	struct mmc_card *card;
+	int err = MMC_ERR_NONE;
+	u8 *ext_csd;
 
-    err = mmc_init(0, MSDC_MODE_DEFAULT);
+	err = mmc_init(0, MSDC_MODE_DEFAULT);
 
-    if (err == MMC_ERR_NONE) {
-        /* fill in device description */
-        card = mmc_get_card(0);
-        ext_csd = &card->raw_ext_csd[0];
+	if (err == MMC_ERR_NONE) {
+		/* fill in device description */
+		card = mmc_get_card(0);
+		ext_csd = &card->raw_ext_csd[0];
 
-        *bootpart = (ext_csd[EXT_CSD_PART_CFG] >> 3) & 0x07; 
-    }
+		*bootpart = (ext_csd[EXT_CSD_PART_CFG] >> 3) & 0x07; 
+	}
 
-    return err;
+	return err;
 }
 
 

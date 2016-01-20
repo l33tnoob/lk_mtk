@@ -63,7 +63,7 @@ BOOL meta_mode_check(void)
 {
 	if(g_boot_mode == META_BOOT || g_boot_mode == ADVMETA_BOOT || g_boot_mode ==ATE_FACTORY_BOOT || g_boot_mode == FACTORY_BOOT)
 	{
-	  return TRUE;
+		return TRUE;
 	}
 	else
 	{	return FALSE;
@@ -78,264 +78,266 @@ extern BOOT_ARGUMENT *g_boot_arg;
 /* return value: 0: no frdump mode, 1: enter frdump mode */
 static int mrdump_check(void)
 {
-    int ret = -1;
+	int ret = -1;
 
-    if (mrdump_detection())
-    {
+	if (mrdump_detection())
+	{
 		mt65xx_backlight_on();
-        pchr_turn_on_charging();
-        ret = mrdump_run2();
+		pchr_turn_on_charging();
+		ret = mrdump_run2();
 
 #ifdef MTK_TC7_FEATURE
-        if(ret == 0) { /* ret = 0, that means mrdump is valid. */
-            g_boot_mode = FACTORY_BOOT;
-            ramdump_boot = 1;
-            return 1;
-        }
+		if(ret == 0) { /* ret = 0, that means mrdump is valid. */
+			g_boot_mode = FACTORY_BOOT;
+			ramdump_boot = 1;
+			return 1;
+		}
 #endif
-        return 0;
-    }
-    else 
-    {
-        return 0;
-    }
+		return 0;
+	}
+	else 
+	{
+		return 0;
+	}
 }
 
 #else
 static int mrdump_check(void)
 {
-    if (mrdump_detection())
-    {
+	if (mrdump_detection())
+	{
 #ifdef MTK_TC7_FEATURE
-	g_boot_mode = FACTORY_BOOT;
-	ramdump_boot = 1;
+		g_boot_mode = FACTORY_BOOT;
+		ramdump_boot = 1;
 #endif
-        mt65xx_backlight_on();
+		mt65xx_backlight_on();
 		pchr_turn_on_charging();
-        mrdump_run2();
-	return 1;
-    }
-    else 
-    {
-	return 0;
-    }
+		mrdump_run2();
+		return 1;
+	}
+	else 
+	{
+		return 0;
+	}
 }
 #endif
 
 void boot_mode_select(void)
 {
-    int factory_forbidden = 0;
-    //  int forbid_mode;
-    /*We put conditions here to filer some cases that can not do key detection*/
-    extern int kedump_mini(void) __attribute__((weak));
-    if (kedump_mini)
-    {
-        if (kedump_mini())
-        {
-            mt65xx_backlight_on(); // for ramdump mode backlight on
-            mrdump_check();
-            return;
-        }
-    }
-    if (meta_detection())
-    {
-      return;
-    }
-    mrdump_check();
+	int factory_forbidden = 0;
+	//  int forbid_mode;
+	/*We put conditions here to filer some cases that can not do key detection*/
+	extern int kedump_mini(void) __attribute__((weak));
 
-//#if defined(SB_LK_BRINGUP)
-//    return;
-//#endif
+	dprintf(CRITICAL, "zzytest, boot_mode_select begin\n");
+	if (kedump_mini)
+	{
+		if (kedump_mini())
+		{
+			mt65xx_backlight_on(); // for ramdump mode backlight on
+			mrdump_check();
+			return;
+		}
+	}
+	if (meta_detection())
+	{
+		return;
+	}
+	mrdump_check();
+
+	//#if defined(SB_LK_BRINGUP)
+	//    return;
+	//#endif
 #if defined (HAVE_LK_TEXT_MENU)
-/*Check RTC to know if system want to reboot to Fastboot*/
-    if(Check_RTC_PDN1_bit13())
-    {
-     dprintf(CRITICAL, "[FASTBOOT] reboot to boot loader\n");
-      g_boot_mode = FASTBOOT;
-      Set_Clr_RTC_PDN1_bit13(false);
-          return;
-    }
-    /*If forbidden mode is factory, cacel the factory key detection*/
-    if(g_boot_arg->sec_limit.magic_num == 0x4C4C4C4C)
-    {
-        if(g_boot_arg->sec_limit.forbid_mode == F_FACTORY_MODE)
-        {
-            //Forbid to enter factory mode
-           dprintf(CRITICAL, "%s Forbidden\n",MODULE_NAME);
-            factory_forbidden=1;
-        }
-    }
-  //  forbid_mode = g_boot_arg->boot_mode &= 0x000000FF;
-    /*If boot reason is power key + volumn down, then
-     disable factory mode dectection*/
-    if(mtk_detect_pmic_just_rst())
-    {
-          factory_forbidden=1;
-    }
-    /*Check RTC to know if system want to reboot to Recovery*/
-    if(Check_RTC_Recovery_Mode())
-    {
-          g_boot_mode = RECOVERY_BOOT;
-          return;
-    }
-    /*If MISC Write has not completed  in recovery mode
-     before system reboot, go to recovery mode to
-    finish remain tasks*/
-    if(unshield_recovery_detection())
-    {
-        return;
-    }
-    ulong begin = get_timer(0);
+	/*Check RTC to know if system want to reboot to Fastboot*/
+	if(Check_RTC_PDN1_bit13())
+	{
+		dprintf(CRITICAL, "[FASTBOOT] reboot to boot loader\n");
+		g_boot_mode = FASTBOOT;
+		Set_Clr_RTC_PDN1_bit13(false);
+		return;
+	}
+	/*If forbidden mode is factory, cacel the factory key detection*/
+	if(g_boot_arg->sec_limit.magic_num == 0x4C4C4C4C)
+	{
+		if(g_boot_arg->sec_limit.forbid_mode == F_FACTORY_MODE)
+		{
+			//Forbid to enter factory mode
+			dprintf(CRITICAL, "%s Forbidden\n",MODULE_NAME);
+			factory_forbidden=1;
+		}
+	}
+	//  forbid_mode = g_boot_arg->boot_mode &= 0x000000FF;
+	/*If boot reason is power key + volumn down, then
+	  disable factory mode dectection*/
+	if(mtk_detect_pmic_just_rst())
+	{
+		factory_forbidden=1;
+	}
+	/*Check RTC to know if system want to reboot to Recovery*/
+	if(Check_RTC_Recovery_Mode())
+	{
+		g_boot_mode = RECOVERY_BOOT;
+		return;
+	}
+	/*If MISC Write has not completed  in recovery mode
+	  before system reboot, go to recovery mode to
+	  finish remain tasks*/
+	if(unshield_recovery_detection())
+	{
+		return;
+	}
+	ulong begin = get_timer(0);
 
-/*we put key dectection here to detect key which is pressed*/
-   dprintf(INFO, "eng build\n");
+	/*we put key dectection here to detect key which is pressed*/
+	dprintf(INFO, "eng build\n");
 #ifdef MT65XX_FACTORY_KEY
-   dprintf(CRITICAL, "MT65XX_FACTORY_KEY 0x%x\n",MT65XX_FACTORY_KEY);
+	dprintf(CRITICAL, "MT65XX_FACTORY_KEY 0x%x\n",MT65XX_FACTORY_KEY);
 #endif
 #ifdef MT65XX_BOOT_MENU_KEY
-   dprintf(CRITICAL, "MT65XX_BOOT_MENU_KEY 0x%x\n",MT65XX_BOOT_MENU_KEY);
+	dprintf(CRITICAL, "MT65XX_BOOT_MENU_KEY 0x%x\n",MT65XX_BOOT_MENU_KEY);
 #endif
 #ifdef MT65XX_RECOVERY_KEY
-   dprintf(CRITICAL, "MT65XX_RECOVERY_KEY 0x%x\n",MT65XX_RECOVERY_KEY);
+	dprintf(CRITICAL, "MT65XX_RECOVERY_KEY 0x%x\n",MT65XX_RECOVERY_KEY);
 #endif
-    while(get_timer(begin)<50)
-    {
+	while(get_timer(begin)<50)
+	{
 
 
-        if(!factory_forbidden){
+		if(!factory_forbidden){
 #if _MAKE_HTC_LK
-					if(target_volume_up() && !target_volume_down())
+			if(target_volume_up() && !target_volume_down())
 #else
-                   if(mtk_detect_key(MT65XX_FACTORY_KEY))
+				if(mtk_detect_key(MT65XX_FACTORY_KEY))
 #endif
-                   {
-                         dprintf(CRITICAL, "%s Detect key\n",MODULE_NAME);
-                         dprintf(CRITICAL, "%s Enable factory mode\n",MODULE_NAME);
-                          g_boot_mode = FACTORY_BOOT;
-                          //video_printf("%s : detect factory mode !\n",MODULE_NAME);
-                          return;
-                   }
-        }
+				{
+					dprintf(CRITICAL, "%s Detect key\n",MODULE_NAME);
+					dprintf(CRITICAL, "%s Enable factory mode\n",MODULE_NAME);
+					g_boot_mode = FACTORY_BOOT;
+					//video_printf("%s : detect factory mode !\n",MODULE_NAME);
+					return;
+				}
+		}
 
 #if _MAKE_HTC_LK
-		 if(!target_volume_up() && target_volume_down())
-		 {
-						  dprintf(CRITICAL, "%s Detect key\n",MODULE_NAME);
-						  dprintf(CRITICAL, "%s Enable htc download mode\n",MODULE_NAME);
-						  g_boot_mode = HTC_DOWNLOAD;
-						  return;
+		if(!target_volume_up() && target_volume_down())
+		{
+			dprintf(CRITICAL, "%s Detect key\n",MODULE_NAME);
+			dprintf(CRITICAL, "%s Enable htc download mode\n",MODULE_NAME);
+			g_boot_mode = HTC_DOWNLOAD;
+			return;
 
-		 }
-		 if(target_volume_up() && target_volume_down())
-		 {
-						  dprintf(CRITICAL, "%s Detect key\n",MODULE_NAME);
-						  dprintf(CRITICAL, "%s Enable fastboot mode\n",MODULE_NAME);
-						  g_boot_mode = FASTBOOT;
-						  return;
-		 }
+		}
+		if(target_volume_up() && target_volume_down())
+		{
+			dprintf(CRITICAL, "%s Detect key\n",MODULE_NAME);
+			dprintf(CRITICAL, "%s Enable fastboot mode\n",MODULE_NAME);
+			g_boot_mode = FASTBOOT;
+			return;
+		}
 #else
-        if(mtk_detect_key(MT65XX_BOOT_MENU_KEY))
-         {
-                          dprintf(CRITICAL, "\n%s Check  boot menu\n",MODULE_NAME);
-                          dprintf(CRITICAL, "%s Wait 50ms for special keys\n",MODULE_NAME);
-                           mtk_wdt_disable();
-                           boot_mode_menu_select();
-                           mtk_wdt_init();
-                           return;
-         }
+		if(mtk_detect_key(MT65XX_BOOT_MENU_KEY))
+		{
+			dprintf(CRITICAL, "\n%s Check  boot menu\n",MODULE_NAME);
+			dprintf(CRITICAL, "%s Wait 50ms for special keys\n",MODULE_NAME);
+			mtk_wdt_disable();
+			boot_mode_menu_select();
+			mtk_wdt_init();
+			return;
+		}
 #endif
 #if 0
 #ifdef MT65XX_RECOVERY_KEY
-            if(mtk_detect_key(MT65XX_RECOVERY_KEY))
-           {
-               dprintf(CRITICAL, "%s Detect cal key\n",MODULE_NAME);
-               dprintf(CRITICAL, "%s Enable recovery mode\n",MODULE_NAME);
-                g_boot_mode = RECOVERY_BOOT;
-                //video_printf("%s : detect recovery mode !\n",MODULE_NAME);
-                return;
-            }
+		if(mtk_detect_key(MT65XX_RECOVERY_KEY))
+		{
+			dprintf(CRITICAL, "%s Detect cal key\n",MODULE_NAME);
+			dprintf(CRITICAL, "%s Enable recovery mode\n",MODULE_NAME);
+			g_boot_mode = RECOVERY_BOOT;
+			//video_printf("%s : detect recovery mode !\n",MODULE_NAME);
+			return;
+		}
 #endif
 #endif
-    }
+	}
 #else
 
-/*We put conditions here to filer some cases that can not do key detection*/
+	/*We put conditions here to filer some cases that can not do key detection*/
 
-/*Check RTC to know if system want to reboot to Fastboot*/
+	/*Check RTC to know if system want to reboot to Fastboot*/
 #ifdef MTK_FASTBOOT_SUPPORT
-  if(Check_RTC_PDN1_bit13())
-  {
-    dprintf(INFO,"[FASTBOOT] reboot to boot loader\n");
-    g_boot_mode = FASTBOOT;
-    Set_Clr_RTC_PDN1_bit13(false);
-         return TRUE;
-  }
+	if(Check_RTC_PDN1_bit13())
+	{
+		dprintf(INFO,"[FASTBOOT] reboot to boot loader\n");
+		g_boot_mode = FASTBOOT;
+		Set_Clr_RTC_PDN1_bit13(false);
+		return TRUE;
+	}
 #endif
 
-   /*If forbidden mode is factory, cacel the factory key detection*/
-    if(g_boot_arg->sec_limit.magic_num == 0x4C4C4C4C)
-    {
-        if(g_boot_arg->sec_limit.forbid_mode == F_FACTORY_MODE)
-        {
-            //Forbid to enter factory mode
-           dprintf(INFO, "%s Forbidden\n",MODULE_NAME);
-            factory_forbidden=1;
-        }
-    }
-//    forbid_mode = g_boot_arg->boot_mode &= 0x000000FF;
-    /*If boot reason is power key + volumn down, then
-     disable factory mode dectection*/
-    if(mtk_detect_pmic_just_rst())
-    {
-          factory_forbidden=1;
-    }
-    /*Check RTC to know if system want to reboot to Recovery*/
-    if(Check_RTC_Recovery_Mode())
-    {
-          g_boot_mode = RECOVERY_BOOT;
-          return TRUE;
-    }
-    /*If MISC Write has not completed  in recovery mode
-     and interrupted by system reboot, go to recovery mode to
-    finish remain tasks*/
-    if(unshield_recovery_detection())
-    {
-        return TRUE;
-    }
-    ulong begin = get_timer(0);
-/*we put key dectection here to detect key which is pressed*/
-while(get_timer(begin)<50){
+	/*If forbidden mode is factory, cacel the factory key detection*/
+	if(g_boot_arg->sec_limit.magic_num == 0x4C4C4C4C)
+	{
+		if(g_boot_arg->sec_limit.forbid_mode == F_FACTORY_MODE)
+		{
+			//Forbid to enter factory mode
+			dprintf(INFO, "%s Forbidden\n",MODULE_NAME);
+			factory_forbidden=1;
+		}
+	}
+	//    forbid_mode = g_boot_arg->boot_mode &= 0x000000FF;
+	/*If boot reason is power key + volumn down, then
+	  disable factory mode dectection*/
+	if(mtk_detect_pmic_just_rst())
+	{
+		factory_forbidden=1;
+	}
+	/*Check RTC to know if system want to reboot to Recovery*/
+	if(Check_RTC_Recovery_Mode())
+	{
+		g_boot_mode = RECOVERY_BOOT;
+		return TRUE;
+	}
+	/*If MISC Write has not completed  in recovery mode
+	  and interrupted by system reboot, go to recovery mode to
+	  finish remain tasks*/
+	if(unshield_recovery_detection())
+	{
+		return TRUE;
+	}
+	ulong begin = get_timer(0);
+	/*we put key dectection here to detect key which is pressed*/
+	while(get_timer(begin)<50){
 #ifdef MTK_FASTBOOT_SUPPORT
-    if(mtk_detect_key(MT_CAMERA_KEY))
-    {
-          dprintf(INFO,"[FASTBOOT]Key Detect\n");
-          g_boot_mode = FASTBOOT;
-          return TRUE;
-    }
+		if(mtk_detect_key(MT_CAMERA_KEY))
+		{
+			dprintf(INFO,"[FASTBOOT]Key Detect\n");
+			g_boot_mode = FASTBOOT;
+			return TRUE;
+		}
 #endif
-    if(!factory_forbidden){
-                if(mtk_detect_key(MT65XX_FACTORY_KEY))
-                {
-                      dprintf(INFO, "%s Detect key\n",MODULE_NAME);
-                      dprintf(INFO, "%s Enable factory mode\n",MODULE_NAME);
-                       g_boot_mode = FACTORY_BOOT;
-                       //video_printf("%s : detect factory mode !\n",MODULE_NAME);
-                       return TRUE;
-                }
-     }
+		if(!factory_forbidden){
+			if(mtk_detect_key(MT65XX_FACTORY_KEY))
+			{
+				dprintf(INFO, "%s Detect key\n",MODULE_NAME);
+				dprintf(INFO, "%s Enable factory mode\n",MODULE_NAME);
+				g_boot_mode = FACTORY_BOOT;
+				//video_printf("%s : detect factory mode !\n",MODULE_NAME);
+				return TRUE;
+			}
+		}
 #if 0
 #ifdef MT65XX_RECOVERY_KEY
-        if(mtk_detect_key(MT65XX_RECOVERY_KEY))
-        {
-            dprintf(INFO, "%s Detect cal key\n",MODULE_NAME);
-            dprintf(INFO, "%s Enable recovery mode\n",MODULE_NAME);
-             g_boot_mode = RECOVERY_BOOT;
-             //video_printf("%s : detect recovery mode !\n",MODULE_NAME);
-             return TRUE;
-         }
+		if(mtk_detect_key(MT65XX_RECOVERY_KEY))
+		{
+			dprintf(INFO, "%s Detect cal key\n",MODULE_NAME);
+			dprintf(INFO, "%s Enable recovery mode\n",MODULE_NAME);
+			g_boot_mode = RECOVERY_BOOT;
+			//video_printf("%s : detect recovery mode !\n",MODULE_NAME);
+			return TRUE;
+		}
 #endif
 #endif
-}
+	}
 
 #endif
 
@@ -355,17 +357,17 @@ while(get_timer(begin)<50){
 #if 1
 unsigned int get_chip_sw_ver_code(void)
 {
-    return DRV_Reg32(APSW_VER);
+	return DRV_Reg32(APSW_VER);
 }
 
 CHIP_SW_VER mt_get_chip_sw_ver(void)
 {
-    return (CHIP_SW_VER)get_chip_sw_ver_code();
+	return (CHIP_SW_VER)get_chip_sw_ver_code();
 }
 
 unsigned int mt_get_chip_hw_code(void)
 {
-    return DRV_Reg32(APHW_CODE);
+	return DRV_Reg32(APHW_CODE);
 }
 
 #endif

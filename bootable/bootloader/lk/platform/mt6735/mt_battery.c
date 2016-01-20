@@ -80,8 +80,8 @@ void kick_charger_wdt(void)
 	mt6325_upmu_set_rg_chrwdt_int_en(1);         // CHRWDT_INT_EN
 	mt6325_upmu_set_rg_chrwdt_en(1);             // CHRWDT_EN
 	mt6325_upmu_set_rg_chrwdt_flag_wr(1);        // CHRWDT_WR
-	*/
-        
+	 */
+
 	pmic_set_register_value(PMIC_RG_CHRWDT_TD,3);  // CHRWDT_TD, 32s for keep charging for lk to kernel
 	pmic_set_register_value(PMIC_RG_CHRWDT_WR,1); // CHRWDT_WR
 	pmic_set_register_value(PMIC_RG_CHRWDT_INT_EN,1);	// CHRWDT_INT_EN
@@ -92,32 +92,32 @@ void kick_charger_wdt(void)
 #if defined(MTK_BATLOWV_NO_PANEL_ON_EARLY)
 kal_bool is_low_battery(kal_int32  val)
 {
-    static UINT8 g_bat_low = 0xFF;
+	static UINT8 g_bat_low = 0xFF;
 
-    //low battery only justice once in lk
-    if(0xFF != g_bat_low)
-        return g_bat_low;
-    else
-        g_bat_low = FALSE;
+	//low battery only justice once in lk
+	if(0xFF != g_bat_low)
+		return g_bat_low;
+	else
+		g_bat_low = FALSE;
 
-    #if defined(SWCHR_POWER_PATH)
-    if(0 == val)
-        val = get_i_sense_volt(1);
-    #else
-    if(0 == val)
-        val = get_bat_sense_volt(1);
-    #endif
+#if defined(SWCHR_POWER_PATH)
+	if(0 == val)
+		val = get_i_sense_volt(1);
+#else
+	if(0 == val)
+		val = get_bat_sense_volt(1);
+#endif
 
-    if (val < BATTERY_LOWVOL_THRESOLD)
-    {
-        printf("%s, TRUE\n", __FUNCTION__);
-        g_bat_low = 0x1;
-    }
+	if (val < BATTERY_LOWVOL_THRESOLD)
+	{
+		printf("%s, TRUE\n", __FUNCTION__);
+		g_bat_low = 0x1;
+	}
 
-    if(FALSE == g_bat_low)
-        printf("%s, FALSE\n", __FUNCTION__);
+	if(FALSE == g_bat_low)
+		printf("%s, FALSE\n", __FUNCTION__);
 
-    return g_bat_low;
+	return g_bat_low;
 }
 #endif
 
@@ -125,9 +125,9 @@ void pchr_turn_on_charging(kal_bool bEnable)
 {
 	pmic_set_register_value(PMIC_RG_USBDL_RST,1);//force leave USBDL mode
 	//mt6325_upmu_set_rg_usbdl_rst(1);       //force leave USBDL mode
-        pmic_set_register_value(PMIC_RG_BC11_RST,1);//BC11_RST
+	pmic_set_register_value(PMIC_RG_BC11_RST,1);//BC11_RST
 	kick_charger_wdt();
- 
+
 	pmic_set_register_value(PMIC_RG_CS_VTH,0xC);	// CS_VTH, 450mA
 	//mt6325_upmu_set_rg_cs_vth(0xC);             // CS_VTH, 450mA
 	pmic_set_register_value(PMIC_RG_CSDAC_EN,bEnable);
@@ -135,7 +135,7 @@ void pchr_turn_on_charging(kal_bool bEnable)
 	pmic_set_register_value(PMIC_RG_CHR_EN,bEnable);
 	//mt6325_upmu_set_rg_chr_en(1);				// CHR_EN
 
-        pmic_set_register_value(PMIC_RG_CSDAC_MODE,1);//CSDAC_MODE 
+	pmic_set_register_value(PMIC_RG_CSDAC_MODE,1);//CSDAC_MODE 
 	pmic_set_register_value(PMIC_RG_CSDAC_EN,1);
 
 #if defined(MTK_BQ24261_SUPPORT)
@@ -157,9 +157,9 @@ void pchr_turn_on_charging(kal_bool bEnable)
 #endif
 
 #if defined(MTK_BQ24158_SUPPORT)
-    mt_set_gpio_mode(GPIO_SWCHARGER_EN_PIN,GPIO_SWCHARGER_EN_PIN_M_GPIO);
-    mt_set_gpio_dir(GPIO_SWCHARGER_EN_PIN,GPIO_DIR_OUT);
-    mt_set_gpio_out(GPIO_SWCHARGER_EN_PIN,GPIO_OUT_ZERO);
+	mt_set_gpio_mode(GPIO_SWCHARGER_EN_PIN,GPIO_SWCHARGER_EN_PIN_M_GPIO);
+	mt_set_gpio_dir(GPIO_SWCHARGER_EN_PIN,GPIO_DIR_OUT);
+	mt_set_gpio_out(GPIO_SWCHARGER_EN_PIN,GPIO_OUT_ZERO);
 	bq24158_charging();
 #endif
 
@@ -181,150 +181,151 @@ void pchr_turn_off_charging(void)
 //enter this function when low battery with charger
 void check_bat_protect_status()
 {
-    kal_int32 bat_val = 0;
+	kal_int32 bat_val = 0;
 	int current,chr_volt,cnt=0,i;
-    
-    #if defined(SWCHR_POWER_PATH)
-    bat_val = get_i_sense_volt(5);
-    #else
-    bat_val = get_bat_sense_volt(5);
-    #endif
-    
-    dprintf(CRITICAL, "[%s]: check VBAT=%d mV with %d mV, start charging... \n", __FUNCTION__, bat_val, BATTERY_LOWVOL_THRESOLD);
-    
-    while (bat_val < BATTERY_LOWVOL_THRESOLD)
-    {
-        mtk_wdt_restart();
-        if(upmu_is_chr_det() == KAL_FALSE)
-        {
-            dprintf(CRITICAL, "[BATTERY] No Charger, Power OFF !\n");
-            mt6575_power_off();
-            while(1);
-        }
-    
+
+#if defined(SWCHR_POWER_PATH)
+	bat_val = get_i_sense_volt(5);
+#else
+	bat_val = get_bat_sense_volt(5);
+#endif
+
+	dprintf(CRITICAL, "[%s]: check VBAT=%d mV with %d mV, start charging... \n", __FUNCTION__, bat_val, BATTERY_LOWVOL_THRESOLD);
+
+	while (bat_val < BATTERY_LOWVOL_THRESOLD)
+	{
+		mtk_wdt_restart();
+		if(upmu_is_chr_det() == KAL_FALSE)
+		{
+			dprintf(CRITICAL, "[BATTERY] No Charger, Power OFF !\n");
+			mt6575_power_off();
+			while(1);
+		}
+
 
 		chr_volt= get_charger_volt(1);
 
 		if(chr_volt>V_CHARGER_MAX)
 		{
-            dprintf(CRITICAL, "[BATTERY] charger voltage is too high :%d , threshold is %d !\n",chr_volt,V_CHARGER_MAX);		
-            break;		
+			dprintf(CRITICAL, "[BATTERY] charger voltage is too high :%d , threshold is %d !\n",chr_volt,V_CHARGER_MAX);		
+			break;		
 		}
 
 
-        pchr_turn_on_charging(KAL_TRUE);
+		pchr_turn_on_charging(KAL_TRUE);
 
 #if defined(SWCHR_POWER_PATH)
 		mdelay(5000);
 #else
-	cnt=0;
-	for(i=0;i<10;i++)
-	{
-		current=get_charging_current(1);
-		chr_volt=get_charger_volt(1);	
-		if(current<100 && chr_volt<4400)
+		cnt=0;
+		for(i=0;i<10;i++)
 		{
-			cnt++;
-			dprintf(CRITICAL, "[BATTERY] charging current=%d charger volt=%d\n\r",current,chr_volt);
+			current=get_charging_current(1);
+			chr_volt=get_charger_volt(1);	
+			if(current<100 && chr_volt<4400)
+			{
+				cnt++;
+				dprintf(CRITICAL, "[BATTERY] charging current=%d charger volt=%d\n\r",current,chr_volt);
+			}
+			else
+			{
+				dprintf(CRITICAL, "[BATTERY] charging current=%d charger volt=%d\n\r",current,chr_volt);
+				cnt=0;
+			}
 		}
-		else
+
+		if(cnt>=8)
 		{
-			dprintf(CRITICAL, "[BATTERY] charging current=%d charger volt=%d\n\r",current,chr_volt);
-			cnt=0;
+
+			dprintf(CRITICAL, "[BATTERY] charging current and charger volt too low !! \n\r",cnt);
+
+			pchr_turn_off_charging();
+#ifndef NO_POWER_OFF
+			mt6575_power_off();
+#endif            
+			while(1)
+			{
+				dprintf(CRITICAL, "If you see the log, please check with RTC power off API\n\r");
+			}
 		}
-	}
-
-	if(cnt>=8)
-	{
-
-            dprintf(CRITICAL, "[BATTERY] charging current and charger volt too low !! \n\r",cnt);
-
-            pchr_turn_off_charging();
-    #ifndef NO_POWER_OFF
-            mt6575_power_off();
-    #endif            
-            while(1)
-            {
-                dprintf(CRITICAL, "If you see the log, please check with RTC power off API\n\r");
-            }
-	}
-	mdelay(50);
+		mdelay(50);
 #endif
 
 
 
-        #if defined(SWCHR_POWER_PATH)
-        #ifndef MTK_NCP1854_SUPPORT /* NCP1854 needs enable charging to have power path */
-        pchr_turn_on_charging(KAL_FALSE);
-        mdelay(100);
-        #endif
-        bat_val = get_i_sense_volt(5);
-        #else
-        bat_val = get_bat_sense_volt(5);
-        #endif
-		 dprintf(CRITICAL, "[%s]: check VBAT=%d mV  \n", __FUNCTION__, bat_val);
-    }
+#if defined(SWCHR_POWER_PATH)
+#ifndef MTK_NCP1854_SUPPORT /* NCP1854 needs enable charging to have power path */
+		pchr_turn_on_charging(KAL_FALSE);
+		mdelay(100);
+#endif
+		bat_val = get_i_sense_volt(5);
+#else
+		bat_val = get_bat_sense_volt(5);
+#endif
+		dprintf(CRITICAL, "[%s]: check VBAT=%d mV  \n", __FUNCTION__, bat_val);
+	}
 
-    dprintf(CRITICAL, "[%s]: check VBAT=%d mV with %d mV, stop charging... \n", __FUNCTION__, bat_val, BATTERY_LOWVOL_THRESOLD);
+	dprintf(CRITICAL, "[%s]: check VBAT=%d mV with %d mV, stop charging... \n", __FUNCTION__, bat_val, BATTERY_LOWVOL_THRESOLD);
 }
 
 void mt65xx_bat_init(void)
 {    
-    kal_int32 bat_vol;
-    
-    #if defined(SWCHR_POWER_PATH)
-    bat_vol = get_i_sense_volt(1);
-    #else
-    bat_vol = get_bat_sense_volt(1);
-    #endif
+	kal_int32 bat_vol;
 
-    //pchr_turn_on_charging(KAL_TRUE);
-    dprintf(CRITICAL, "[mt65xx_bat_init] check VBAT=%d mV with %d mV\n", bat_vol, BATTERY_LOWVOL_THRESOLD);
+	dprintf(CRITICAL, "zzytest, mt65xx_bat_init begin\n");
+#if defined(SWCHR_POWER_PATH)
+	bat_vol = get_i_sense_volt(1);
+#else
+	bat_vol = get_bat_sense_volt(1);
+#endif
 
-	
-    if(g_boot_mode == KERNEL_POWER_OFF_CHARGING_BOOT && (pmic_get_register_value(PMIC_PWRKEY_DEB)==0) ) {
-            dprintf(CRITICAL, "[mt65xx_bat_init] KPOC+PWRKEY => change boot mode\n");        
-            g_boot_reason_change = true;
-    }
-    rtc_boot_check(false);
+	//pchr_turn_on_charging(KAL_TRUE);
+	dprintf(CRITICAL, "[mt65xx_bat_init] check VBAT=%d mV with %d mV\n", bat_vol, BATTERY_LOWVOL_THRESOLD);
 
-    #ifndef MTK_DISABLE_POWER_ON_OFF_VOLTAGE_LIMITATION
-    #ifndef MTK_BATLOWV_NO_PANEL_ON_EARLY
-    if (bat_vol < BATTERY_LOWVOL_THRESOLD)
-    #else
-    if (is_low_battery(bat_vol))
-    #endif
-    {
-        if(g_boot_mode == KERNEL_POWER_OFF_CHARGING_BOOT && upmu_is_chr_det() == KAL_TRUE)
-        {
-            dprintf(CRITICAL, "[%s] Kernel Low Battery Power Off Charging Mode\n", __func__);
-            g_boot_mode = LOW_POWER_OFF_CHARGING_BOOT;
 
-            check_bat_protect_status();
+	if(g_boot_mode == KERNEL_POWER_OFF_CHARGING_BOOT && (pmic_get_register_value(PMIC_PWRKEY_DEB)==0) ) {
+		dprintf(CRITICAL, "[mt65xx_bat_init] KPOC+PWRKEY => change boot mode\n");        
+		g_boot_reason_change = true;
+	}
+	rtc_boot_check(false);
 
-        } else if(upmu_is_chr_det() == KAL_TRUE)
-        {
-            dprintf(CRITICAL, "[%s] Boot up from off-mode charging.\n", __func__);
-            return;
-        }
-        else
-        {
-            dprintf(CRITICAL, "[BATTERY] battery voltage(%dmV) <= CLV ! Can not Boot Linux Kernel !! \n\r",bat_vol);
-    #ifndef NO_POWER_OFF
-            mt6575_power_off();
-    #endif
-            while(1)
-            {
-                dprintf(CRITICAL, "If you see the log, please check with RTC power off API\n\r");
-            }
-        }
-    }
-    #endif
+#ifndef MTK_DISABLE_POWER_ON_OFF_VOLTAGE_LIMITATION
+#ifndef MTK_BATLOWV_NO_PANEL_ON_EARLY
+	if (bat_vol < BATTERY_LOWVOL_THRESOLD)
+#else
+		if (is_low_battery(bat_vol))
+#endif
+		{
+			if(g_boot_mode == KERNEL_POWER_OFF_CHARGING_BOOT && upmu_is_chr_det() == KAL_TRUE)
+			{
+				dprintf(CRITICAL, "[%s] Kernel Low Battery Power Off Charging Mode\n", __func__);
+				g_boot_mode = LOW_POWER_OFF_CHARGING_BOOT;
+
+				check_bat_protect_status();
+
+			} else if(upmu_is_chr_det() == KAL_TRUE)
+			{
+				dprintf(CRITICAL, "[%s] Boot up from off-mode charging.\n", __func__);
+				return;
+			}
+			else
+			{
+				dprintf(CRITICAL, "[BATTERY] battery voltage(%dmV) <= CLV ! Can not Boot Linux Kernel !! \n\r",bat_vol);
+#ifndef NO_POWER_OFF
+				mt6575_power_off();
+#endif
+				while(1)
+				{
+					dprintf(CRITICAL, "If you see the log, please check with RTC power off API\n\r");
+				}
+			}
+		}
+#endif
 
 	if(g_boot_mode == KERNEL_POWER_OFF_CHARGING_BOOT && upmu_is_chr_det() == KAL_TRUE)
-		   mt65xx_leds_brightness_set(MT65XX_LED_TYPE_RED, LED_HALF);
-	   else
-		   mt65xx_leds_brightness_set(MT65XX_LED_TYPE_RED, LED_OFF);
+		mt65xx_leds_brightness_set(MT65XX_LED_TYPE_RED, LED_HALF);
+	else
+		mt65xx_leds_brightness_set(MT65XX_LED_TYPE_RED, LED_OFF);
 
 #if defined(DLPT_FEATURE_SUPPORT)
 	fgauge_initialization(NULL);
@@ -332,10 +333,10 @@ void mt65xx_bat_init(void)
 	pchr_turn_on_charging(KAL_FALSE);
 	mdelay(50);
 	get_dlpt_imix_r();
-        check_bat_protect_status();
+	check_bat_protect_status();
 #endif //#if defined(DLPT_FEATURE_SUPPORT)
-	
-    return;
+
+	return;
 }
 
 
@@ -376,81 +377,81 @@ extern kal_uint32 upmu_get_reg_value(kal_uint32 reg);
 
 void get_hw_chip_diff_trim_value(void)
 {
-    #if 1
-    kal_int32 reg_val = 0;
+#if 1
+	kal_int32 reg_val = 0;
 
-    reg_val = upmu_get_reg_value(0xCB8);
-    chip_diff_trim_value_4_0 = (reg_val>>7)&0x001F;//chip_diff_trim_value_4_0 = (reg_val>>10)&0x001F;
-    
-    dprintf(CRITICAL,"[Chip_Trim] Reg[0xCB8]=0x%x, chip_diff_trim_value_4_0=%d\n", reg_val, chip_diff_trim_value_4_0);
-    #else
-    dprintf(CRITICAL,"[Chip_Trim] need check reg number\n");
-    #endif
+	reg_val = upmu_get_reg_value(0xCB8);
+	chip_diff_trim_value_4_0 = (reg_val>>7)&0x001F;//chip_diff_trim_value_4_0 = (reg_val>>10)&0x001F;
 
-    switch(chip_diff_trim_value_4_0){       
-        case 0:    chip_diff_trim_value = 1000; break;
-        case 1:    chip_diff_trim_value = 1005; break;
-        case 2:    chip_diff_trim_value = 1010; break;
-        case 3:    chip_diff_trim_value = 1015; break;
-        case 4:    chip_diff_trim_value = 1020; break;
-        case 5:    chip_diff_trim_value = 1025; break;
-        case 6:    chip_diff_trim_value = 1030; break;
-        case 7:    chip_diff_trim_value = 1036; break;
-        case 8:    chip_diff_trim_value = 1041; break;
-        case 9:    chip_diff_trim_value = 1047; break;
-        case 10:   chip_diff_trim_value = 1052; break;
-        case 11:   chip_diff_trim_value = 1058; break;
-        case 12:   chip_diff_trim_value = 1063; break;
-        case 13:   chip_diff_trim_value = 1069; break;
-        case 14:   chip_diff_trim_value = 1075; break;
-        case 15:   chip_diff_trim_value = 1081; break;
-        case 31:   chip_diff_trim_value = 995; break; 
-        case 30:   chip_diff_trim_value = 990; break; 
-        case 29:   chip_diff_trim_value = 985; break; 
-        case 28:   chip_diff_trim_value = 980; break; 
-        case 27:   chip_diff_trim_value = 975; break; 
-        case 26:   chip_diff_trim_value = 970; break; 
-        case 25:   chip_diff_trim_value = 966; break; 
-        case 24:   chip_diff_trim_value = 961; break; 
-        case 23:   chip_diff_trim_value = 956; break; 
-        case 22:   chip_diff_trim_value = 952; break; 
-        case 21:   chip_diff_trim_value = 947; break; 
-        case 20:   chip_diff_trim_value = 943; break; 
-        case 19:   chip_diff_trim_value = 938; break; 
-        case 18:   chip_diff_trim_value = 934; break; 
-        case 17:   chip_diff_trim_value = 930; break; 
-        default:
-            dprintf(CRITICAL, "[Chip_Trim] Invalid value(%d)\n", chip_diff_trim_value_4_0);
-            break;
-    }
+	dprintf(CRITICAL,"[Chip_Trim] Reg[0xCB8]=0x%x, chip_diff_trim_value_4_0=%d\n", reg_val, chip_diff_trim_value_4_0);
+#else
+	dprintf(CRITICAL,"[Chip_Trim] need check reg number\n");
+#endif
 
-   dprintf(CRITICAL, "[Chip_Trim] chip_diff_trim_value=%d\n", chip_diff_trim_value);
+	switch(chip_diff_trim_value_4_0){       
+		case 0:    chip_diff_trim_value = 1000; break;
+		case 1:    chip_diff_trim_value = 1005; break;
+		case 2:    chip_diff_trim_value = 1010; break;
+		case 3:    chip_diff_trim_value = 1015; break;
+		case 4:    chip_diff_trim_value = 1020; break;
+		case 5:    chip_diff_trim_value = 1025; break;
+		case 6:    chip_diff_trim_value = 1030; break;
+		case 7:    chip_diff_trim_value = 1036; break;
+		case 8:    chip_diff_trim_value = 1041; break;
+		case 9:    chip_diff_trim_value = 1047; break;
+		case 10:   chip_diff_trim_value = 1052; break;
+		case 11:   chip_diff_trim_value = 1058; break;
+		case 12:   chip_diff_trim_value = 1063; break;
+		case 13:   chip_diff_trim_value = 1069; break;
+		case 14:   chip_diff_trim_value = 1075; break;
+		case 15:   chip_diff_trim_value = 1081; break;
+		case 31:   chip_diff_trim_value = 995; break; 
+		case 30:   chip_diff_trim_value = 990; break; 
+		case 29:   chip_diff_trim_value = 985; break; 
+		case 28:   chip_diff_trim_value = 980; break; 
+		case 27:   chip_diff_trim_value = 975; break; 
+		case 26:   chip_diff_trim_value = 970; break; 
+		case 25:   chip_diff_trim_value = 966; break; 
+		case 24:   chip_diff_trim_value = 961; break; 
+		case 23:   chip_diff_trim_value = 956; break; 
+		case 22:   chip_diff_trim_value = 952; break; 
+		case 21:   chip_diff_trim_value = 947; break; 
+		case 20:   chip_diff_trim_value = 943; break; 
+		case 19:   chip_diff_trim_value = 938; break; 
+		case 18:   chip_diff_trim_value = 934; break; 
+		case 17:   chip_diff_trim_value = 930; break; 
+		default:
+			   dprintf(CRITICAL, "[Chip_Trim] Invalid value(%d)\n", chip_diff_trim_value_4_0);
+			   break;
+	}
+
+	dprintf(CRITICAL, "[Chip_Trim] chip_diff_trim_value=%d\n", chip_diff_trim_value);
 }
 
 static kal_uint32 fg_get_data_ready_status(void)
 {
-    kal_uint32 ret=0;
-    kal_uint32 temp_val=0;
-    
-    ret=pmic_read_interface(MT6328_FGADC_CON0, &temp_val, 0xFFFF, 0x0);
-    
-    dprintf(CRITICAL, "[fg_get_data_ready_status] Reg[0x%x]=0x%x\r\n", MT6328_FGADC_CON0, temp_val);
-    
-    temp_val = (temp_val & (MT6328_PMIC_FG_LATCHDATA_ST_MASK << MT6328_PMIC_FG_LATCHDATA_ST_SHIFT)) >> MT6328_PMIC_FG_LATCHDATA_ST_SHIFT;
+	kal_uint32 ret=0;
+	kal_uint32 temp_val=0;
 
-    return temp_val;    
+	ret=pmic_read_interface(MT6328_FGADC_CON0, &temp_val, 0xFFFF, 0x0);
+
+	dprintf(CRITICAL, "[fg_get_data_ready_status] Reg[0x%x]=0x%x\r\n", MT6328_FGADC_CON0, temp_val);
+
+	temp_val = (temp_val & (MT6328_PMIC_FG_LATCHDATA_ST_MASK << MT6328_PMIC_FG_LATCHDATA_ST_SHIFT)) >> MT6328_PMIC_FG_LATCHDATA_ST_SHIFT;
+
+	return temp_val;    
 }
 
 kal_int32 use_chip_trim_value(kal_int32 not_trim_val)
 {
 
-    kal_int32 ret_val=0;
+	kal_int32 ret_val=0;
 
-    ret_val=((not_trim_val*chip_diff_trim_value)/1000);
+	ret_val=((not_trim_val*chip_diff_trim_value)/1000);
 
-    dprintf(CRITICAL, "[use_chip_trim_value] %d -> %d\n", not_trim_val, ret_val);
-    
-    return ret_val;
+	dprintf(CRITICAL, "[use_chip_trim_value] %d -> %d\n", not_trim_val, ret_val);
+
+	return ret_val;
 
 }
 
@@ -458,213 +459,213 @@ kal_int32 use_chip_trim_value(kal_int32 not_trim_val)
 void fgauge_read_current(void *data)
 {
 
-    kal_uint16 uvalue16 = 0;
-    kal_int32 dvalue = 0; 
-    int m = 0;
-    uint64_t Temp_Value = 0;
-    kal_int32 Current_Compensate_Value=0;
-    kal_uint32 ret = 0;
+	kal_uint16 uvalue16 = 0;
+	kal_int32 dvalue = 0; 
+	int m = 0;
+	uint64_t Temp_Value = 0;
+	kal_int32 Current_Compensate_Value=0;
+	kal_uint32 ret = 0;
 
-// HW Init
-    //(1)    i2c_write (0x60, 0xC8, 0x01); // Enable VA2    
-    //(2)    i2c_write (0x61, 0x15, 0x00); // Enable FGADC clock for digital
-    //(3)    i2c_write (0x61, 0x69, 0x28); // Set current mode, auto-calibration mode and 32KHz clock source
-    //(4)    i2c_write (0x61, 0x69, 0x29); // Enable FGADC
+	// HW Init
+	//(1)    i2c_write (0x60, 0xC8, 0x01); // Enable VA2    
+	//(2)    i2c_write (0x61, 0x15, 0x00); // Enable FGADC clock for digital
+	//(3)    i2c_write (0x61, 0x69, 0x28); // Set current mode, auto-calibration mode and 32KHz clock source
+	//(4)    i2c_write (0x61, 0x69, 0x29); // Enable FGADC
 
-//Read HW Raw Data
-    //(1)    Set READ command
-    ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0200, 0xFF00, 0x0);
-    //(2)     Keep i2c read when status = 1 (0x06)
-    m=0;
-    while ( fg_get_data_ready_status() == 0 )
-    {        
-        m++;
-        if(m>1000)
-        {            
-            dprintf(CRITICAL, "[fgauge_read_current] fg_get_data_ready_status timeout 1 !\r\n");            
-            break;
-        }
-    }
-    //(3)    Read FG_CURRENT_OUT[15:08]
-    //(4)    Read FG_CURRENT_OUT[07:00]
-    uvalue16 = pmic_get_register_value(PMIC_FG_CURRENT_OUT); //mt6325_upmu_get_fg_current_out();
-    dprintf(CRITICAL, "[fgauge_read_current] : FG_CURRENT = %x\r\n", uvalue16);
-    //(5)    (Read other data)
-    //(6)    Clear status to 0
-    ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0800, 0xFF00, 0x0);
-    //(7)    Keep i2c read when status = 0 (0x08)
+	//Read HW Raw Data
+	//(1)    Set READ command
+	ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0200, 0xFF00, 0x0);
+	//(2)     Keep i2c read when status = 1 (0x06)
+	m=0;
+	while ( fg_get_data_ready_status() == 0 )
+	{        
+		m++;
+		if(m>1000)
+		{            
+			dprintf(CRITICAL, "[fgauge_read_current] fg_get_data_ready_status timeout 1 !\r\n");            
+			break;
+		}
+	}
+	//(3)    Read FG_CURRENT_OUT[15:08]
+	//(4)    Read FG_CURRENT_OUT[07:00]
+	uvalue16 = pmic_get_register_value(PMIC_FG_CURRENT_OUT); //mt6325_upmu_get_fg_current_out();
+	dprintf(CRITICAL, "[fgauge_read_current] : FG_CURRENT = %x\r\n", uvalue16);
+	//(5)    (Read other data)
+	//(6)    Clear status to 0
+	ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0800, 0xFF00, 0x0);
+	//(7)    Keep i2c read when status = 0 (0x08)
 	//while ( fg_get_sw_clear_status() != 0 )
-    m=0;
-    while ( fg_get_data_ready_status() != 0 )
-    {         
-        m++;
-        if(m>1000)
-        {
-            dprintf(CRITICAL, "[fgauge_read_current] fg_get_data_ready_status timeout 2 !\r\n");
-            break;
-        }
-    }    
-    //(8)    Recover original settings
-    ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0000, 0xFF00, 0x0);
+	m=0;
+	while ( fg_get_data_ready_status() != 0 )
+	{         
+		m++;
+		if(m>1000)
+		{
+			dprintf(CRITICAL, "[fgauge_read_current] fg_get_data_ready_status timeout 2 !\r\n");
+			break;
+		}
+	}    
+	//(8)    Recover original settings
+	ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0000, 0xFF00, 0x0);
 
-//calculate the real world data    
-    dvalue = (kal_uint32) uvalue16;
-    if( dvalue == 0 )
-    {
-        Temp_Value = (uint64_t) dvalue;
-        g_fg_is_charging = KAL_FALSE;
-    }
-    else if( dvalue > 32767 ) // > 0x8000
-    {
-        Temp_Value = (uint64_t)(dvalue - 65535);
-        Temp_Value = Temp_Value - (Temp_Value*2);
-        g_fg_is_charging = KAL_FALSE;
-    }
-    else
-    {
-        Temp_Value = (uint64_t) dvalue;
-        g_fg_is_charging = KAL_TRUE;
-    }    
-    
-    Temp_Value = Temp_Value * UNIT_FGCURRENT;    
-    //do_div(Temp_Value, 100000);
-	 Temp_Value=Temp_Value/100000;
-    dvalue = (kal_uint32)Temp_Value;
-    
-    if( g_fg_is_charging == KAL_TRUE )
-    {
-        dprintf(CRITICAL, "[fgauge_read_current] current(charging) = %d mA\r\n", dvalue);
-    }
-    else
-    {
-        dprintf(CRITICAL, "[fgauge_read_current] current(discharging) = %d mA\r\n", dvalue);
-    }
+	//calculate the real world data    
+	dvalue = (kal_uint32) uvalue16;
+	if( dvalue == 0 )
+	{
+		Temp_Value = (uint64_t) dvalue;
+		g_fg_is_charging = KAL_FALSE;
+	}
+	else if( dvalue > 32767 ) // > 0x8000
+	{
+		Temp_Value = (uint64_t)(dvalue - 65535);
+		Temp_Value = Temp_Value - (Temp_Value*2);
+		g_fg_is_charging = KAL_FALSE;
+	}
+	else
+	{
+		Temp_Value = (uint64_t) dvalue;
+		g_fg_is_charging = KAL_TRUE;
+	}    
 
-// Auto adjust value
-    if(R_FG_VALUE != 20)
-    {
-        dprintf(CRITICAL, "[fgauge_read_current] Auto adjust value due to the Rfg is %d\n Ori current=%d, ", R_FG_VALUE, dvalue);
+	Temp_Value = Temp_Value * UNIT_FGCURRENT;    
+	//do_div(Temp_Value, 100000);
+	Temp_Value=Temp_Value/100000;
+	dvalue = (kal_uint32)Temp_Value;
 
-        dvalue = (dvalue*20)/R_FG_VALUE;
-     
-        dprintf(CRITICAL, "[fgauge_read_current] new current=%d\n", dvalue);
-    }
+	if( g_fg_is_charging == KAL_TRUE )
+	{
+		dprintf(CRITICAL, "[fgauge_read_current] current(charging) = %d mA\r\n", dvalue);
+	}
+	else
+	{
+		dprintf(CRITICAL, "[fgauge_read_current] current(discharging) = %d mA\r\n", dvalue);
+	}
 
-// K current 
-    if(R_FG_BOARD_SLOPE != R_FG_BOARD_BASE)
-    {
-        dvalue = ( (dvalue*R_FG_BOARD_BASE) + (R_FG_BOARD_SLOPE/2) ) / R_FG_BOARD_SLOPE;
-    }
+	// Auto adjust value
+	if(R_FG_VALUE != 20)
+	{
+		dprintf(CRITICAL, "[fgauge_read_current] Auto adjust value due to the Rfg is %d\n Ori current=%d, ", R_FG_VALUE, dvalue);
 
-// current compensate
-    if(g_fg_is_charging == KAL_TRUE)
-    {
-        dvalue = dvalue + Current_Compensate_Value;
-    }
-    else
-    {
-        dvalue = dvalue - Current_Compensate_Value;
-    }
+		dvalue = (dvalue*20)/R_FG_VALUE;
 
-    dprintf(CRITICAL, "[fgauge_read_current] ori current=%d\n", dvalue);
-    
-    dvalue = ((dvalue*CAR_TUNE_VALUE)/100);
+		dprintf(CRITICAL, "[fgauge_read_current] new current=%d\n", dvalue);
+	}
 
-    dvalue = use_chip_trim_value(dvalue);
-    
-    dprintf(CRITICAL, "[fgauge_read_current] final current=%d (ratio=%d)\n", dvalue, CAR_TUNE_VALUE);
+	// K current 
+	if(R_FG_BOARD_SLOPE != R_FG_BOARD_BASE)
+	{
+		dvalue = ( (dvalue*R_FG_BOARD_BASE) + (R_FG_BOARD_SLOPE/2) ) / R_FG_BOARD_SLOPE;
+	}
 
-    *(kal_int32*)(data) = dvalue;
+	// current compensate
+	if(g_fg_is_charging == KAL_TRUE)
+	{
+		dvalue = dvalue + Current_Compensate_Value;
+	}
+	else
+	{
+		dvalue = dvalue - Current_Compensate_Value;
+	}
 
-    
-    return;
+	dprintf(CRITICAL, "[fgauge_read_current] ori current=%d\n", dvalue);
+
+	dvalue = ((dvalue*CAR_TUNE_VALUE)/100);
+
+	dvalue = use_chip_trim_value(dvalue);
+
+	dprintf(CRITICAL, "[fgauge_read_current] final current=%d (ratio=%d)\n", dvalue, CAR_TUNE_VALUE);
+
+	*(kal_int32*)(data) = dvalue;
+
+
+	return;
 }
 
 void fgauge_read_IM_current(void *data)
 { 
-    kal_uint16 uvalue16 = 0;
-    kal_int32 dvalue = 0; 
-    int m = 0;
-    uint64_t Temp_Value = 0;
-    kal_int32 Current_Compensate_Value=0;
-    kal_uint32 ret = 0;
+	kal_uint16 uvalue16 = 0;
+	kal_int32 dvalue = 0; 
+	int m = 0;
+	uint64_t Temp_Value = 0;
+	kal_int32 Current_Compensate_Value=0;
+	kal_uint32 ret = 0;
 
 
 
-    uvalue16 = pmic_get_register_value(PMIC_FG_R_CURR);
-    dprintf(CRITICAL, "[fgauge_read_IM_current] : FG_CURRENT = %x\r\n", uvalue16);
+	uvalue16 = pmic_get_register_value(PMIC_FG_R_CURR);
+	dprintf(CRITICAL, "[fgauge_read_IM_current] : FG_CURRENT = %x\r\n", uvalue16);
 
-//calculate the real world data    
-    dvalue = (kal_uint32) uvalue16;
-    if( dvalue == 0 )
-    {
-        Temp_Value = (uint64_t) dvalue;
-        g_fg_is_charging = KAL_FALSE;
-    }
-    else if( dvalue > 32767 ) // > 0x8000
-    {
-        Temp_Value = (uint64_t)(dvalue - 65535);
-        Temp_Value = Temp_Value - (Temp_Value*2);
-        g_fg_is_charging = KAL_FALSE;
-    }
-    else
-    {
-        Temp_Value = (uint64_t) dvalue;
-        g_fg_is_charging = KAL_TRUE;
-    }    
-    
-    Temp_Value = Temp_Value * UNIT_FGCURRENT;    
-    //do_div(Temp_Value, 100000);
-    Temp_Value=Temp_Value/100000;
-    dvalue = (kal_uint32)Temp_Value;
-    
-    if( g_fg_is_charging == KAL_TRUE )
-    {
-        dprintf(CRITICAL, "[fgauge_read_IM_current] current(charging) = %d mA\r\n", dvalue);
-    }
-    else
-    {
-        dprintf(CRITICAL, "[fgauge_read_IM_current] current(discharging) = %d mA\r\n", dvalue);
-    }
+	//calculate the real world data    
+	dvalue = (kal_uint32) uvalue16;
+	if( dvalue == 0 )
+	{
+		Temp_Value = (uint64_t) dvalue;
+		g_fg_is_charging = KAL_FALSE;
+	}
+	else if( dvalue > 32767 ) // > 0x8000
+	{
+		Temp_Value = (uint64_t)(dvalue - 65535);
+		Temp_Value = Temp_Value - (Temp_Value*2);
+		g_fg_is_charging = KAL_FALSE;
+	}
+	else
+	{
+		Temp_Value = (uint64_t) dvalue;
+		g_fg_is_charging = KAL_TRUE;
+	}    
 
-// Auto adjust value
-    if(R_FG_VALUE != 20)
-    {
-        dprintf(CRITICAL, "[fgauge_read_IM_current] Auto adjust value due to the Rfg is %d\n Ori current=%d, ", R_FG_VALUE, dvalue);
+	Temp_Value = Temp_Value * UNIT_FGCURRENT;    
+	//do_div(Temp_Value, 100000);
+	Temp_Value=Temp_Value/100000;
+	dvalue = (kal_uint32)Temp_Value;
 
-        dvalue = (dvalue*20)/R_FG_VALUE;
-     
-        dprintf(CRITICAL, "[fgauge_read_IM_current] new current=%d\n", dvalue);
-    }
+	if( g_fg_is_charging == KAL_TRUE )
+	{
+		dprintf(CRITICAL, "[fgauge_read_IM_current] current(charging) = %d mA\r\n", dvalue);
+	}
+	else
+	{
+		dprintf(CRITICAL, "[fgauge_read_IM_current] current(discharging) = %d mA\r\n", dvalue);
+	}
 
-// K current 
-    if(R_FG_BOARD_SLOPE != R_FG_BOARD_BASE)
-    {
-        dvalue = ( (dvalue*R_FG_BOARD_BASE) + (R_FG_BOARD_SLOPE/2) ) / R_FG_BOARD_SLOPE;
-    }
+	// Auto adjust value
+	if(R_FG_VALUE != 20)
+	{
+		dprintf(CRITICAL, "[fgauge_read_IM_current] Auto adjust value due to the Rfg is %d\n Ori current=%d, ", R_FG_VALUE, dvalue);
 
-// current compensate
-    if(g_fg_is_charging == KAL_TRUE)
-    {
-        dvalue = dvalue + Current_Compensate_Value;
-    }
-    else
-    {
-        dvalue = dvalue - Current_Compensate_Value;
-    }
+		dvalue = (dvalue*20)/R_FG_VALUE;
 
-    dprintf(CRITICAL, "[fgauge_read_IM_current] ori current=%d\n", dvalue);
-    
-    dvalue = ((dvalue*CAR_TUNE_VALUE)/100);
+		dprintf(CRITICAL, "[fgauge_read_IM_current] new current=%d\n", dvalue);
+	}
 
-    dvalue = use_chip_trim_value(dvalue);
-    
-    dprintf(CRITICAL,"[fgauge_read_IM_current] final current=%d (ratio=%d)\n", dvalue, CAR_TUNE_VALUE);
+	// K current 
+	if(R_FG_BOARD_SLOPE != R_FG_BOARD_BASE)
+	{
+		dvalue = ( (dvalue*R_FG_BOARD_BASE) + (R_FG_BOARD_SLOPE/2) ) / R_FG_BOARD_SLOPE;
+	}
 
-    *(kal_int32*)(data) = dvalue;
+	// current compensate
+	if(g_fg_is_charging == KAL_TRUE)
+	{
+		dvalue = dvalue + Current_Compensate_Value;
+	}
+	else
+	{
+		dvalue = dvalue - Current_Compensate_Value;
+	}
 
-    
-    return;
+	dprintf(CRITICAL, "[fgauge_read_IM_current] ori current=%d\n", dvalue);
+
+	dvalue = ((dvalue*CAR_TUNE_VALUE)/100);
+
+	dvalue = use_chip_trim_value(dvalue);
+
+	dprintf(CRITICAL,"[fgauge_read_IM_current] final current=%d (ratio=%d)\n", dvalue, CAR_TUNE_VALUE);
+
+	*(kal_int32*)(data) = dvalue;
+
+
+	return;
 }
 
 
@@ -672,51 +673,51 @@ void fgauge_read_IM_current(void *data)
 void fgauge_initialization(void *data)
 {
 
-    kal_uint32 ret=0;
-    kal_int32 current_temp = 0;
-    int m = 0;
+	kal_uint32 ret=0;
+	kal_int32 current_temp = 0;
+	int m = 0;
 
-    get_hw_chip_diff_trim_value();
+	get_hw_chip_diff_trim_value();
 
-// 1. HW initialization
-    //FGADC clock is 32768Hz from RTC
-    //Enable FGADC in current mode at 32768Hz with auto-calibration
-    
-    //(1)    Enable VA2
-    //(2)    Enable FGADC clock for digital
-    pmic_set_register_value(PMIC_RG_FGADC_ANA_CK_PDN,0);//    mt6325_upmu_set_rg_fgadc_ana_ck_pdn(0);
-    pmic_set_register_value(PMIC_RG_FGADC_DIG_CK_PDN,0);//    mt6325_upmu_set_rg_fgadc_dig_ck_pdn(0);
+	// 1. HW initialization
+	//FGADC clock is 32768Hz from RTC
+	//Enable FGADC in current mode at 32768Hz with auto-calibration
 
-    //(3)    Set current mode, auto-calibration mode and 32KHz clock source
-    ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0028, 0x00FF, 0x0);
-    //(4)    Enable FGADC
-    ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0029, 0x00FF, 0x0);
+	//(1)    Enable VA2
+	//(2)    Enable FGADC clock for digital
+	pmic_set_register_value(PMIC_RG_FGADC_ANA_CK_PDN,0);//    mt6325_upmu_set_rg_fgadc_ana_ck_pdn(0);
+	pmic_set_register_value(PMIC_RG_FGADC_DIG_CK_PDN,0);//    mt6325_upmu_set_rg_fgadc_dig_ck_pdn(0);
 
-    //reset HW FG
-    ret=pmic_config_interface(MT6328_FGADC_CON0, 0x7100, 0xFF00, 0x0);
-    dprintf(CRITICAL,"******** [fgauge_initialization] reset HW FG!\n" );
-    
-    //set FG_OSR
-    ret=pmic_config_interface(MT6328_FGADC_CON11, 0x8, 0xF, 0x0);
-    dprintf(CRITICAL, "[fgauge_initialization] Reg[0x%x]=0x%x\n",MT6328_FGADC_CON11, upmu_get_reg_value(MT6328_FGADC_CON11));
-    
-    //make sure init finish
-    m = 0;
-    while (current_temp == 0)
-    {
-        fgauge_read_current(&current_temp);
-        m++;
-        if (m>1000)
-        {            
-            dprintf(CRITICAL, "[fgauge_initialization] timeout!\r\n");
-            break;
-        }    
-    }
-    
-    dprintf(CRITICAL, "******** [fgauge_initialization] Done!\n" );
-   
+	//(3)    Set current mode, auto-calibration mode and 32KHz clock source
+	ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0028, 0x00FF, 0x0);
+	//(4)    Enable FGADC
+	ret=pmic_config_interface(MT6328_FGADC_CON0, 0x0029, 0x00FF, 0x0);
 
-    return ;
+	//reset HW FG
+	ret=pmic_config_interface(MT6328_FGADC_CON0, 0x7100, 0xFF00, 0x0);
+	dprintf(CRITICAL,"******** [fgauge_initialization] reset HW FG!\n" );
+
+	//set FG_OSR
+	ret=pmic_config_interface(MT6328_FGADC_CON11, 0x8, 0xF, 0x0);
+	dprintf(CRITICAL, "[fgauge_initialization] Reg[0x%x]=0x%x\n",MT6328_FGADC_CON11, upmu_get_reg_value(MT6328_FGADC_CON11));
+
+	//make sure init finish
+	m = 0;
+	while (current_temp == 0)
+	{
+		fgauge_read_current(&current_temp);
+		m++;
+		if (m>1000)
+		{            
+			dprintf(CRITICAL, "[fgauge_initialization] timeout!\r\n");
+			break;
+		}    
+	}
+
+	dprintf(CRITICAL, "******** [fgauge_initialization] Done!\n" );
+
+
+	return ;
 }
 
 void do_ptim(void)
@@ -740,20 +741,20 @@ void do_ptim(void)
 
 	pmic_set_register_value(PMIC_AUXADC_CLR_IMP_CNT_STOP,1);
 	pmic_set_register_value(PMIC_AUXADC_IMPEDANCE_IRQ_CLR,1);	   
-	
+
 	//restore to initial state
 	pmic_set_register_value(PMIC_AUXADC_CLR_IMP_CNT_STOP,0);
 	pmic_set_register_value(PMIC_AUXADC_IMPEDANCE_IRQ_CLR,0);	   
-	
+
 	//set issue interrupt
 	//pmic_set_register_value(PMIC_RG_INT_EN_AUXADC_IMP,1);
-	
+
 	pmic_set_register_value(PMIC_AUXADC_IMPEDANCE_CHSEL,0);
 	pmic_set_register_value(PMIC_AUXADC_IMP_AUTORPT_EN,1);
 	pmic_set_register_value(PMIC_AUXADC_IMPEDANCE_CNT,3);
 	pmic_set_register_value(PMIC_AUXADC_IMPEDANCE_MODE,1);
 
-//	PMICLOG("[do_ptim] end %d %d \n",pmic_get_register_value(PMIC_RG_AUXADC_SMPS_CK_PDN),pmic_get_register_value(PMIC_RG_AUXADC_SMPS_CK_PDN_HWEN));
+	//	PMICLOG("[do_ptim] end %d %d \n",pmic_get_register_value(PMIC_RG_AUXADC_SMPS_CK_PDN),pmic_get_register_value(PMIC_RG_AUXADC_SMPS_CK_PDN_HWEN));
 
 	while(pmic_get_register_value(PMIC_AUXADC_IMPEDANCE_IRQ_STATUS)==0)
 	{
@@ -774,11 +775,11 @@ void do_ptim(void)
 
 	//PMICLOG("[do_ptim2] 0xee8=0x%x  0x2c6=0x%x\n", upmu_get_reg_value(0xee8),upmu_get_reg_value(0x2c6));
 
-	
+
 	//pmic_set_register_value(PMIC_RG_INT_STATUS_AUXADC_IMP,1);//write 1 to clear !
 	//pmic_set_register_value(PMIC_RG_INT_EN_AUXADC_IMP,0);
-	
-	
+
+
 	vbat_reg=pmic_get_register_value(PMIC_AUXADC_ADC_OUT_IMP_AVG);
 	ptim_bat_vol=(vbat_reg*3*18000)/32768;
 
@@ -791,9 +792,9 @@ void enable_dummy_load(kal_uint32 en)
 
 	if(en==1)
 	{
-	    //Enable dummy load--------------------------------------------------
-        //mt6325_upmu_set_rg_g_drv_2m_ck_pdn(0);
-        //mt6325_upmu_set_rg_drv_32k_ck_pdn(0);
+		//Enable dummy load--------------------------------------------------
+		//mt6325_upmu_set_rg_g_drv_2m_ck_pdn(0);
+		//mt6325_upmu_set_rg_drv_32k_ck_pdn(0);
 
 		//upmu_set_reg_value(0x23c,0xfeb0);
 		pmic_set_register_value(PMIC_RG_DRV_ISINK2_CK_PDN,0);
@@ -803,18 +804,18 @@ void enable_dummy_load(kal_uint32 en)
 		pmic_set_register_value(PMIC_RG_DRV_ISINK2_CK_CKSEL,0);
 		pmic_set_register_value(PMIC_RG_DRV_ISINK3_CK_CKSEL,0);
 
-			//upmu_set_reg_value(0x82a,0x0c00);
-			//upmu_set_reg_value(0x81c,0x7000);
-			pmic_set_register_value(PMIC_ISINK_CH2_STEP,0xc);
-			
-			//upmu_set_reg_value(0x81e,0x7000);
-			pmic_set_register_value(PMIC_ISINK_CH3_STEP,0xc);
-				
-			//upmu_set_reg_value(0x820,0x0300);
-			pmic_set_register_value(PMIC_RG_ISINK2_DOUBLE_EN,1);
-			pmic_set_register_value(PMIC_RG_ISINK3_DOUBLE_EN,1);
-		
-	
+		//upmu_set_reg_value(0x82a,0x0c00);
+		//upmu_set_reg_value(0x81c,0x7000);
+		pmic_set_register_value(PMIC_ISINK_CH2_STEP,0xc);
+
+		//upmu_set_reg_value(0x81e,0x7000);
+		pmic_set_register_value(PMIC_ISINK_CH3_STEP,0xc);
+
+		//upmu_set_reg_value(0x820,0x0300);
+		pmic_set_register_value(PMIC_RG_ISINK2_DOUBLE_EN,1);
+		pmic_set_register_value(PMIC_RG_ISINK3_DOUBLE_EN,1);
+
+
 		//upmu_set_reg_value(0x828,0x0ccc);
 		pmic_set_register_value(PMIC_ISINK_CH2_EN,1);
 		pmic_set_register_value(PMIC_ISINK_CH3_EN,1);
@@ -834,101 +835,101 @@ void enable_dummy_load(kal_uint32 en)
 		//pmic_set_register_value(PMIC_RG_VIBR_EN,0);
 		//PMICLOG("[disable dummy load]\n");
 	}
-	
+
 }
 
 
 int get_rac_val(void)
 {
 
-    int volt_1=0;
-    int volt_2=0;
-    int curr_1=0;
-    int curr_2=0;
-    int rac_cal=0;
-    int ret=0;
-    kal_bool retry_state = KAL_FALSE;
+	int volt_1=0;
+	int volt_2=0;
+	int curr_1=0;
+	int curr_2=0;
+	int rac_cal=0;
+	int ret=0;
+	kal_bool retry_state = KAL_FALSE;
 	int retry_count=0;
 
-    do
+	do
 	{        
-        //adc and fg--------------------------------------------------------
+		//adc and fg--------------------------------------------------------
 		do_ptim();
 
 		dprintf(CRITICAL, "[1,Trigger ADC PTIM mode] volt1=%d, curr_1=%d\n", ptim_bat_vol, ptim_R_curr);
 		volt_1=ptim_bat_vol;
 		curr_1=ptim_R_curr;
-	
-        dprintf(CRITICAL, "[2,enable dummy load]");
-        enable_dummy_load(1);
-        mdelay(50);
+
+		dprintf(CRITICAL, "[2,enable dummy load]");
+		enable_dummy_load(1);
+		mdelay(50);
 		//Wait --------------------------------------------------------------
 
-        //adc and fg--------------------------------------------------------
+		//adc and fg--------------------------------------------------------
 		do_ptim();
 
 		dprintf(CRITICAL, "[3,Trigger ADC PTIM mode again] volt2=%d, curr_2=%d\n", ptim_bat_vol, ptim_R_curr);
 		volt_2=ptim_bat_vol;
 		curr_2=ptim_R_curr;
 
-        //Disable dummy load-------------------------------------------------
-        enable_dummy_load(0);
-                
-        //Calculate Rac------------------------------------------------------
-        if( (curr_2-curr_1) >= 700 && (curr_2-curr_1) <= 1200 && (volt_1-volt_2)>=80 ) //40.0mA
-        {
-            rac_cal=((volt_1-volt_2)*1000)/(curr_2-curr_1); //m-ohm
+		//Disable dummy load-------------------------------------------------
+		enable_dummy_load(0);
 
-            if(rac_cal<0) 
+		//Calculate Rac------------------------------------------------------
+		if( (curr_2-curr_1) >= 700 && (curr_2-curr_1) <= 1200 && (volt_1-volt_2)>=80 ) //40.0mA
+		{
+			rac_cal=((volt_1-volt_2)*1000)/(curr_2-curr_1); //m-ohm
+
+			if(rac_cal<0) 
 			{	
 				ret = (rac_cal-(rac_cal*2))*1;
-            }
-            else
-            {
+			}
+			else
+			{
 				ret = rac_cal*1;
-            }
-        }
-        else if( (curr_1-curr_2) >= 700 && (curr_2-curr_1) <= 1200 & (volt_2-volt_1)>=80 ) //40.0mA
-        {
-            rac_cal=((volt_2-volt_1)*1000)/(curr_1-curr_2); //m-ohm
+			}
+		}
+		else if( (curr_1-curr_2) >= 700 && (curr_2-curr_1) <= 1200 & (volt_2-volt_1)>=80 ) //40.0mA
+		{
+			rac_cal=((volt_2-volt_1)*1000)/(curr_1-curr_2); //m-ohm
 
-            if(rac_cal<0) 
+			if(rac_cal<0) 
 			{
 				ret = (rac_cal-(rac_cal*2))*1;
-            }
-            else
-            {
+			}
+			else
+			{
 				ret = rac_cal*1;
-            }
-        }
-        else
-        {
-            ret=-1;
-            dprintf(CRITICAL, "[4,Calculate Rac] bypass due to (curr_x-curr_y) < 40mA\n");
-        }  
+			}
+		}
+		else
+		{
+			ret=-1;
+			dprintf(CRITICAL, "[4,Calculate Rac] bypass due to (curr_x-curr_y) < 40mA\n");
+		}  
 
-        dprintf(CRITICAL, "[5,Calculate Rac] volt_1=%d,volt_2=%d,curr_1=%d,curr_2=%d,rac_cal=%d,ret=%d,retry_count=%d\n",
-            volt_1,volt_2,curr_1,curr_2,rac_cal,ret,retry_count);
+		dprintf(CRITICAL, "[5,Calculate Rac] volt_1=%d,volt_2=%d,curr_1=%d,curr_2=%d,rac_cal=%d,ret=%d,retry_count=%d\n",
+				volt_1,volt_2,curr_1,curr_2,rac_cal,ret,retry_count);
 
-        dprintf(CRITICAL, "[6,Calculate Rac] %d,%d,%d,%d,%d,%d,%d\n",
-            volt_1,volt_2,curr_1,curr_2,rac_cal,ret,retry_count);
+		dprintf(CRITICAL, "[6,Calculate Rac] %d,%d,%d,%d,%d,%d,%d\n",
+				volt_1,volt_2,curr_1,curr_2,rac_cal,ret,retry_count);
 
-	
+
 		//------------------------
 		retry_count++;
-        
+
 		if((retry_count < 3) && (ret == -1)) retry_state = KAL_TRUE;
-        else                                 retry_state = KAL_FALSE;
+		else                                 retry_state = KAL_FALSE;
 
 	}while(retry_state == KAL_TRUE);
-      
-    return ret;
+
+	return ret;
 }
 
 
 void get_dlpt_imix_r(void)
 {
-    int rac_val[5],rac_val_avg=0,rac_val_sum=0;
+	int rac_val[5],rac_val_avg=0,rac_val_sum=0;
 	int volt[5],curr[5],volt_avg=0,curr_avg=0;
 	int imix;
 	int i;
@@ -976,9 +977,9 @@ kal_uint8 imix_r=170;
 
 void mt65xx_bat_init(void)
 {
-    dprintf(CRITICAL, "[BATTERY] Skip mt65xx_bat_init !!\n\r");
-    dprintf(CRITICAL, "[BATTERY] If you want to enable power off charging, \n\r");
-    dprintf(CRITICAL, "[BATTERY] Please #define CFG_POWER_CHARGING!!\n\r");
+	dprintf(CRITICAL, "[BATTERY] Skip mt65xx_bat_init !!\n\r");
+	dprintf(CRITICAL, "[BATTERY] If you want to enable power off charging, \n\r");
+	dprintf(CRITICAL, "[BATTERY] Please #define CFG_POWER_CHARGING!!\n\r");
 }
 
 #endif

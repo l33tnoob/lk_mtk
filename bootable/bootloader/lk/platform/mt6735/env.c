@@ -26,6 +26,8 @@ static int read_env_area(char *env_buf);
 void env_init(void)
 {
 	int ret,i;
+
+	dprintf(CRITICAL, "zzytest, env_init begin\n");
 	env_buffer = (char *)malloc(CFG_ENV_SIZE);
 	memset(env_buffer,0x00,CFG_ENV_SIZE);
 	g_env.env_data = env_buffer + CFG_ENV_DATA_OFFSET;
@@ -199,6 +201,8 @@ void print_env()
 {
 	int i,nxt;
 	uchar *env = (uchar *)g_env.env_data;
+
+	dprintf(CRITICAL, "zzytest, print_env begin\n");
 	if(!env_valid){
 		printf("[%s]no valid env\n",MODULE_NAME);
 		return;

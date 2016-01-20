@@ -103,6 +103,7 @@ bool rtc_boot_check(bool can_alarm_boot)
 {
 	U16 irqsta, pdn1, pdn2, spar0, spar1;
 
+	dprintf(CRITICAL, "zzytest, rtc_boot_check begin\n");
 	irqsta = RTC_Read(RTC_IRQ_STA);	/* read clear */
 	pdn1 = RTC_Read(RTC_PDN1);
 	pdn2 = RTC_Read(RTC_PDN2);
